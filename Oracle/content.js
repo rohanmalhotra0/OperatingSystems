@@ -1,6 +1,6 @@
 /* =========================================================
    1Z0-1080-25 — Oracle Planning 2025 Implementation Professional
-   CARDS (30) · ESSAYS (10) · ESSAY_MC (10)
+   CARDS (33) · ESSAYS (10) · ESSAY_MC (10) · EXAM_Q (8)
    Categories:
      "Application Setup"   — Planning overview, dims, metadata/data, security
      "Content & Rules"     — Forms/dashboards/navflows, rules, reports
@@ -232,4 +232,121 @@ const ESSAY_MC = [
     opts:["Dashboard 2.0","Reports bursting with Entity as the bursting dimension","A composite form","Strategic Modeling"],
     correct:1,
     explain:"Reports (Narrative Reporting) bursting iterates the designated dimension and outputs one artifact per member, delivered on schedule." },
+];
+
+/* ---------------------------------------------------------
+   EXAM_Q — real-format exam practice questions from ExamsIndex
+   1Z0-1080-25 demo PDF. Includes single-select AND multi-select
+   (pick 2 / pick 3) questions. `correct` is always an array of
+   zero-based option indices. `pick` is the required selection count.
+   --------------------------------------------------------- */
+const EXAM_Q = [
+  {
+    topic: "IPM — Bring Your Own ML",
+    pick: 1,
+    q: "Which task must be completed before EPM administrators import a Machine Learning model into Planning?",
+    opts: [
+      "Data Scientists build and train the ML model in a data science tool and save it as a PMML file.",
+      "Data Scientists create Groovy rules designed to evaluate historical data and identify patterns.",
+      "EPM Administrators create a data model and push data to it to generate a PMML file.",
+      "EPM Administrators create data maps and Groovy rules to move and process data.",
+    ],
+    correct: [0],
+    explain: "The 'Bring Your Own ML' feature requires data scientists to build and train the ML model in a third-party data science tool (or Oracle Data Science Cloud) and save it as a PMML file. The EPM administrator imports that prebuilt PMML file into Planning; the app then auto-generates the Groovy rules needed to integrate the model.",
+  },
+  {
+    topic: "Operations — Scheduling Jobs",
+    pick: 2,
+    q: "You need to schedule a weekly data import job. Which two statements are true about scheduling jobs?",
+    opts: [
+      "You can check the execution status of a job only if it completed.",
+      "You can set the daily maintenance time when scheduling cloning environment jobs.",
+      "You can set to receive notifications when the job has completed.",
+      "You can schedule an Import Data job to run later at intervals.",
+      "You can delete jobs that are currently processing.",
+    ],
+    correct: [2, 3],
+    explain: "C and D are true. The Jobs console supports email notifications on completion (C) and recurring schedules for Import Data jobs — daily, weekly, or at a custom interval (D). A is false: the Jobs console shows Running status in real time. B is false: daily maintenance time is a system-wide application setting, not a per-job option. E is false: running jobs can't be deleted until they complete or fail.",
+  },
+  {
+    topic: "Navigation Flows — Customization Categories",
+    pick: 3,
+    q: "Which three are Navigation Flow customization categories?",
+    opts: [
+      "Role",
+      "User",
+      "Group",
+      "Artifact",
+      "Global",
+    ],
+    correct: [0, 2, 4],
+    explain: "Navigation flows are customized at three levels: Role (e.g., Planner vs Administrator), Group (teams or departments), and Global (the default applied to all users unless overridden). User-level customization isn't supported — flows target roles/groups. 'Artifact' is a migration concept, not a nav-flow category.",
+  },
+  {
+    topic: "Projects — Revenue & Expense Assumptions",
+    pick: 3,
+    q: "Which three types of revenue and expense assumptions drive data calculations in Projects?",
+    opts: [
+      "Working days and hours",
+      "Plan start year",
+      "Standard rates",
+      "Program mappings",
+      "Project rates",
+      "Discount rates",
+    ],
+    correct: [0, 2, 4],
+    explain: "Working days & hours (resource availability → labor cost and revenue), Standard rates (default hourly/daily rates across projects), and Project rates (project-specific rates that override the standard) all directly drive Projects financials. Plan start year is a timeline parameter, Program mappings integrate data across programs, and Discount rates are for NPV/financial analysis — none are direct revenue/expense drivers.",
+  },
+  {
+    topic: "Module Integration — Workforce → Projects",
+    pick: 1,
+    q: "Which module should you enable first to track the utilization of employees in Projects?",
+    opts: [
+      "Projects module before Financials module",
+      "Financials module before Projects module",
+      "Workforce module before Projects module",
+      "Projects module before Workforce module",
+    ],
+    correct: [2],
+    explain: "Workforce holds employee details (roles, salaries, hours, FTE) that Projects consumes to calculate utilization. Enable Workforce first, then Projects can pull the employee data via integration/data maps and track utilization against project tasks and budgets. Financials handles P&L but doesn't manage employee-level data.",
+  },
+  {
+    topic: "Module Integration — Workforce → Financials",
+    pick: 1,
+    q: "You can override expense lines in Financials with the more detailed values that Workforce stores. What steps would you take to move the detailed values to Financials?",
+    opts: [
+      "In data maps, for Financial Statement Integration, define how the detailed Workforce accounts roll up into the Financials accounts.",
+      "On the Financials Integration Summary form, calculate compensation data to update the underlying details for Workforce data.",
+      "On the Financials Integration Summary form, from the Actions menu, select the Rollup business rule.",
+      "In data maps, for Compensation Data, synchronize and then push the data.",
+    ],
+    correct: [0],
+    explain: "The out-of-the-box 'Financial Statement Integration' data map defines how detailed Workforce accounts (salary, taxes, benefits) roll up into Financials accounts. Once the mapping is set, you synchronize and push the data. The Financials Integration Summary form only views rolled-up data — there's no 'Rollup' rule in its Actions menu, and the Compensation Data map alone is too narrow for this scenario.",
+  },
+  {
+    topic: "Financials — Revenue & Expense Navigation Flow",
+    pick: 1,
+    q: "You want to input data into Financials. For Financials, there is a predefined navigation flow with cards listed for both Revenue and Expenses. What is the sequence of the cards for Revenue and Expenses?",
+    opts: [
+      "Overview, Driver and Trend Based, Rolling Forecast, Direct Entry, Income Statement",
+      "Assumptions, Allocations, Detailed Bottom Up, Strategic Top-Down, Direct Input, Overview",
+      "Assumptions, Direct Input, Driver and/or Trend Based, High Level Overview, Detailed Overview, Summary",
+      "Overview, Assumptions, Allocations, Detailed Bottom-Up, Driver and/or Trend based, Direct Input",
+    ],
+    correct: [0],
+    explain: "The out-of-the-box Financials navigation flow walks users from high-level context into detailed entry and back to reporting: Overview → Driver and Trend Based → Rolling Forecast → Direct Entry → Income Statement. 'Allocations', 'Detailed Bottom-Up', and 'Strategic Top-Down' appear in other flows/modules but are not part of the default Financials Revenue & Expenses sequence.",
+  },
+  {
+    topic: "Operations — Clone Snapshot",
+    pick: 1,
+    q: "What feature can Service Administrators use to automatically complete all the actions required to create an exact copy of the current application in a target environment — including the removal of the current application and data, if any, from the target environment?",
+    opts: [
+      "Replicate Snapshot",
+      "Migration Export",
+      "Clone Snapshot",
+      "Migration Backup",
+    ],
+    correct: [2],
+    explain: "Clone Snapshot (on the source environment) automates the entire end-to-end clone: export a snapshot, delete the target's existing application and data, then import and apply the snapshot so the target is an exact copy of the source. Migration Export only exports artifacts, Migration Backup just creates a recovery file, and 'Replicate Snapshot' isn't a real feature name.",
+  },
 ];

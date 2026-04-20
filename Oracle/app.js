@@ -804,3 +804,218 @@ function renderEssays(){
   });
 }
 renderEssays();
+
+/* =========================================================
+   EXAM PRACTICE — real 1Z0-1080-25 format questions
+   supports single-select AND multi-select (pick 2 / pick 3)
+   ========================================================= */
+let exQueue = [];
+let exIdx = 0;
+let exRight = 0;
+let exMissed = [];
+let exCurrent = null;
+let exSelected = new Set();
+let exAnswered = false;
+
+function startExam(){
+  exQueue = shuffledCopy(EXAM_Q);
+  exIdx = 0;
+  exRight = 0;
+  exMissed = [];
+
+  document.getElementById("exam-start").style.display   = "none";
+  document.getElementById("exam-done").style.display    = "none";
+  document.getElementById("exam-session").style.display = "block";
+
+  updateExamProgress();
+  serveExam();
+}
+
+function updateExamProgress(){
+  const total = exQueue.length;
+  const pct = total ? Math.round(100 * exIdx / total) : 0;
+  document.getElementById("exam-prog-fill").style.width = pct + "%";
+  document.getElementById("exam-prog-txt").textContent = `${exIdx} / ${total}`;
+  document.getElementById("exam-score").textContent    = `${exRight} correct`;
+}
+
+function serveExam(){
+  const total = exQueue.length;
+  if (exIdx >= total){ endExam(); return; }
+  exCurrent = exQueue[exIdx];
+  exSelected = new Set();
+  exAnswered = false;
+
+  const badge = document.getElementById("exam-type-badge");
+  if (exCurrent.pick === 1){
+    badge.textContent = "single select";
+  } else {
+    badge.textContent = `multi select · pick ${exCurrent.pick}`;
+  }
+
+  document.getElementById("exam-pick-label").textContent = exCurrent.pick === 1
+    ? "pick one" : `pick ${exCurrent.pick}`;
+  document.getElementById("exam-topic").textContent = exCurrent.topic;
+  document.getElementById("exam-q").textContent     = exCurrent.q;
+
+  const wrap = document.getElementById("exam-opts");
+  wrap.innerHTML = "";
+  const modeClass = exCurrent.pick === 1 ? "single" : "multi";
+  exCurrent.opts.forEach((text, i) => {
+    const b = document.createElement("button");
+    b.className = `exam-opt ${modeClass}`;
+    b.dataset.idx = String(i);
+    const mark = document.createElement("span"); mark.className = "exam-mark";
+    const letter = document.createElement("span"); letter.className = "exam-letter";
+    letter.textContent = String.fromCharCode(65 + i) + ".";
+    const body = document.createElement("span"); body.textContent = text;
+    b.appendChild(mark); b.appendChild(letter); b.appendChild(body);
+    b.addEventListener("click", () => toggleExamOption(i, b));
+    wrap.appendChild(b);
+  });
+
+  const fb = document.getElementById("exam-fb");
+  fb.textContent = ""; fb.className = "check-feedback";
+  const explain = document.getElementById("exam-explain");
+  explain.style.display = "none";
+  explain.textContent = "";
+  document.getElementById("exam-submit").style.display = "inline-block";
+  document.getElementById("exam-next").style.display   = "none";
+}
+
+function toggleExamOption(idx, btn){
+  if (exAnswered) return;
+  if (exCurrent.pick === 1){
+    exSelected = new Set([idx]);
+    document.querySelectorAll("#exam-opts .exam-opt").forEach(el => el.classList.remove("selected"));
+    btn.classList.add("selected");
+  } else {
+    if (exSelected.has(idx)){
+      exSelected.delete(idx);
+      btn.classList.remove("selected");
+    } else {
+      if (exSelected.size >= exCurrent.pick){
+        const fb = document.getElementById("exam-fb");
+        fb.textContent = `already picked ${exCurrent.pick}. unselect one first.`;
+        fb.className = "check-feedback bad";
+        setTimeout(() => { if (!exAnswered){ fb.textContent = ""; fb.className = "check-feedback"; } }, 1500);
+        return;
+      }
+      exSelected.add(idx);
+      btn.classList.add("selected");
+    }
+  }
+}
+
+function submitExam(){
+  if (exAnswered) return;
+  if (exSelected.size !== exCurrent.pick){
+    const fb = document.getElementById("exam-fb");
+    fb.textContent = `pick ${exCurrent.pick} option${exCurrent.pick === 1 ? "" : "s"} before submitting.`;
+    fb.className = "check-feedback bad";
+    return;
+  }
+  exAnswered = true;
+  const correctSet = new Set(exCurrent.correct);
+  const chosen = [...exSelected].sort((a, b) => a - b);
+  const correctArr = [...correctSet].sort((a, b) => a - b);
+  const isRight = chosen.length === correctArr.length
+    && chosen.every((v, i) => v === correctArr[i]);
+
+  // paint
+  document.querySelectorAll("#exam-opts .exam-opt").forEach(el => {
+    const i = +el.dataset.idx;
+    el.style.pointerEvents = "none";
+    if (correctSet.has(i) && exSelected.has(i)) el.classList.add("correct");
+    else if (correctSet.has(i)) el.classList.add("reveal");
+    else if (exSelected.has(i)) el.classList.add("wrong");
+  });
+
+  const fb = document.getElementById("exam-fb");
+  if (isRight){
+    fb.textContent = "✓ Correct.";
+    fb.className = "check-feedback ok";
+    exRight += 1;
+  } else {
+    const letters = correctArr.map(i => String.fromCharCode(65 + i)).join(", ");
+    fb.textContent = `✗ Correct answer: ${letters}.`;
+    fb.className = "check-feedback bad";
+    exMissed.push({
+      q: exCurrent.q,
+      topic: exCurrent.topic,
+      chosen: chosen.map(i => String.fromCharCode(65 + i)).join(", "),
+      correct: letters,
+      explain: exCurrent.explain,
+    });
+  }
+
+  const explain = document.getElementById("exam-explain");
+  if (exCurrent.explain){
+    explain.textContent = exCurrent.explain;
+    explain.style.display = "block";
+  }
+
+  exIdx += 1;
+  updateExamProgress();
+  document.getElementById("exam-submit").style.display = "none";
+  const nextBtn = document.getElementById("exam-next");
+  nextBtn.textContent = exIdx >= exQueue.length ? "see results →" : "next →";
+  nextBtn.style.display = "inline-block";
+}
+
+function endExam(){
+  document.getElementById("exam-session").style.display = "none";
+  document.getElementById("exam-done").style.display    = "block";
+
+  const total = exQueue.length;
+  const pct = total ? Math.round(100 * exRight / total) : 0;
+  const icon = document.getElementById("exam-done-icon");
+  icon.textContent = pct >= 80 ? "A" : pct >= 68 ? "B" : pct >= 50 ? "C" : "?";
+
+  const title = document.getElementById("exam-done-title");
+  title.textContent = pct >= 68 ? "Pass — keep drilling." : "Below pass — review misses.";
+  document.getElementById("exam-done-txt").textContent = `${exRight} / ${total} correct`;
+
+  const slip = document.getElementById("exam-score-slip");
+  slip.textContent = `score: ${exRight} / ${total} (${pct}%) · pass ≥ 68%`;
+
+  const missedWrap = document.getElementById("exam-missed-wrap");
+  const missedList = document.getElementById("exam-missed-list");
+  missedList.innerHTML = "";
+  if (exMissed.length){
+    exMissed.forEach(m => {
+      const li = document.createElement("li");
+      const q  = document.createElement("div"); q.className = "qm-q"; q.textContent = m.topic + " — " + m.q;
+      const a  = document.createElement("div"); a.className = "qm-a";
+      a.innerHTML = `you picked: "${m.chosen}" · correct: <strong>${m.correct}</strong>`;
+      li.appendChild(q); li.appendChild(a);
+      if (m.explain){
+        const ex = document.createElement("div");
+        ex.style.fontFamily = "'IBM Plex Mono',monospace";
+        ex.style.fontSize = "12px";
+        ex.style.color = "var(--pencil)";
+        ex.style.marginTop = "4px";
+        ex.textContent = m.explain;
+        li.appendChild(ex);
+      }
+      missedList.appendChild(li);
+    });
+    missedWrap.style.display = "block";
+  } else {
+    missedWrap.style.display = "none";
+  }
+}
+
+document.getElementById("exam-bank-count").textContent = `bank: ${EXAM_Q.length} question${EXAM_Q.length === 1 ? "" : "s"}`;
+document.getElementById("exam-start-btn").addEventListener("click", startExam);
+document.getElementById("exam-submit").addEventListener("click", submitExam);
+document.getElementById("exam-next").addEventListener("click", serveExam);
+document.getElementById("exam-restart").addEventListener("click", () => {
+  document.getElementById("exam-done").style.display  = "none";
+  document.getElementById("exam-start").style.display = "block";
+});
+document.getElementById("exam-quit").addEventListener("click", () => {
+  if (!confirm("Quit this practice? Progress will be lost.")) return;
+  document.getElementById("exam-session").style.display = "none";
+  document.getElementById("exam-start").style.display   = "block";
+});

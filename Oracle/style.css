@@ -1151,6 +1151,50 @@ h2.pencil::after{
   border-left: 3px solid var(--red);
 }
 
+/* exam-practice option list (supports single + multi-select) */
+.exam-opts{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.exam-opt{
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 2px 2px 0 var(--ink);
+  overflow-wrap: anywhere;
+}
+.exam-opt:hover{ transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.exam-opt .exam-mark{
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--ink);
+  display: inline-block;
+  margin-top: 2px;
+  background: var(--paper);
+}
+.exam-opt.multi .exam-mark{ border-radius: 0; }
+.exam-opt.single .exam-mark{ border-radius: 50%; }
+.exam-opt.selected .exam-mark{ background: var(--red); box-shadow: inset 0 0 0 2px var(--paper); }
+.exam-opt.selected{ background: var(--tab-3); }
+.exam-opt.correct{ background: var(--tab-2); color: var(--olive); border-color: var(--olive); }
+.exam-opt.wrong{ background: var(--tab-5); color: var(--red); border-color: var(--red); }
+.exam-opt.reveal{ background: var(--tab-2); opacity: 0.6; }
+.exam-opt .exam-letter{
+  flex-shrink: 0;
+  font-weight: 600;
+  color: var(--red);
+  min-width: 16px;
+}
+
 /* multi-select helpers */
 .deck-label{
   font-family:'IBM Plex Mono', monospace;
