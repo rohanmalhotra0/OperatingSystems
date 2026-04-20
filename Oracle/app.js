@@ -692,7 +692,7 @@ startMatch();
 /* =========================================================
    DEFINITIONS — glossary with filter + search
    ========================================================= */
-const CAT_ORDER = ["Voting & Participation", "Ethnicity & Identity", "Parties & Systems"];
+const CAT_ORDER = ["Application Setup", "Content & Rules", "Modules", "Operations"];
 let defFilter = "all";
 let defQuery  = "";
 
