@@ -6,6 +6,7 @@
 const tabs = document.querySelectorAll('.file-tabs .tab');
 const sheets = document.querySelectorAll('.sheet');
 tabs.forEach(t => {
+  if (t.dataset.target === 'home') return;
   t.addEventListener('click', () => {
     tabs.forEach(x => x.classList.remove('tab--active'));
     sheets.forEach(s => s.classList.remove('sheet--active'));
@@ -26,10 +27,11 @@ document.addEventListener('keydown', e => {
   }
 });
 function cycleTab(dir){
+  const navTabs = [...tabs].filter(t => t.dataset.target !== 'home');
   const active = document.querySelector('.tab--active');
-  const i = [...tabs].indexOf(active);
-  const next = (i + dir + tabs.length) % tabs.length;
-  tabs[next].click();
+  const i = navTabs.indexOf(active);
+  const next = (i + dir + navTabs.length) % navTabs.length;
+  navTabs[next].click();
 }
 function isFlashActive(){
   return document.getElementById('cards').classList.contains('sheet--active');
