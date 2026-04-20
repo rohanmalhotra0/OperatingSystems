@@ -146,32 +146,97 @@ document.addEventListener("keydown", e => {
 buildDeck();
 
 /* =========================================================
-   LEARN (4-option MC, requeue misses)
+   Shared helpers — unified MC question builder used by
+   Learn (essay mode + terms) AND Quiz (easy/medium/hard).
+   A normalized question is:
+     { prompt, optionsText[], correctText, tag, explain, key }
+   ========================================================= */
+function shuffleInPlace(a){
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function shuffledCopy(a){ return shuffleInPlace(a.slice()); }
+
+function pickDistractors(correctTerm, pool, n){
+  const others = pool.filter(c => c.term !== correctTerm);
+  shuffleInPlace(others);
+  return others.slice(0, n);
+}
+
+// direction: 'def-to-term' | 'term-to-def' | 'hint-to-term'
+function makeTermQuestion(card, direction){
+  const distract = pickDistractors(card.term, CARDS, 3);
+  if (direction === "term-to-def"){
+    const opts = shuffledCopy([card.def, ...distract.map(c => c.def)]);
+    return {
+      prompt: card.term,
+      promptLabel: "term → pick the definition",
+      optionsText: opts,
+      correctText: card.def,
+      tag: card.cat,
+      tagClass: catClass(card.cat),
+      explain: card.hint || "",
+      key: card.term,
+    };
+  }
+  if (direction === "hint-to-term"){
+    return {
+      prompt: card.hint || card.def,
+      promptLabel: "clue → pick the term",
+      optionsText: shuffledCopy([card.term, ...distract.map(c => c.term)]),
+      correctText: card.term,
+      tag: card.cat,
+      tagClass: catClass(card.cat),
+      explain: card.def,
+      key: card.term,
+    };
+  }
+  // default: def-to-term
+  return {
+    prompt: card.def,
+    promptLabel: "definition → pick the term",
+    optionsText: shuffledCopy([card.term, ...distract.map(c => c.term)]),
+    correctText: card.term,
+    tag: card.cat,
+    tagClass: catClass(card.cat),
+    explain: card.hint || "",
+    key: card.term,
+  };
+}
+
+function makeEssayQuestion(mc){
+  return {
+    prompt: mc.q,
+    promptLabel: "essay concept",
+    optionsText: shuffledCopy(mc.opts.slice()),
+    correctText: mc.opts[mc.correct],
+    tag: "essay · " + mc.topic,
+    tagClass: "cat--essay",
+    explain: mc.explain,
+    key: "essay:" + mc.topic,
+  };
+}
+
+/* =========================================================
+   LEARN (4-option MC, requeue misses) — supports essay mode
    ========================================================= */
 let lnQueue = [];
 let lnMastered = new Set();
 let lnTotal = 0;
 let lnCurrent = null;
 
-function pickDistractors(correct, pool, n){
-  const others = pool.filter(c => c.term !== correct.term);
-  // shuffle
-  for (let i = others.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [others[i], others[j]] = [others[j], others[i]];
-  }
-  return others.slice(0, n);
-}
-
 function startLearn(){
   const filter = document.querySelector('input[name="lfilter"]:checked').value;
-  const pool = filterCards(filter);
-  lnQueue = pool.slice();
-  // shuffle queue
-  for (let i = lnQueue.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [lnQueue[i], lnQueue[j]] = [lnQueue[j], lnQueue[i]];
+  let pool;
+  if (filter === "essays"){
+    pool = ESSAY_MC.map(makeEssayQuestion);
+  } else {
+    pool = filterCards(filter).map(c => makeTermQuestion(c, "def-to-term"));
   }
+  lnQueue = shuffledCopy(pool);
   lnMastered = new Set();
   lnTotal = pool.length;
   document.getElementById("learn-start").style.display = "none";
@@ -189,22 +254,19 @@ function updateLearnProgress(){
 
 function serveLearn(){
   if (!lnQueue.length){ endLearn(); return; }
+  // re-roll options each time so repeat-visits don't memorize positions
   lnCurrent = lnQueue.shift();
-  document.getElementById("learn-mc-cat").textContent = lnCurrent.cat;
-  document.getElementById("learn-mc-q").textContent   = lnCurrent.def;
-  const distract = pickDistractors(lnCurrent, CARDS, 3);
-  const opts = [...distract, lnCurrent];
-  for (let i = opts.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [opts[i], opts[j]] = [opts[j], opts[i]];
-  }
+  lnCurrent.optionsText = shuffledCopy(lnCurrent.optionsText);
+
+  document.getElementById("learn-mc-cat").textContent = lnCurrent.tag;
+  document.getElementById("learn-mc-q").textContent   = lnCurrent.prompt;
   const wrap = document.getElementById("learn-mc-opts");
   wrap.innerHTML = "";
-  opts.forEach(o => {
+  lnCurrent.optionsText.forEach(txt => {
     const b = document.createElement("button");
     b.className = "learn-opt";
-    b.textContent = o.term;
-    b.addEventListener("click", () => checkMC(b, o));
+    b.textContent = txt;
+    b.addEventListener("click", () => checkLearnMC(b, txt));
     wrap.appendChild(b);
   });
   const fb = document.getElementById("learn-mc-fb");
@@ -212,21 +274,20 @@ function serveLearn(){
   document.getElementById("learn-mc-next").style.display = "none";
 }
 
-function checkMC(btn, chosen){
+function checkLearnMC(btn, chosenText){
   const all = document.querySelectorAll("#learn-mc-opts .learn-opt");
   all.forEach(b => b.style.pointerEvents = "none");
   const fb = document.getElementById("learn-mc-fb");
-  if (chosen.term === lnCurrent.term){
+  if (chosenText === lnCurrent.correctText){
     btn.classList.add("correct");
     fb.textContent = "✓ Right.";
     fb.className = "check-feedback ok";
-    lnMastered.add(lnCurrent.term);
+    lnMastered.add(lnCurrent.key);
   } else {
     btn.classList.add("wrong");
-    all.forEach(b => { if (b.textContent === lnCurrent.term) b.classList.add("correct"); });
-    fb.textContent = `✗ It's "${lnCurrent.term}".`;
+    all.forEach(b => { if (b.textContent === lnCurrent.correctText) b.classList.add("correct"); });
+    fb.textContent = `✗ Answer: "${lnCurrent.correctText}".`;
     fb.className = "check-feedback bad";
-    // requeue: insert 2-3 slots ahead
     const ins = Math.min(lnQueue.length, 3);
     lnQueue.splice(ins, 0, lnCurrent);
   }
@@ -237,7 +298,7 @@ function checkMC(btn, chosen){
 function endLearn(){
   document.getElementById("learn-session").style.display = "none";
   document.getElementById("learn-done").style.display    = "block";
-  document.getElementById("learn-done-txt").textContent  = `${lnMastered.size} / ${lnTotal} terms.`;
+  document.getElementById("learn-done-txt").textContent  = `${lnMastered.size} / ${lnTotal} items.`;
 }
 
 document.getElementById("learn-start-btn").addEventListener("click", startLearn);
@@ -245,6 +306,181 @@ document.getElementById("learn-mc-next").addEventListener("click", serveLearn);
 document.getElementById("learn-restart").addEventListener("click", () => {
   document.getElementById("learn-done").style.display  = "none";
   document.getElementById("learn-start").style.display = "block";
+});
+
+/* =========================================================
+   QUIZ — graded, 3 difficulties, score + review of misses
+   easy   (10): def → term
+   medium (15): mix of def → term AND term → def
+   hard   (20): def→term + term→def + clue→term + essay MC
+   ========================================================= */
+let qzQueue = [];
+let qzTotal = 0;
+let qzIdx = 0;
+let qzRight = 0;
+let qzMissed = [];
+let qzCurrent = null;
+let qzDiff = "easy";
+
+function buildQuizQuestions(diff){
+  const cards = shuffledCopy(CARDS);
+  const q = [];
+  if (diff === "easy"){
+    cards.slice(0, 10).forEach(c => q.push(makeTermQuestion(c, "def-to-term")));
+  } else if (diff === "medium"){
+    cards.slice(0, 8 ).forEach(c => q.push(makeTermQuestion(c, "def-to-term")));
+    cards.slice(8, 15).forEach(c => q.push(makeTermQuestion(c, "term-to-def")));
+  } else { // hard
+    cards.slice(0,  5).forEach(c => q.push(makeTermQuestion(c, "def-to-term")));
+    cards.slice(5, 10).forEach(c => q.push(makeTermQuestion(c, "term-to-def")));
+    cards.slice(10,15).forEach(c => q.push(makeTermQuestion(c, "hint-to-term")));
+    shuffledCopy(ESSAY_MC).slice(0, 5).forEach(e => q.push(makeEssayQuestion(e)));
+  }
+  return shuffledCopy(q);
+}
+
+function startQuiz(diff){
+  qzDiff = diff;
+  qzQueue = buildQuizQuestions(diff);
+  qzTotal = qzQueue.length;
+  qzIdx = 0;
+  qzRight = 0;
+  qzMissed = [];
+
+  document.getElementById("quiz-start").style.display   = "none";
+  document.getElementById("quiz-done").style.display    = "none";
+  document.getElementById("quiz-session").style.display = "block";
+
+  const badge = document.getElementById("quiz-diff-badge");
+  badge.textContent = diff;
+  badge.className = "quiz-diff-badge is-" + diff;
+
+  updateQuizProgress();
+  serveQuiz();
+}
+
+function updateQuizProgress(){
+  const pct = qzTotal ? Math.round(100 * qzIdx / qzTotal) : 0;
+  document.getElementById("quiz-prog-fill").style.width = pct + "%";
+  document.getElementById("quiz-prog-txt").textContent  = `${qzIdx} / ${qzTotal}`;
+  document.getElementById("quiz-score").textContent     = `${qzRight} correct`;
+}
+
+function serveQuiz(){
+  if (qzIdx >= qzTotal){ endQuiz(); return; }
+  qzCurrent = qzQueue[qzIdx];
+  qzCurrent.optionsText = shuffledCopy(qzCurrent.optionsText);
+
+  document.getElementById("quiz-type-label").textContent = qzCurrent.promptLabel;
+  document.getElementById("quiz-mc-cat").textContent     = qzCurrent.tag;
+  document.getElementById("quiz-mc-q").textContent       = qzCurrent.prompt;
+
+  const wrap = document.getElementById("quiz-mc-opts");
+  wrap.innerHTML = "";
+  qzCurrent.optionsText.forEach(txt => {
+    const b = document.createElement("button");
+    b.className = "learn-opt";
+    b.textContent = txt;
+    b.addEventListener("click", () => checkQuizMC(b, txt));
+    wrap.appendChild(b);
+  });
+
+  const fb = document.getElementById("quiz-mc-fb");
+  fb.textContent = ""; fb.className = "check-feedback";
+  const explain = document.getElementById("quiz-mc-explain");
+  explain.style.display = "none";
+  explain.textContent = "";
+  document.getElementById("quiz-mc-next").style.display = "none";
+}
+
+function checkQuizMC(btn, chosenText){
+  const all = document.querySelectorAll("#quiz-mc-opts .learn-opt");
+  all.forEach(b => b.style.pointerEvents = "none");
+  const fb = document.getElementById("quiz-mc-fb");
+  const correct = chosenText === qzCurrent.correctText;
+  if (correct){
+    btn.classList.add("correct");
+    fb.textContent = "✓ Correct.";
+    fb.className = "check-feedback ok";
+    qzRight += 1;
+  } else {
+    btn.classList.add("wrong");
+    all.forEach(b => { if (b.textContent === qzCurrent.correctText) b.classList.add("correct"); });
+    fb.textContent = `✗ Answer: "${qzCurrent.correctText}".`;
+    fb.className = "check-feedback bad";
+    qzMissed.push({
+      prompt: qzCurrent.prompt,
+      correct: qzCurrent.correctText,
+      chosen: chosenText,
+      explain: qzCurrent.explain,
+    });
+  }
+  // always show the explain line so review is productive
+  const explain = document.getElementById("quiz-mc-explain");
+  if (qzCurrent.explain){
+    explain.textContent = qzCurrent.explain;
+    explain.style.display = "block";
+  }
+  qzIdx += 1;
+  updateQuizProgress();
+  const nextBtn = document.getElementById("quiz-mc-next");
+  nextBtn.textContent = (qzIdx >= qzTotal) ? "see results →" : "next →";
+  nextBtn.style.display = "inline-block";
+}
+
+function endQuiz(){
+  document.getElementById("quiz-session").style.display = "none";
+  document.getElementById("quiz-done").style.display    = "block";
+
+  const pct = qzTotal ? Math.round(100 * qzRight / qzTotal) : 0;
+  const icon = document.getElementById("quiz-done-icon");
+  icon.textContent = pct >= 80 ? "A" : pct >= 65 ? "B" : pct >= 50 ? "C" : "?";
+
+  document.getElementById("quiz-done-title").textContent = pct >= 80 ? "Strong pass." : pct >= 50 ? "Not bad — review misses below." : "Keep studying.";
+  document.getElementById("quiz-done-txt").textContent   = `${qzDiff} · ${qzRight} / ${qzTotal} correct`;
+
+  const slip = document.getElementById("quiz-score-slip");
+  slip.textContent = `score: ${qzRight} / ${qzTotal} (${pct}%)`;
+
+  const missedWrap = document.getElementById("quiz-missed-wrap");
+  const missedList = document.getElementById("quiz-missed-list");
+  missedList.innerHTML = "";
+  if (qzMissed.length){
+    qzMissed.forEach(m => {
+      const li = document.createElement("li");
+      const q  = document.createElement("div"); q.className = "qm-q"; q.textContent = m.prompt;
+      const a  = document.createElement("div"); a.className = "qm-a";
+      a.innerHTML = `you said: "${m.chosen}" · correct: <strong>${m.correct}</strong>`;
+      li.appendChild(q); li.appendChild(a);
+      if (m.explain){
+        const ex = document.createElement("div");
+        ex.style.fontFamily = "'IBM Plex Mono',monospace";
+        ex.style.fontSize = "12px";
+        ex.style.color = "var(--pencil)";
+        ex.style.marginTop = "4px";
+        ex.textContent = m.explain;
+        li.appendChild(ex);
+      }
+      missedList.appendChild(li);
+    });
+    missedWrap.style.display = "block";
+  } else {
+    missedWrap.style.display = "none";
+  }
+}
+
+document.querySelectorAll(".diff-btn").forEach(b => {
+  b.addEventListener("click", () => startQuiz(b.dataset.diff));
+});
+document.getElementById("quiz-mc-next").addEventListener("click", serveQuiz);
+document.getElementById("quiz-restart").addEventListener("click", () => {
+  document.getElementById("quiz-done").style.display  = "none";
+  document.getElementById("quiz-start").style.display = "block";
+});
+document.getElementById("quiz-quit").addEventListener("click", () => {
+  if (!confirm("Quit this quiz? Progress will be lost.")) return;
+  document.getElementById("quiz-session").style.display = "none";
+  document.getElementById("quiz-start").style.display   = "block";
 });
 
 /* =========================================================
