@@ -26,9 +26,11 @@
   <button class="tab tab--active" data-target="cards">01 · Flashcards</button>
   <button class="tab" data-target="learn">02 · Learn</button>
   <button class="tab" data-target="quiz">03 · Quiz</button>
-  <button class="tab" data-target="grammar">04 · Grammar</button>
-  <button class="tab" data-target="vocab">05 · Vokabeln</button>
-  <button class="tab" data-target="k8">06 · Kapitel 8</button>
+  <button class="tab" data-target="match">04 · Match</button>
+  <button class="tab" data-target="drills">05 · Drills</button>
+  <button class="tab" data-target="grammar">06 · Grammar</button>
+  <button class="tab" data-target="vocab">07 · Vokabeln</button>
+  <button class="tab" data-target="k8">08 · Kapitel 8</button>
   <button class="tab" data-target="home" onclick="location.href='../index.html';return false">↩ home</button>
 </nav>
 
@@ -154,6 +156,116 @@
     </div>
     <div id="quiz-area"></div>
     <div id="quiz-score" class="score-slip hidden"></div>
+  </div>
+</section>
+
+<!-- ================= MATCH ================= -->
+<section class="sheet" id="match">
+  <div class="sheet-margin">
+    <h2 class="pencil">Match — pair German to English, timed</h2>
+    <p class="kicker">Click a term, then click its translation. Pairs clear when correct. Get all six as fast as you can — your best time per filter is saved.</p>
+
+    <div class="deck-bar">
+      <label class="deck-chip"><input type="radio" name="mfilter" value="all" checked>All</label>
+      <label class="deck-chip"><input type="radio" name="mfilter" value="K5">K5</label>
+      <label class="deck-chip"><input type="radio" name="mfilter" value="K6">K6</label>
+      <label class="deck-chip"><input type="radio" name="mfilter" value="K7">K7</label>
+      <label class="deck-chip"><input type="radio" name="mfilter" value="K8">K8</label>
+      <label class="deck-chip"><input type="radio" name="mfilter" value="VO">vocab only</label>
+    </div>
+
+    <div class="match-bar">
+      <span>time: <strong id="match-time" class="match-timer">0.0s</strong></span>
+      <span>pairs: <strong id="match-pairs">0 / 6</strong></span>
+      <span>best: <strong id="match-best">—</strong></span>
+      <button class="mini-btn" id="match-new">new round</button>
+    </div>
+
+    <div class="match-grid" id="match-grid"></div>
+    <div class="match-win" id="match-win"></div>
+  </div>
+</section>
+
+<!-- ================= DRILLS ================= -->
+<section class="sheet" id="drills">
+  <div class="sheet-margin">
+    <h2 class="pencil">Drills — conjugate verbs · fill in the blank</h2>
+    <p class="kicker">Targeted practice on the forms students miss most. Pick a drill, answer with the keyboard. Feedback in red/green ink.</p>
+
+    <div class="quiz-picker" id="drill-picker">
+      <button class="tabline active" data-drill="conjugate">verb conjugation</button>
+      <button class="tabline" data-drill="lucken">Lücken (fill-in-the-blank)</button>
+    </div>
+
+    <!-- CONJUGATE -->
+    <div id="drill-conjugate" class="drill-panel">
+      <div class="deck-bar">
+        <span class="deck-label">chapter:</span>
+        <label class="deck-chip"><input type="radio" name="cjch" value="all" checked>All</label>
+        <label class="deck-chip"><input type="radio" name="cjch" value="K5">K5</label>
+        <label class="deck-chip"><input type="radio" name="cjch" value="K6">K6</label>
+        <label class="deck-chip"><input type="radio" name="cjch" value="K7">K7</label>
+        <label class="deck-chip"><input type="radio" name="cjch" value="K8">K8</label>
+      </div>
+      <div class="deck-bar">
+        <span class="deck-label">ask for:</span>
+        <label class="deck-chip"><input type="radio" name="cjform" value="pret" checked>Präteritum (3.Sg.)</label>
+        <label class="deck-chip"><input type="radio" name="cjform" value="part">Partizip II</label>
+        <label class="deck-chip"><input type="radio" name="cjform" value="aux">Aux. (haben / sein)</label>
+        <label class="deck-chip"><input type="radio" name="cjform" value="perfekt">Perfekt (aux + Partizip)</label>
+        <label class="deck-chip"><input type="radio" name="cjform" value="mixed">mixed</label>
+      </div>
+
+      <div class="check-box drill-box">
+        <div class="drill-score">
+          <span id="cj-streak">streak: 0</span>
+          <span id="cj-score">score: 0 / 0</span>
+        </div>
+        <p class="drill-task" id="cj-task">—</p>
+        <p class="drill-prompt" id="cj-prompt">—</p>
+        <div class="drill-input-row">
+          <input class="learn-input" id="cj-input" type="text" placeholder="type the answer…" autocomplete="off" spellcheck="false">
+          <button class="mini-btn mini-btn--ok" id="cj-check">check (↵)</button>
+          <button class="mini-btn" id="cj-skip">skip</button>
+        </div>
+        <div class="check-feedback" id="cj-fb"></div>
+        <div class="q-explain" id="cj-explain" style="display:none"></div>
+        <div class="drill-next-row" style="margin-top:10px">
+          <button class="mini-btn" id="cj-next">next verb →</button>
+          <button class="mini-btn" id="cj-hint">reveal answer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LÜCKEN -->
+    <div id="drill-lucken" class="drill-panel" style="display:none">
+      <div class="deck-bar">
+        <span class="deck-label">chapter:</span>
+        <label class="deck-chip"><input type="radio" name="lkch" value="all" checked>All</label>
+        <label class="deck-chip"><input type="radio" name="lkch" value="K5">K5 · prep + case</label>
+        <label class="deck-chip"><input type="radio" name="lkch" value="K6">K6 · Perfekt + conj.</label>
+        <label class="deck-chip"><input type="radio" name="lkch" value="K7">K7 · adj + relpron</label>
+        <label class="deck-chip"><input type="radio" name="lkch" value="K8">K8 · Konj II / Passiv</label>
+      </div>
+
+      <div class="check-box drill-box" style="background:var(--tab-2)">
+        <div class="drill-score">
+          <span id="lk-streak">streak: 0</span>
+          <span id="lk-score">score: 0 / 0</span>
+        </div>
+        <p class="drill-task" id="lk-tag" style="color:var(--teal)">—</p>
+        <p class="drill-prompt" id="lk-sentence">—</p>
+        <div class="drill-input-row">
+          <input class="learn-input" id="lk-input" type="text" placeholder="type the missing word…" autocomplete="off" spellcheck="false">
+          <button class="mini-btn mini-btn--ok" id="lk-check">check (↵)</button>
+          <button class="mini-btn" id="lk-hint-btn">hint</button>
+        </div>
+        <div class="drill-hint" id="lk-hint" style="display:none"></div>
+        <div class="check-feedback" id="lk-fb"></div>
+        <div class="q-explain" id="lk-explain" style="display:none"></div>
+        <button class="mini-btn" id="lk-next" style="margin-top:10px">next sentence →</button>
+      </div>
+    </div>
   </div>
 </section>
 

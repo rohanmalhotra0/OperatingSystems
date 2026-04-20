@@ -655,3 +655,117 @@ const K8_SECTIONS = [
     ]
   },
 ];
+
+/* ===================== VERBS (for Conjugate drill) =====================
+   For each verb: infinitive, English gloss, Präteritum (3rd sg.),
+   Partizip II, auxiliary (haben/sein), chapter tag.
+   ====================================================================== */
+const VERBS = [
+  // core irregulars
+  { inf:'sein',       en:'to be',            pret:'war',        part:'gewesen',     aux:'sein',  ch:'K6' },
+  { inf:'haben',      en:'to have',          pret:'hatte',      part:'gehabt',      aux:'haben', ch:'K6' },
+  { inf:'werden',     en:'to become',        pret:'wurde',      part:'geworden',    aux:'sein',  ch:'K8' },
+  // motion / sein
+  { inf:'gehen',      en:'to go',            pret:'ging',       part:'gegangen',    aux:'sein',  ch:'K6' },
+  { inf:'kommen',     en:'to come',          pret:'kam',        part:'gekommen',    aux:'sein',  ch:'K6' },
+  { inf:'fahren',     en:'to drive/travel',  pret:'fuhr',       part:'gefahren',    aux:'sein',  ch:'K6' },
+  { inf:'fliegen',    en:'to fly',           pret:'flog',       part:'geflogen',    aux:'sein',  ch:'K6' },
+  { inf:'laufen',     en:'to run',           pret:'lief',       part:'gelaufen',    aux:'sein',  ch:'K6' },
+  { inf:'bleiben',    en:'to stay',          pret:'blieb',      part:'geblieben',   aux:'sein',  ch:'K6' },
+  { inf:'passieren',  en:'to happen',        pret:'passierte',  part:'passiert',    aux:'sein',  ch:'K6' },
+  { inf:'aufwachsen', en:'to grow up',       pret:'wuchs auf',  part:'aufgewachsen',aux:'sein',  ch:'K6' },
+  { inf:'umziehen',   en:'to move (house)',  pret:'zog um',     part:'umgezogen',   aux:'sein',  ch:'K8' },
+  // strong, haben
+  { inf:'essen',      en:'to eat',           pret:'aß',         part:'gegessen',    aux:'haben', ch:'K6' },
+  { inf:'trinken',    en:'to drink',         pret:'trank',      part:'getrunken',   aux:'haben', ch:'K6' },
+  { inf:'sehen',      en:'to see',           pret:'sah',        part:'gesehen',     aux:'haben', ch:'K6' },
+  { inf:'sprechen',   en:'to speak',         pret:'sprach',     part:'gesprochen',  aux:'haben', ch:'K6' },
+  { inf:'schreiben',  en:'to write',         pret:'schrieb',    part:'geschrieben', aux:'haben', ch:'K6' },
+  { inf:'lesen',      en:'to read',          pret:'las',        part:'gelesen',     aux:'haben', ch:'K6' },
+  { inf:'nehmen',     en:'to take',          pret:'nahm',       part:'genommen',    aux:'haben', ch:'K6' },
+  { inf:'geben',      en:'to give',          pret:'gab',        part:'gegeben',     aux:'haben', ch:'K6' },
+  { inf:'finden',     en:'to find',          pret:'fand',       part:'gefunden',    aux:'haben', ch:'K6' },
+  { inf:'schlafen',   en:'to sleep',         pret:'schlief',    part:'geschlafen',  aux:'haben', ch:'K6' },
+  { inf:'treffen',    en:'to meet',          pret:'traf',       part:'getroffen',   aux:'haben', ch:'K6' },
+  { inf:'helfen',     en:'to help',          pret:'half',       part:'geholfen',    aux:'haben', ch:'K5' },
+  { inf:'empfehlen',  en:'to recommend',     pret:'empfahl',    part:'empfohlen',   aux:'haben', ch:'K7' },
+  // mixed ("haben" forms like "bringen")
+  { inf:'bringen',    en:'to bring',         pret:'brachte',    part:'gebracht',    aux:'haben', ch:'K6' },
+  { inf:'denken',     en:'to think',         pret:'dachte',     part:'gedacht',     aux:'haben', ch:'K6' },
+  { inf:'wissen',     en:'to know (fact)',   pret:'wusste',     part:'gewusst',     aux:'haben', ch:'K6' },
+  { inf:'kennen',     en:'to know (person)', pret:'kannte',     part:'gekannt',     aux:'haben', ch:'K6' },
+  { inf:'verbringen', en:'to spend (time)',  pret:'verbrachte', part:'verbracht',   aux:'haben', ch:'K6' },
+  // regular weak
+  { inf:'kaufen',     en:'to buy',           pret:'kaufte',     part:'gekauft',     aux:'haben', ch:'K6' },
+  { inf:'spielen',    en:'to play',          pret:'spielte',    part:'gespielt',    aux:'haben', ch:'K6' },
+  { inf:'lernen',     en:'to learn / study', pret:'lernte',     part:'gelernt',     aux:'haben', ch:'K6' },
+  { inf:'arbeiten',   en:'to work',          pret:'arbeitete',  part:'gearbeitet',  aux:'haben', ch:'K6' },
+  { inf:'machen',     en:'to do / make',     pret:'machte',     part:'gemacht',     aux:'haben', ch:'K6' },
+  // separable / inseparable
+  { inf:'einkaufen',  en:'to shop',          pret:'kaufte ein', part:'eingekauft',  aux:'haben', ch:'K6' },
+  { inf:'aufmachen',  en:'to open',          pret:'machte auf', part:'aufgemacht',  aux:'haben', ch:'K6' },
+  { inf:'besuchen',   en:'to visit',         pret:'besuchte',   part:'besucht',     aux:'haben', ch:'K6' },
+  { inf:'verstehen',  en:'to understand',    pret:'verstand',   part:'verstanden',  aux:'haben', ch:'K6' },
+  { inf:'vergessen',  en:'to forget',        pret:'vergaß',     part:'vergessen',   aux:'haben', ch:'K6' },
+  { inf:'bestellen',  en:'to order',         pret:'bestellte',  part:'bestellt',    aux:'haben', ch:'K7' },
+  { inf:'telefonieren',en:'to phone',        pret:'telefonierte',part:'telefoniert',aux:'haben', ch:'K6' },
+  { inf:'studieren',  en:'to study',         pret:'studierte',  part:'studiert',    aux:'haben', ch:'K6' },
+  { inf:'schützen',   en:'to protect',       pret:'schützte',   part:'geschützt',   aux:'haben', ch:'K8' },
+  { inf:'sparen',     en:'to save',          pret:'sparte',     part:'gespart',     aux:'haben', ch:'K8' },
+  { inf:'wählen',     en:'to vote / choose', pret:'wählte',     part:'gewählt',     aux:'haben', ch:'K8' },
+  { inf:'einstellen', en:'to hire',          pret:'stellte ein',part:'eingestellt', aux:'haben', ch:'K8' },
+  { inf:'kündigen',   en:'to quit / fire',   pret:'kündigte',   part:'gekündigt',   aux:'haben', ch:'K8' },
+];
+
+/* ===================== LUCKEN (fill-in-the-blank drill) =====================
+   Each item has:
+     sentence  — shown with ___ where the blank goes
+     answer    — accepted answer (case-insensitive; umlauts normalized)
+     alts      — optional array of other acceptable strings
+     hint      — 1-line teacher hint (shown on request)
+     explain   — 1-line explanation shown after the answer
+     tag       — short label for the badge
+     ch        — chapter
+   ========================================================================= */
+const LUCKEN = [
+  // K5 · Prepositions + cases
+  { ch:'K5', tag:'prep · Dativ',       sentence:'Ich fahre mit ___ Bus zur Arbeit.',            answer:'dem',       hint:'mit + Dativ; der Bus',                explain:'mit is always Dativ; masc. dat. = dem.' },
+  { ch:'K5', tag:'prep · contraction', sentence:'Wir gehen zu ___ Bahnhof.',                     answer:'zum',       alts:['zu dem'], hint:'zu + dem contracts', explain:'zu + dem → zum.' },
+  { ch:'K5', tag:'prep · contraction', sentence:'Ich komme gerade von ___ Arzt.',                answer:'vom',       alts:['von dem'], hint:'von + dem contracts',explain:'von + dem → vom.' },
+  { ch:'K5', tag:'prep · seit + Dat',  sentence:'Ich lerne Deutsch seit ___ Jahr. (one, neut.)', answer:'einem',     hint:'seit + Dativ; neut. dat. = einem',    explain:'seit is always Dativ; ein (neut. dat.) → einem.' },
+  { ch:'K5', tag:'two-way · wo?',      sentence:'Das Buch liegt auf ___ Tisch. (wo?)',           answer:'dem',       hint:'location → Dativ',                    explain:'wo? → Dativ; der Tisch (dat.) → dem.' },
+  { ch:'K5', tag:'two-way · wohin?',   sentence:'Ich lege das Buch auf ___ Tisch. (wohin?)',     answer:'den',       hint:'motion → Akkusativ',                  explain:'wohin? → Akk.; der Tisch (acc.) → den.' },
+  { ch:'K5', tag:'pronoun · Dativ',    sentence:'Kannst du ___ helfen? (to me)',                 answer:'mir',       hint:'helfen + Dativ',                      explain:'helfen takes Dativ; "to me" = mir.' },
+
+  // K6 · Perfekt auxiliary + conjunctions
+  { ch:'K6', tag:'Perfekt · aux',      sentence:'Ich ___ nach Berlin gefahren.',                 answer:'bin',       hint:'motion → sein',                       explain:'fahren = motion → Perfekt with sein; 1.Sg. = bin.' },
+  { ch:'K6', tag:'Perfekt · aux',      sentence:'Wir ___ einen Kuchen gegessen.',                answer:'haben',     hint:'no motion → haben',                   explain:'essen → Perfekt with haben; 1.Pl. = haben.' },
+  { ch:'K6', tag:'als / wenn / wann',  sentence:'___ ich jung war, lebte ich in München.',       answer:'Als',       alts:['als'], hint:'single past event',      explain:'Als = single completed past event.' },
+  { ch:'K6', tag:'als / wenn / wann',  sentence:'Immer ___ es regnet, bleibe ich zu Hause.',     answer:'wenn',      hint:'recurring / if',                      explain:'wenn = recurring (or "if") in present/future.' },
+  { ch:'K6', tag:'weil (verb to end)', sentence:'Ich esse, weil ich Hunger ___.',                answer:'habe',      hint:'weil sends verb to end',              explain:'weil is subordinating → conjugated verb goes last.' },
+  { ch:'K6', tag:'dass',               sentence:'Ich finde, dass Deutsch schön ___.',            answer:'ist',       hint:'dass → verb to end',                  explain:'dass is subordinating → conjugated verb last.' },
+
+  // K7 · Adjective endings + relative pronouns
+  { ch:'K7', tag:'adj · weak · Nom',   sentence:'Der alt___ Mann liest die Zeitung.',            answer:'e',         hint:'after der (masc. nom.): -e',          explain:'Weak ending after der (masc. nom.) = -e.' },
+  { ch:'K7', tag:'adj · mixed · Nom',  sentence:'Ein schnell___ Auto steht vor dem Haus.',       answer:'es',        hint:'after ein (neut. nom.): -es',         explain:'Mixed ending after ein (neut. nom.) = -es.' },
+  { ch:'K7', tag:'adj · weak · Akk',   sentence:'Ich kenne den klug___ Professor.',              answer:'en',        hint:'after den (masc. acc.): -en',         explain:'Weak ending after den (masc. acc.) = -en.' },
+  { ch:'K7', tag:'adj · Dativ',        sentence:'Er hilft der alt___ Frau.',                     answer:'en',        hint:'Dativ = always -en',                  explain:'Every adjective in the dative takes -en.' },
+  { ch:'K7', tag:'adj · plural',       sentence:'Die alt___ Leute sitzen im Café.',              answer:'en',        hint:'plural with def. article → -en',      explain:'die + plural → -en.' },
+  { ch:'K7', tag:'relpron · masc acc', sentence:'Der Mann, ___ ich gestern gesehen habe, ist mein Lehrer.', answer:'den', hint:'masc., accusative', explain:'Masc. Akk. relative pronoun = den.' },
+  { ch:'K7', tag:'relpron · fem dat',  sentence:'Die Frau, ___ ich geholfen habe, ist meine Tante.',       answer:'der', hint:'fem., dative',      explain:'Fem. Dat. relative pronoun = der.' },
+  { ch:'K7', tag:'relpron · pl dat',   sentence:'Die Leute, ___ ich vertraue, sind meine Freunde.',        answer:'denen', hint:'plural, dative',  explain:'Plural Dat. relative pronoun = denen (irregular).' },
+  { ch:'K7', tag:'Komparativ',         sentence:'Mein Bruder ist ___ als ich. (older)',          answer:'älter',     alts:['aelter'], hint:'comparative of alt — adds umlaut', explain:'alt → älter (umlaut added).' },
+  { ch:'K7', tag:'Superlativ',         sentence:'Der ICE ist am ___. (fast)',                    answer:'schnellsten',hint:'am + adj + -sten',                   explain:'Predicate superlative: am schnellsten.' },
+
+  // K8 · Konjunktiv II + Passiv + Infinitivkonstruktionen
+  { ch:'K8', tag:'Konj II · würde',    sentence:'Wenn ich Zeit hätte, ___ ich mehr reisen.',     answer:'würde',     alts:['wuerde'], hint:'würde + Infinitiv',  explain:'Main clause in a Konj-II conditional takes würde + infinitive.' },
+  { ch:'K8', tag:'Konj II · wäre',    sentence:'Ich ___ glücklich, wenn du kommen würdest.',    answer:'wäre',      alts:['waere'], hint:'sein → wäre',         explain:'Konjunktiv II of sein = wäre.' },
+  { ch:'K8', tag:'Konj II · hätte',   sentence:'Sie ___ gern mehr Urlaub.',                      answer:'hätte',     alts:['haette'], hint:'haben → hätte',      explain:'Konjunktiv II of haben = hätte.' },
+  { ch:'K8', tag:'Konj II · könnte',  sentence:'___ du mir bitte helfen? (polite)',             answer:'Könntest',  alts:['könntest','koenntest','Koenntest'], hint:'können → könnte; 2.Sg. = könntest', explain:'können → könnte; du-form = könntest (capital at sentence start).' },
+  { ch:'K8', tag:'Passiv · Präsens',   sentence:'Das Auto ___ gerade repariert.',                answer:'wird',      hint:'werden + Partizip II',                explain:'Passiv Präsens 3.Sg. = wird.' },
+  { ch:'K8', tag:'Passiv · Prät.',     sentence:'Das Buch ___ letzte Woche gelesen.',            answer:'wurde',     hint:'werden (Präteritum) + Partizip II',   explain:'Passiv Präteritum 3.Sg. = wurde.' },
+  { ch:'K8', tag:'Passiv · Agent',     sentence:'Der Brief wurde ___ meinem Vater geschrieben.', answer:'von',       hint:'by whom? → von + Dat',                explain:'Passiv agent is expressed with von + Dativ.' },
+  { ch:'K8', tag:'um … zu',            sentence:'Ich lerne Deutsch, ___ in Wien zu leben.',      answer:'um',        hint:'um … zu = in order to',               explain:'um + (…) + zu + Infinitiv = in order to.' },
+  { ch:'K8', tag:'ohne … zu',          sentence:'Er ging, ___ Tschüss zu sagen.',                 answer:'ohne',      hint:'ohne … zu = without doing',           explain:'ohne + (…) + zu + Infinitiv = without doing.' },
+  { ch:'K8', tag:'statt … zu',         sentence:'___ zu lernen, schläft er. (instead of)',       answer:'Statt',     alts:['statt'], hint:'statt … zu = instead of', explain:'statt + (…) + zu + Infinitiv = instead of.' },
+];
