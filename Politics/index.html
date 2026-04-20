@@ -27,7 +27,8 @@
   <button class="tab" data-target="learn">02 · Learn</button>
   <button class="tab" data-target="quiz">03 · Quiz</button>
   <button class="tab" data-target="match">04 · Match</button>
-  <button class="tab" data-target="essays">05 · Essays</button>
+  <button class="tab" data-target="defs">05 · Definitions</button>
+  <button class="tab" data-target="essays">06 · Essays</button>
   <button class="tab" data-target="home" onclick="location.href='../index.html';return false">↩ home</button>
 </nav>
 
@@ -79,14 +80,17 @@
     <p class="kicker">Pick a filter. Each correct answer marks a term mastered; each miss requeues it. Done when all cards are mastered.</p>
 
     <div id="learn-start">
+      <p class="deck-label">Pick one or more — mix categories freely.</p>
       <div class="deck-bar">
-        <label class="deck-chip"><input type="radio" name="lfilter" value="all" checked>All terms (30)</label>
-        <label class="deck-chip"><input type="radio" name="lfilter" value="Voting &amp; Participation">Voting</label>
-        <label class="deck-chip"><input type="radio" name="lfilter" value="Ethnicity &amp; Identity">Ethnicity</label>
-        <label class="deck-chip"><input type="radio" name="lfilter" value="Parties &amp; Systems">Parties</label>
-        <label class="deck-chip"><input type="radio" name="lfilter" value="essays">Essay concepts (10)</label>
+        <label class="deck-chip"><input type="checkbox" name="lfilter" value="Voting &amp; Participation" checked>Voting (10)</label>
+        <label class="deck-chip"><input type="checkbox" name="lfilter" value="Ethnicity &amp; Identity" checked>Ethnicity (5)</label>
+        <label class="deck-chip"><input type="checkbox" name="lfilter" value="Parties &amp; Systems" checked>Parties (15)</label>
+        <label class="deck-chip"><input type="checkbox" name="lfilter" value="essays" checked>Essay concepts (10)</label>
+        <button class="mini-btn" data-sel="lfilter" data-act="all">all</button>
+        <button class="mini-btn" data-sel="lfilter" data-act="clear">clear</button>
       </div>
       <button class="mini-btn" id="learn-start-btn" style="margin-top:6px">start session &rarr;</button>
+      <span class="sel-count" id="learn-sel-count"></span>
     </div>
 
     <div id="learn-session" style="display:none">
@@ -123,6 +127,16 @@
     <p class="kicker">Pick a difficulty. Easy = definition&rarr;term. Medium mixes directions. Hard adds clue&rarr;term and essay-concept questions. Score at the end; missed items listed for review.</p>
 
     <div id="quiz-start">
+      <p class="deck-label">Pick what's on the quiz — then choose a difficulty.</p>
+      <div class="deck-bar">
+        <label class="deck-chip"><input type="checkbox" name="qfilter" value="Voting &amp; Participation" checked>Voting (10)</label>
+        <label class="deck-chip"><input type="checkbox" name="qfilter" value="Ethnicity &amp; Identity" checked>Ethnicity (5)</label>
+        <label class="deck-chip"><input type="checkbox" name="qfilter" value="Parties &amp; Systems" checked>Parties (15)</label>
+        <label class="deck-chip"><input type="checkbox" name="qfilter" value="essays" checked>Essay concepts (10)</label>
+        <button class="mini-btn" data-sel="qfilter" data-act="all">all</button>
+        <button class="mini-btn" data-sel="qfilter" data-act="clear">clear</button>
+      </div>
+      <span class="sel-count" id="quiz-sel-count" style="display:block;margin:4px 0 10px"></span>
       <div class="quiz-diff-row">
         <button class="diff-btn diff-easy"   data-diff="easy">
           <span class="diff-label">easy</span>
@@ -191,6 +205,27 @@
 
     <div class="match-grid" id="match-grid"></div>
     <div class="match-win" id="match-win"></div>
+  </div>
+</section>
+
+<!-- ================= DEFINITIONS ================= -->
+<section class="sheet" id="defs">
+  <div class="sheet-margin">
+    <h2 class="pencil">Definitions — all 30 terms</h2>
+    <p class="kicker">Full glossary, grouped by category. Filter or search to find a term fast. Click any row to peek the hint.</p>
+
+    <div class="deck-bar">
+      <label class="deck-chip"><input type="radio" name="dfilter" value="all" checked>All (30)</label>
+      <label class="deck-chip"><input type="radio" name="dfilter" value="Voting &amp; Participation">Voting &amp; Participation</label>
+      <label class="deck-chip"><input type="radio" name="dfilter" value="Ethnicity &amp; Identity">Ethnicity &amp; Identity</label>
+      <label class="deck-chip"><input type="radio" name="dfilter" value="Parties &amp; Systems">Parties &amp; Systems</label>
+    </div>
+    <div class="def-search-row">
+      <input type="text" id="def-search" class="def-search" placeholder="search term or definition…" autocomplete="off">
+      <span class="def-count" id="def-count"></span>
+    </div>
+
+    <div class="def-list" id="def-list"></div>
   </div>
 </section>
 
