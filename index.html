@@ -16,6 +16,7 @@
     --red:         #b52d2d;
     --tab-1:       #e7c7a1;
     --tab-4:       #b8c5d8;
+    --tab-5:       #e3b4b0;
     --rule-blue:   #7c9cbf;
   }
   *{box-sizing:border-box;}
@@ -69,7 +70,7 @@
   }
   .shelf{
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 28px;
   }
   @media (max-width: 720px){ .shelf{ grid-template-columns: 1fr; } }
@@ -100,6 +101,7 @@
     border-radius: 12px 14px 0 0 / 22px 20px 0 0;
   }
   .folder--two .tab-strip{ background: var(--tab-4); }
+  .folder--three .tab-strip{ background: var(--tab-5); }
   .folder .course{
     font-family:'IBM Plex Mono',monospace;
     font-size: 11px;
@@ -205,6 +207,19 @@
         <li>Vokabeln · Kapitel 8 focus</li>
       </ul>
       <span class="arrow">öffnen →</span>
+    </a>
+
+    <a class="folder folder--three" href="./Politics/">
+      <span class="tab-strip">03 · dossier</span>
+      <div class="course">POL-UA 500 · Exam #2</div>
+      <h2 class="name">pol500.lab</h2>
+      <p class="desc">Voting & Participation, Ethnicity & Identity, Parties & Systems — 30 terms, 10 essay prompts.</p>
+      <ul>
+        <li>Flashcards · Learn (4-opt MC)</li>
+        <li>Match · 6 pairs timed</li>
+        <li>Essay prompts · with hints</li>
+      </ul>
+      <span class="arrow">open →</span>
     </a>
   </div>
 
