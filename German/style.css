@@ -893,9 +893,14 @@ h2.pencil::after{
   margin: 6px 0 16px;
 }
 
+/* stack card contents vertically so badge/note don't sit inline */
+.card-face{
+  flex-direction: column;
+  gap: 12px;
+}
+
 /* fc badge (chapter tag on flashcard front) */
 .fc-badge{
-  margin-top: 14px;
   display: inline-block;
   font-family:'IBM Plex Mono', monospace;
   font-size: 10.5px;
@@ -910,7 +915,7 @@ h2.pencil::after{
   font-family:'IBM Plex Mono', monospace;
   font-size: 12px;
   color: var(--pencil);
-  margin-top: 10px;
   font-style: italic;
   max-width: 80%;
+  text-align: center;
 }
