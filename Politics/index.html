@@ -25,8 +25,9 @@
 <nav class="file-tabs" role="tablist">
   <button class="tab tab--active" data-target="cards">01 · Flashcards</button>
   <button class="tab" data-target="learn">02 · Learn</button>
-  <button class="tab" data-target="match">03 · Match</button>
-  <button class="tab" data-target="essays">04 · Essays</button>
+  <button class="tab" data-target="quiz">03 · Quiz</button>
+  <button class="tab" data-target="match">04 · Match</button>
+  <button class="tab" data-target="essays">05 · Essays</button>
   <button class="tab" data-target="home" onclick="location.href='../index.html';return false">↩ home</button>
 </nav>
 
@@ -79,10 +80,11 @@
 
     <div id="learn-start">
       <div class="deck-bar">
-        <label class="deck-chip"><input type="radio" name="lfilter" value="all" checked>All (30)</label>
+        <label class="deck-chip"><input type="radio" name="lfilter" value="all" checked>All terms (30)</label>
         <label class="deck-chip"><input type="radio" name="lfilter" value="Voting &amp; Participation">Voting</label>
         <label class="deck-chip"><input type="radio" name="lfilter" value="Ethnicity &amp; Identity">Ethnicity</label>
         <label class="deck-chip"><input type="radio" name="lfilter" value="Parties &amp; Systems">Parties</label>
+        <label class="deck-chip"><input type="radio" name="lfilter" value="essays">Essay concepts (10)</label>
       </div>
       <button class="mini-btn" id="learn-start-btn" style="margin-top:6px">start session &rarr;</button>
     </div>
@@ -109,6 +111,67 @@
         <div class="done-title">All mastered!</div>
         <div class="done-sub" id="learn-done-txt"></div>
         <button class="mini-btn" id="learn-restart">study again &rarr;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="sheet" id="quiz">
+  <div class="sheet-margin">
+    <h2 class="pencil">Quiz — graded, 3 difficulties</h2>
+    <p class="kicker">Pick a difficulty. Easy = definition&rarr;term. Medium mixes directions. Hard adds clue&rarr;term and essay-concept questions. Score at the end; missed items listed for review.</p>
+
+    <div id="quiz-start">
+      <div class="quiz-diff-row">
+        <button class="diff-btn diff-easy"   data-diff="easy">
+          <span class="diff-label">easy</span>
+          <span class="diff-desc">10 Q · def &rarr; term · hints allowed</span>
+        </button>
+        <button class="diff-btn diff-medium" data-diff="medium">
+          <span class="diff-label">medium</span>
+          <span class="diff-desc">15 Q · mixed direction · no hints</span>
+        </button>
+        <button class="diff-btn diff-hard"   data-diff="hard">
+          <span class="diff-label">hard</span>
+          <span class="diff-desc">20 Q · mixed + essay concepts</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="quiz-session" style="display:none">
+      <div class="quiz-meta">
+        <span class="quiz-diff-badge" id="quiz-diff-badge">easy</span>
+        <span class="quiz-score" id="quiz-score">0 correct</span>
+      </div>
+      <div class="learn-prog">
+        <div class="learn-prog-bar"><div class="learn-prog-fill" id="quiz-prog-fill" style="width:0%"></div></div>
+        <span class="learn-prog-txt" id="quiz-prog-txt">0 / 0</span>
+      </div>
+
+      <div class="check-box">
+        <h4 id="quiz-type-label">multiple choice</h4>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--pencil);margin:0 0 4px" id="quiz-mc-cat"></p>
+        <p style="font-family:'Spectral',serif;font-size:17px;margin:0 0 10px" id="quiz-mc-q"></p>
+        <div class="learn-mc-opts" id="quiz-mc-opts"></div>
+        <div class="check-feedback" id="quiz-mc-fb"></div>
+        <div class="q-explain" id="quiz-mc-explain" style="display:none"></div>
+        <button class="mini-btn" id="quiz-mc-next" style="display:none;margin-top:10px">next &rarr;</button>
+      </div>
+      <button class="mini-btn" id="quiz-quit" style="margin-top:10px">quit quiz</button>
+    </div>
+
+    <div id="quiz-done" style="display:none">
+      <div class="done-screen">
+        <div class="done-icon" id="quiz-done-icon">✓</div>
+        <div class="done-title" id="quiz-done-title">Quiz complete</div>
+        <div class="done-sub"   id="quiz-done-txt"></div>
+        <div class="score-slip" id="quiz-score-slip"></div>
+        <div id="quiz-missed-wrap" style="display:none;text-align:left;margin-top:18px">
+          <h4 style="font-family:'Caveat',cursive;font-size:24px;color:var(--red);margin:0 0 8px">review — missed items</h4>
+          <ul id="quiz-missed-list" class="quiz-missed-list"></ul>
+        </div>
+        <button class="mini-btn" id="quiz-restart" style="margin-top:14px">try another quiz &rarr;</button>
       </div>
     </div>
   </div>
