@@ -1048,7 +1048,7 @@ cond_signal(cv2);         // broadcast if many may proceed
 unlock(m);</pre>
       <div class="cs-sub">Dahlin's 4 commandments</div>
       <pre>1 every invariant bound to a lock
-2 wait in `while`, never `if`
+2 wait in \`while\`, never \`if\`
 3 total lock order, everywhere
 4 no races: shared R/W under the lock</pre>
       <div class="cs-sub">Deadlock (Coffman)</div>
