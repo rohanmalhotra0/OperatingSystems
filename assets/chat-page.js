@@ -18,6 +18,7 @@
     modes:   document.getElementById("cp-modes"),
     msgs:    document.getElementById("cp-msgs"),
     quiz:    document.getElementById("cp-quiz"),
+    mock:    document.getElementById("cp-mock"),
     inputWrap:document.getElementById("cp-input-wrap"),
     input:   document.getElementById("cp-input"),
     send:    document.getElementById("cp-send"),
@@ -33,14 +34,21 @@
   let streaming = false;
   let streamCtrl = null;
   let quizInstance = null;
+  let mockInstance = null;
 
   function isQuizMode(){ return activeSession?.mode === "quiz"; }
+  function isMockMode(){ return activeSession?.mode === "mock"; }
+  function isStructuredMode(){ return isQuizMode() || isMockMode(); }
 
   function setSurfaceForMode(){
     const quiz = isQuizMode();
-    el.msgs.style.display      = quiz ? "none" : "";
-    el.inputWrap.style.display = quiz ? "none" : "";
-    // Tear down any prior quiz instance when leaving quiz mode OR switching tab
+    const mock = isMockMode();
+    const structured = quiz || mock;
+
+    el.msgs.style.display      = structured ? "none" : "";
+    el.inputWrap.style.display = structured ? "none" : "";
+
+    // Quiz lifecycle
     if (quizInstance && (!quiz || quizInstance._tabId !== activeTab.id)){
       window.ChatLab?.quiz?.unmount?.(quizInstance);
       quizInstance = null;
@@ -50,6 +58,18 @@
     if (quiz && !quizInstance){
       mountQuiz();
       if (quizInstance) quizInstance._tabId = activeTab.id;
+    }
+
+    // Mock lifecycle
+    if (mockInstance && (!mock || mockInstance._tabId !== activeTab.id)){
+      window.ChatLab?.mock?.unmount?.(mockInstance);
+      mockInstance = null;
+      el.mock.classList.remove("cw-mock--mounted");
+      el.mock.innerHTML = "";
+    }
+    if (mock && !mockInstance){
+      mountMock();
+      if (mockInstance) mockInstance._tabId = activeTab.id;
     }
   }
 
@@ -63,16 +83,31 @@
       tabId: activeTab.id,
       tabLabel: activeTab.label,
       surface: "page",
-      onExit: () => switchModeFromQuiz("chat"),
+      onExit: () => switchModeFromStructured("chat"),
       onAskExplain: (term) => {
-        switchModeFromQuiz("explain");
+        switchModeFromStructured("explain");
         el.input.value = `Explain "${term}" in depth — definition, intuition, one example, and common traps.`;
         onSend();
       },
     });
   }
 
-  function switchModeFromQuiz(id){
+  function mountMock(){
+    if (!window.ChatLab?.mock){
+      el.mock.classList.add("cw-mock--mounted");
+      el.mock.innerHTML = `<div class="cw-mock-err">mock module didn't load.</div>`;
+      return;
+    }
+    mockInstance = window.ChatLab.mock.mount(el.mock, {
+      tabId: activeTab.id,
+      tabLabel: activeTab.label,
+      surface: "page",
+      streamClient: client,
+      onExit: () => switchModeFromStructured("chat"),
+    });
+  }
+
+  function switchModeFromStructured(id){
     if (!activeSession) activeSession = store.createSession(activeTab.id, id);
     store.updateSession(activeSession.id, { mode: id });
     activeSession = store.getSession(activeSession.id);
@@ -246,7 +281,7 @@
     renderSessionList();
     renderHead();
     setSurfaceForMode();
-    if (!isQuizMode()) renderMessages();
+    if (!isStructuredMode()) renderMessages();
   }
 
   /* ---------- actions ---------- */
