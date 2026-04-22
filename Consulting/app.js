@@ -1,14 +1,17 @@
 /* =========================================================
-   consult.lab — app.js
-   flashcards · learn (MC) · match (timed) · definitions · essays
+   darden.lab — app.js
+   flashcards · learn (MC) · match (timed) · frameworks · cases · formulas
    ========================================================= */
 
-const CAT_SLUG = {
-  "Case Frameworks": "frameworks",
-  "Interview Lead":  "interviewer",
-  "Candidate Lead":  "candidate",
-};
-const catClass = c => "cat--" + (CAT_SLUG[c] || "frameworks");
+const CATS = Array.from(new Set(CARDS.map(c => c.cat)));
+
+function catSlug(c){
+  return c.toLowerCase()
+          .replace(/&/g, "and")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+}
+const catClass = c => "cat--" + catSlug(c);
 
 /* ---------- tabs ---------- */
 const tabs   = document.querySelectorAll(".file-tabs .tab");
@@ -33,7 +36,6 @@ function cycleTab(dir){
   activateTab(order[next]);
 }
 
-/* ---------- global keys ---------- */
 document.addEventListener("keydown", e => {
   if (e.target.matches("input, textarea")) return;
   const active = document.querySelector(".sheet--active")?.id;
@@ -41,10 +43,35 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight" && active !== "cards") cycleTab(+1);
 });
 
+/* ---------- filter chip builders ---------- */
+function buildFilterChips(containerId, radioName, onChange){
+  const bar = document.getElementById(containerId);
+  if (!bar) return;
+  const frag = document.createDocumentFragment();
+  const mkChip = (val, label, checked) => {
+    const lbl = document.createElement("label");
+    lbl.className = "deck-chip";
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = radioName; inp.value = val;
+    if (checked) inp.checked = true;
+    inp.addEventListener("change", () => onChange(val));
+    lbl.appendChild(inp);
+    lbl.appendChild(document.createTextNode(label));
+    return lbl;
+  };
+  frag.appendChild(mkChip("all", `All (${CARDS.length})`, true));
+  CATS.forEach(c => {
+    const n = CARDS.filter(x => x.cat === c).length;
+    frag.appendChild(mkChip(c, `${c} (${n})`, false));
+  });
+  // insert before any existing children (e.g., shuffle btn in flashcards bar)
+  bar.insertBefore(frag, bar.firstChild);
+}
+
 /* =========================================================
    FLASHCARDS
    ========================================================= */
-const WEIGHT_KEY = "consult.card.weights";
+const WEIGHT_KEY = "darden.card.weights";
 const weights = JSON.parse(localStorage.getItem(WEIGHT_KEY) || "{}");
 function saveWeights(){ localStorage.setItem(WEIGHT_KEY, JSON.stringify(weights)); }
 
@@ -91,6 +118,8 @@ function showCard(){
   document.getElementById("card-counter").textContent = `${fcIdx+1} / ${fcDeck.length}`;
 }
 
+buildFilterChips("card-filter-bar", "deck", v => { fcFilter = v; buildDeck(); });
+
 document.getElementById("flashcard").addEventListener("click", () => {
   document.getElementById("flashcard").classList.toggle("flipped");
 });
@@ -128,10 +157,6 @@ document.getElementById("missed").addEventListener("click", e => {
 });
 document.getElementById("shuffle").addEventListener("click", buildDeck);
 
-document.querySelectorAll('input[name="deck"]').forEach(r => {
-  r.addEventListener("change", e => { fcFilter = e.target.value; buildDeck(); });
-});
-
 document.addEventListener("keydown", e => {
   if (document.querySelector(".sheet--active")?.id !== "cards") return;
   if (e.target.matches("input, textarea")) return;
@@ -145,124 +170,34 @@ document.addEventListener("keydown", e => {
 buildDeck();
 
 /* =========================================================
-   Shared helpers — MC question builder
-   Used by Learn AND Quiz.
-   A normalized question is:
-     { prompt, optionsText[], correctText, tag, tagClass, explain, key }
-   ========================================================= */
-function shuffleInPlace(a){
-  for (let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-function shuffledCopy(a){ return shuffleInPlace(a.slice()); }
-
-function pickDistractors(correctTerm, pool, n){
-  const others = pool.filter(c => c.term !== correctTerm);
-  shuffleInPlace(others);
-  return others.slice(0, n);
-}
-
-// direction: 'def-to-term' | 'term-to-def' | 'hint-to-term'
-function makeTermQuestion(card, direction){
-  const distract = pickDistractors(card.term, CARDS, 3);
-  if (direction === "term-to-def"){
-    const opts = shuffledCopy([card.def, ...distract.map(c => c.def)]);
-    return {
-      prompt: card.term,
-      promptLabel: "term → pick the definition",
-      optionsText: opts,
-      correctText: card.def,
-      tag: card.cat,
-      tagClass: catClass(card.cat),
-      explain: card.hint || "",
-      key: card.term,
-    };
-  }
-  if (direction === "hint-to-term"){
-    return {
-      prompt: card.hint || card.def,
-      promptLabel: "clue → pick the term",
-      optionsText: shuffledCopy([card.term, ...distract.map(c => c.term)]),
-      correctText: card.term,
-      tag: card.cat,
-      tagClass: catClass(card.cat),
-      explain: card.def,
-      key: card.term,
-    };
-  }
-  // default: def-to-term
-  return {
-    prompt: card.def,
-    promptLabel: "definition → pick the term",
-    optionsText: shuffledCopy([card.term, ...distract.map(c => c.term)]),
-    correctText: card.term,
-    tag: card.cat,
-    tagClass: catClass(card.cat),
-    explain: card.hint || "",
-    key: card.term,
-  };
-}
-
-function makeEssayQuestion(mc){
-  return {
-    prompt: mc.q,
-    promptLabel: "essay concept",
-    optionsText: shuffledCopy(mc.opts.slice()),
-    correctText: mc.opts[mc.correct],
-    tag: "essay · " + mc.topic,
-    tagClass: "cat--essay",
-    explain: mc.explain,
-    key: "essay:" + mc.topic,
-  };
-}
-
-/* =========================================================
    LEARN (4-option MC, requeue misses)
    ========================================================= */
 let lnQueue = [];
 let lnMastered = new Set();
 let lnTotal = 0;
 let lnCurrent = null;
+let lnFilter = "all";
 
-function getSelected(name){
-  const boxes = document.querySelectorAll(`input[name="${name}"]:checked`);
-  const cats = [];
-  let includeEssays = false;
-  boxes.forEach(b => {
-    if (b.value === "essays") includeEssays = true;
-    else cats.push(b.value);
-  });
-  return { cats, includeEssays };
-}
-
-function poolForSelection(sel, termDirection){
-  const pool = [];
-  sel.cats.forEach(cat => {
-    filterCards(cat).forEach(c => pool.push(makeTermQuestion(c, termDirection)));
-  });
-  if (sel.includeEssays){
-    ESSAY_MC.forEach(e => pool.push(makeEssayQuestion(e)));
+function pickDistractors(correct, pool, n){
+  const others = pool.filter(c => c.term !== correct.term);
+  for (let i = others.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [others[i], others[j]] = [others[j], others[i]];
   }
-  return pool;
+  return others.slice(0, n);
 }
 
 function startLearn(){
-  const sel = getSelected("lfilter");
-  if (!sel.cats.length && !sel.includeEssays){
-    const c = document.getElementById("learn-sel-count");
-    c.textContent = "pick at least one category";
-    c.classList.add("is-empty");
-    return;
+  const pool = filterCards(lnFilter);
+  lnQueue = pool.slice();
+  for (let i = lnQueue.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [lnQueue[i], lnQueue[j]] = [lnQueue[j], lnQueue[i]];
   }
-  const pool = poolForSelection(sel, "def-to-term");
-  lnQueue = shuffledCopy(pool);
   lnMastered = new Set();
   lnTotal = pool.length;
-  document.getElementById("learn-start").style.display   = "none";
-  document.getElementById("learn-done").style.display    = "none";
+  document.getElementById("learn-start").style.display = "none";
+  document.getElementById("learn-done").style.display  = "none";
   document.getElementById("learn-session").style.display = "block";
   updateLearnProgress();
   serveLearn();
@@ -271,23 +206,27 @@ function startLearn(){
 function updateLearnProgress(){
   const pct = lnTotal ? Math.round(100 * lnMastered.size / lnTotal) : 0;
   document.getElementById("learn-prog-fill").style.width = pct + "%";
-  document.getElementById("learn-prog-txt").textContent  = `${lnMastered.size} / ${lnTotal} mastered`;
+  document.getElementById("learn-prog-txt").textContent = `${lnMastered.size} / ${lnTotal} mastered`;
 }
 
 function serveLearn(){
   if (!lnQueue.length){ endLearn(); return; }
   lnCurrent = lnQueue.shift();
-  lnCurrent.optionsText = shuffledCopy(lnCurrent.optionsText);
-
-  document.getElementById("learn-mc-cat").textContent = lnCurrent.tag;
-  document.getElementById("learn-mc-q").textContent   = lnCurrent.prompt;
+  document.getElementById("learn-mc-cat").textContent = lnCurrent.cat;
+  document.getElementById("learn-mc-q").textContent   = lnCurrent.def;
+  const distract = pickDistractors(lnCurrent, CARDS, 3);
+  const opts = [...distract, lnCurrent];
+  for (let i = opts.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
   const wrap = document.getElementById("learn-mc-opts");
   wrap.innerHTML = "";
-  lnCurrent.optionsText.forEach(txt => {
+  opts.forEach(o => {
     const b = document.createElement("button");
     b.className = "learn-opt";
-    b.textContent = txt;
-    b.addEventListener("click", () => checkLearnMC(b, txt));
+    b.textContent = o.term;
+    b.addEventListener("click", () => checkMC(b, o));
     wrap.appendChild(b);
   });
   const fb = document.getElementById("learn-mc-fb");
@@ -295,19 +234,19 @@ function serveLearn(){
   document.getElementById("learn-mc-next").style.display = "none";
 }
 
-function checkLearnMC(btn, chosenText){
+function checkMC(btn, chosen){
   const all = document.querySelectorAll("#learn-mc-opts .learn-opt");
   all.forEach(b => b.style.pointerEvents = "none");
   const fb = document.getElementById("learn-mc-fb");
-  if (chosenText === lnCurrent.correctText){
+  if (chosen.term === lnCurrent.term){
     btn.classList.add("correct");
     fb.textContent = "✓ Right.";
     fb.className = "check-feedback ok";
-    lnMastered.add(lnCurrent.key);
+    lnMastered.add(lnCurrent.term);
   } else {
     btn.classList.add("wrong");
-    all.forEach(b => { if (b.textContent === lnCurrent.correctText) b.classList.add("correct"); });
-    fb.textContent = `✗ Answer: "${lnCurrent.correctText}".`;
+    all.forEach(b => { if (b.textContent === lnCurrent.term) b.classList.add("correct"); });
+    fb.textContent = `✗ It's "${lnCurrent.term}".`;
     fb.className = "check-feedback bad";
     const ins = Math.min(lnQueue.length, 3);
     lnQueue.splice(ins, 0, lnCurrent);
@@ -319,261 +258,16 @@ function checkLearnMC(btn, chosenText){
 function endLearn(){
   document.getElementById("learn-session").style.display = "none";
   document.getElementById("learn-done").style.display    = "block";
-  document.getElementById("learn-done-txt").textContent  = `${lnMastered.size} / ${lnTotal} items.`;
+  document.getElementById("learn-done-txt").textContent  = `${lnMastered.size} / ${lnTotal} terms.`;
 }
+
+buildFilterChips("learn-filter-bar", "lfilter", v => { lnFilter = v; });
 
 document.getElementById("learn-start-btn").addEventListener("click", startLearn);
 document.getElementById("learn-mc-next").addEventListener("click", serveLearn);
 document.getElementById("learn-restart").addEventListener("click", () => {
   document.getElementById("learn-done").style.display  = "none";
   document.getElementById("learn-start").style.display = "block";
-});
-
-/* ---------- multi-select helpers (Learn + Quiz) ---------- */
-function selCountFor(name){
-  const sel = getSelected(name);
-  let n = 0;
-  sel.cats.forEach(cat => n += CARDS.filter(c => c.cat === cat).length);
-  if (sel.includeEssays) n += ESSAY_MC.length;
-  return n;
-}
-function updateSelCount(name){
-  const target = name === "lfilter" ? "learn-sel-count" : "quiz-sel-count";
-  const el = document.getElementById(target);
-  if (!el) return;
-  const n = selCountFor(name);
-  if (!n){
-    el.textContent = "pick at least one category";
-    el.classList.add("is-empty");
-  } else {
-    el.textContent = `pool: ${n} question${n === 1 ? "" : "s"}`;
-    el.classList.remove("is-empty");
-  }
-}
-document.querySelectorAll('input[name="lfilter"], input[name="qfilter"]').forEach(b => {
-  b.addEventListener("change", () => updateSelCount(b.name));
-});
-document.querySelectorAll('button[data-sel]').forEach(btn => {
-  btn.addEventListener("click", () => {
-    const name = btn.dataset.sel;
-    const act  = btn.dataset.act;
-    document.querySelectorAll(`input[name="${name}"]`).forEach(b => {
-      b.checked = (act === "all");
-    });
-    updateSelCount(name);
-  });
-});
-updateSelCount("lfilter");
-updateSelCount("qfilter");
-
-/* =========================================================
-   QUIZ — graded, 3 difficulties, score + miss review
-   easy   (10): def → term
-   medium (15): mix def→term AND term→def
-   hard   (20): def→term + term→def + clue→term + essay MC
-   ========================================================= */
-let qzQueue = [];
-let qzTotal = 0;
-let qzIdx = 0;
-let qzRight = 0;
-let qzMissed = [];
-let qzCurrent = null;
-let qzDiff = "easy";
-
-function buildQuizQuestions(diff, sel){
-  const cards  = shuffledCopy(CARDS.filter(c => sel.cats.includes(c.cat)));
-  const essays = sel.includeEssays ? shuffledCopy(ESSAY_MC) : [];
-  const q = [];
-  const pick = (arr, n) => arr.slice(0, Math.min(n, arr.length));
-
-  if (diff === "easy"){
-    const target = 10;
-    if (!cards.length){
-      pick(essays, target).forEach(e => q.push(makeEssayQuestion(e)));
-    } else {
-      pick(cards, target).forEach(c => q.push(makeTermQuestion(c, "def-to-term")));
-      if (q.length < target && essays.length)
-        pick(essays, target - q.length).forEach(e => q.push(makeEssayQuestion(e)));
-    }
-  } else if (diff === "medium"){
-    const target = 15;
-    if (!cards.length){
-      pick(essays, target).forEach(e => q.push(makeEssayQuestion(e)));
-    } else {
-      const half = Math.ceil(Math.min(cards.length, target) / 2);
-      pick(cards, half).forEach(c => q.push(makeTermQuestion(c, "def-to-term")));
-      cards.slice(half, Math.min(cards.length, target)).forEach(c => q.push(makeTermQuestion(c, "term-to-def")));
-      if (q.length < target && essays.length)
-        pick(essays, target - q.length).forEach(e => q.push(makeEssayQuestion(e)));
-    }
-  } else { // hard
-    const target = 20;
-    if (!cards.length){
-      pick(essays, target).forEach(e => q.push(makeEssayQuestion(e)));
-    } else {
-      const termSlots = sel.includeEssays
-        ? Math.min(cards.length, Math.max(target - 5, Math.ceil(target * 0.75)))
-        : Math.min(cards.length, target);
-      const third = Math.ceil(termSlots / 3);
-      const shuf  = cards.slice(0, termSlots);
-      shuf.slice(0, third).forEach(c => q.push(makeTermQuestion(c, "def-to-term")));
-      shuf.slice(third, third * 2).forEach(c => q.push(makeTermQuestion(c, "term-to-def")));
-      shuf.slice(third * 2).forEach(c => q.push(makeTermQuestion(c, "hint-to-term")));
-      if (essays.length)
-        pick(essays, target - q.length).forEach(e => q.push(makeEssayQuestion(e)));
-    }
-  }
-  return shuffledCopy(q);
-}
-
-function startQuiz(diff){
-  const sel = getSelected("qfilter");
-  if (!sel.cats.length && !sel.includeEssays){
-    const c = document.getElementById("quiz-sel-count");
-    c.textContent = "pick at least one category";
-    c.classList.add("is-empty");
-    return;
-  }
-  qzDiff   = diff;
-  qzQueue  = buildQuizQuestions(diff, sel);
-  qzTotal  = qzQueue.length;
-  qzIdx    = 0;
-  qzRight  = 0;
-  qzMissed = [];
-
-  document.getElementById("quiz-start").style.display   = "none";
-  document.getElementById("quiz-done").style.display    = "none";
-  document.getElementById("quiz-session").style.display = "block";
-
-  const badge = document.getElementById("quiz-diff-badge");
-  badge.textContent = diff;
-  badge.className   = "quiz-diff-badge is-" + diff;
-
-  updateQuizProgress();
-  serveQuiz();
-}
-
-function updateQuizProgress(){
-  const pct = qzTotal ? Math.round(100 * qzIdx / qzTotal) : 0;
-  document.getElementById("quiz-prog-fill").style.width = pct + "%";
-  document.getElementById("quiz-prog-txt").textContent  = `${qzIdx} / ${qzTotal}`;
-  document.getElementById("quiz-score").textContent     = `${qzRight} correct`;
-}
-
-function serveQuiz(){
-  if (qzIdx >= qzTotal){ endQuiz(); return; }
-  qzCurrent = qzQueue[qzIdx];
-  qzCurrent.optionsText = shuffledCopy(qzCurrent.optionsText);
-
-  document.getElementById("quiz-type-label").textContent = qzCurrent.promptLabel;
-  document.getElementById("quiz-mc-cat").textContent     = qzCurrent.tag;
-  document.getElementById("quiz-mc-q").textContent       = qzCurrent.prompt;
-
-  const wrap = document.getElementById("quiz-mc-opts");
-  wrap.innerHTML = "";
-  qzCurrent.optionsText.forEach(txt => {
-    const b = document.createElement("button");
-    b.className = "learn-opt";
-    b.textContent = txt;
-    b.addEventListener("click", () => checkQuizMC(b, txt));
-    wrap.appendChild(b);
-  });
-
-  const fb = document.getElementById("quiz-mc-fb");
-  fb.textContent = ""; fb.className = "check-feedback";
-  const explain = document.getElementById("quiz-mc-explain");
-  explain.style.display = "none";
-  explain.textContent   = "";
-  document.getElementById("quiz-mc-next").style.display = "none";
-}
-
-function checkQuizMC(btn, chosenText){
-  const all = document.querySelectorAll("#quiz-mc-opts .learn-opt");
-  all.forEach(b => b.style.pointerEvents = "none");
-  const fb = document.getElementById("quiz-mc-fb");
-  const correct = chosenText === qzCurrent.correctText;
-  if (correct){
-    btn.classList.add("correct");
-    fb.textContent = "✓ Correct.";
-    fb.className   = "check-feedback ok";
-    qzRight += 1;
-  } else {
-    btn.classList.add("wrong");
-    all.forEach(b => { if (b.textContent === qzCurrent.correctText) b.classList.add("correct"); });
-    fb.textContent = `✗ Answer: "${qzCurrent.correctText}".`;
-    fb.className   = "check-feedback bad";
-    qzMissed.push({
-      prompt:  qzCurrent.prompt,
-      correct: qzCurrent.correctText,
-      chosen:  chosenText,
-      explain: qzCurrent.explain,
-    });
-  }
-  const explain = document.getElementById("quiz-mc-explain");
-  if (qzCurrent.explain){
-    explain.textContent   = qzCurrent.explain;
-    explain.style.display = "block";
-  }
-  qzIdx += 1;
-  updateQuizProgress();
-  const nextBtn = document.getElementById("quiz-mc-next");
-  nextBtn.textContent    = (qzIdx >= qzTotal) ? "see results →" : "next →";
-  nextBtn.style.display  = "inline-block";
-}
-
-function endQuiz(){
-  document.getElementById("quiz-session").style.display = "none";
-  document.getElementById("quiz-done").style.display    = "block";
-
-  const pct  = qzTotal ? Math.round(100 * qzRight / qzTotal) : 0;
-  const icon = document.getElementById("quiz-done-icon");
-  icon.textContent = pct >= 80 ? "A" : pct >= 65 ? "B" : pct >= 50 ? "C" : "?";
-
-  document.getElementById("quiz-done-title").textContent = pct >= 80 ? "Strong pass." : pct >= 50 ? "Not bad — review misses below." : "Keep studying.";
-  document.getElementById("quiz-done-txt").textContent   = `${qzDiff} · ${qzRight} / ${qzTotal} correct`;
-
-  const slip = document.getElementById("quiz-score-slip");
-  slip.textContent = `score: ${qzRight} / ${qzTotal} (${pct}%)`;
-
-  const missedWrap = document.getElementById("quiz-missed-wrap");
-  const missedList = document.getElementById("quiz-missed-list");
-  missedList.innerHTML = "";
-  if (qzMissed.length){
-    qzMissed.forEach(m => {
-      const li = document.createElement("li");
-      const qEl = document.createElement("div"); qEl.className = "qm-q"; qEl.textContent = m.prompt;
-      const aEl = document.createElement("div"); aEl.className = "qm-a";
-      aEl.innerHTML = `you said: "${m.chosen}" · correct: <strong>${m.correct}</strong>`;
-      li.appendChild(qEl); li.appendChild(aEl);
-      if (m.explain){
-        const ex = document.createElement("div");
-        ex.style.fontFamily = "'IBM Plex Mono',monospace";
-        ex.style.fontSize   = "12px";
-        ex.style.color      = "var(--pencil)";
-        ex.style.marginTop  = "4px";
-        ex.textContent = m.explain;
-        li.appendChild(ex);
-      }
-      missedList.appendChild(li);
-    });
-    missedWrap.style.display = "block";
-  } else {
-    missedWrap.style.display = "none";
-  }
-}
-
-document.querySelectorAll(".diff-btn").forEach(b => {
-  b.addEventListener("click", () => startQuiz(b.dataset.diff));
-});
-document.getElementById("quiz-mc-next").addEventListener("click", serveQuiz);
-document.getElementById("quiz-restart").addEventListener("click", () => {
-  document.getElementById("quiz-done").style.display  = "none";
-  document.getElementById("quiz-start").style.display = "block";
-});
-document.getElementById("quiz-quit").addEventListener("click", () => {
-  if (!confirm("Quit this quiz? Progress will be lost.")) return;
-  document.getElementById("quiz-session").style.display = "none";
-  document.getElementById("quiz-start").style.display   = "block";
 });
 
 /* =========================================================
@@ -595,17 +289,17 @@ function shuffled(arr){
 function startMatch(){
   clearInterval(matchTimer);
   const picks = shuffled(CARDS).slice(0, MATCH_PAIRS);
-  const tiles  = [];
+  const tiles = [];
   picks.forEach((c, i) => {
     tiles.push({ id: "t" + i, pair: i, kind: "term", text: c.term });
     tiles.push({ id: "d" + i, pair: i, kind: "def",  text: c.def });
   });
   matchState = {
-    tiles:    shuffled(tiles),
+    tiles: shuffled(tiles),
     selected: null,
-    solved:   0,
-    start:    performance.now(),
-    elapsed:  0,
+    solved: 0,
+    start: performance.now(),
+    elapsed: 0,
     finished: false,
   };
   document.getElementById("match-pairs").textContent = `0 / ${MATCH_PAIRS}`;
@@ -624,9 +318,9 @@ function renderMatch(){
   matchState.tiles.forEach(t => {
     const b = document.createElement("button");
     b.className = "match-tile" + (t.kind === "term" ? " is-term" : "");
-    b.dataset.id   = t.id;
+    b.dataset.id = t.id;
     b.dataset.pair = t.pair;
-    b.textContent  = t.text;
+    b.textContent = t.text;
     b.addEventListener("click", () => onMatchClick(b, t));
     grid.appendChild(b);
   });
@@ -678,116 +372,195 @@ document.getElementById("match-new").addEventListener("click", startMatch);
 startMatch();
 
 /* =========================================================
-   DEFINITIONS — glossary with filter + search
+   VOCAB — flat grid, filter + search (matches German pattern)
    ========================================================= */
-const CAT_ORDER = ["Case Frameworks", "Interview Lead", "Candidate Lead"];
-let defFilter = "all";
-let defQuery  = "";
+const vocabGrid   = document.getElementById("vocab-grid");
+const vocabSearch = document.getElementById("vocab-search");
+let vocabFilter = "all";
 
-function renderDefs(){
-  const list = document.getElementById("def-list");
-  list.innerHTML = "";
-  const q    = defQuery.trim().toLowerCase();
-  const pool = CARDS.filter(c => defFilter === "all" || c.cat === defFilter);
-  const cats = defFilter === "all" ? CAT_ORDER : [defFilter];
-  let shown  = 0;
-
-  cats.forEach(cat => {
-    const items   = pool.filter(c => c.cat === cat);
-    const visible = items.filter(c => {
-      if (!q) return true;
-      return (c.term + " " + c.def + " " + (c.hint || "")).toLowerCase().includes(q);
-    });
-    if (!visible.length) return;
-
-    const group = document.createElement("div");
-    group.className = "def-group";
-    const h = document.createElement("h3");
-    h.className   = "def-group-h";
-    h.textContent = cat + " — " + visible.length;
-    group.appendChild(h);
-
-    visible.forEach(c => {
-      const globalIdx = CARDS.indexOf(c) + 1;
-      const item = document.createElement("div");
-      item.className = "def-item";
-      item.innerHTML = `
-        <div class="def-row-top">
-          <span class="def-num">${String(globalIdx).padStart(2,"0")}</span>
-          <span class="def-term">${c.term}</span>
-          <span class="def-cat-badge ${catClass(c.cat)}">${c.cat}</span>
-        </div>
-        <p class="def-def">${c.def}</p>
-        ${c.hint ? `<button class="def-hint-toggle" type="button">show hint ▾</button>
-        <div class="def-hint">${c.hint}</div>` : ""}
-      `;
-      if (c.hint){
-        const btn  = item.querySelector(".def-hint-toggle");
-        const hint = item.querySelector(".def-hint");
-        btn.addEventListener("click", () => {
-          const open = hint.classList.toggle("open");
-          btn.textContent = open ? "hide hint ▴" : "show hint ▾";
-        });
-      }
-      group.appendChild(item);
-      shown++;
-    });
-    list.appendChild(group);
+function renderVocab(){
+  const q = (vocabSearch.value || "").trim().toLowerCase();
+  const items = CARDS.filter(c => {
+    if (vocabFilter !== "all" && c.cat !== vocabFilter) return false;
+    if (!q) return true;
+    return c.term.toLowerCase().includes(q)
+        || c.def.toLowerCase().includes(q)
+        || (c.hint || "").toLowerCase().includes(q);
   });
-
-  if (!shown){
-    const empty = document.createElement("div");
-    empty.className   = "def-empty";
-    empty.textContent = "no terms match that search";
-    list.appendChild(empty);
+  if (!items.length){
+    vocabGrid.innerHTML = `<div class="vocab-empty">${q ? `no terms match "${escapeHTML(q)}"` : "no terms in this filter"}</div>`;
+    return;
   }
-
-  const total = defFilter === "all" ? CARDS.length : CARDS.filter(c => c.cat === defFilter).length;
-  document.getElementById("def-count").textContent = q
-    ? `${shown} / ${total} shown`
-    : `${total} term${total === 1 ? "" : "s"}`;
+  vocabGrid.innerHTML = items.map(v => `
+    <div class="vocab-card">
+      <div class="vocab-de">${escapeHTML(v.term)}</div>
+      <div class="vocab-en">${escapeHTML(v.def)}</div>
+      ${v.hint ? `<div class="vocab-note">${escapeHTML(v.hint)}</div>` : ""}
+    </div>
+  `).join("");
 }
 
-document.querySelectorAll('input[name="dfilter"]').forEach(r => {
-  r.addEventListener("change", () => {
-    if (r.checked){ defFilter = r.value; renderDefs(); }
-  });
-});
-document.getElementById("def-search").addEventListener("input", e => {
-  defQuery = e.target.value;
-  renderDefs();
-});
-renderDefs();
+buildFilterChips("vocab-filter-bar", "vfilter", v => { vocabFilter = v; renderVocab(); });
+vocabSearch.addEventListener("input", renderVocab);
+renderVocab();
 
 /* =========================================================
-   ESSAYS — accordion
+   FRAMEWORKS — accordion
    ========================================================= */
-function renderEssays(){
-  const list = document.getElementById("essay-list");
+function renderFrameworks(){
+  const list = document.getElementById("fw-list");
   list.innerHTML = "";
-  ESSAYS.forEach((e, i) => {
+  FRAMEWORKS.forEach((f, i) => {
     const item = document.createElement("div");
-    item.className = "essay-item";
+    item.className = "fw-item";
     const head = document.createElement("button");
-    head.className = "essay-head";
+    head.className = "fw-head";
     head.innerHTML = `
-      <span class="essay-num">${String(i+1).padStart(2,"0")}</span>
-      <span class="essay-q">${e.q}</span>
-      <span class="essay-toggle">show hint ▾</span>
+      <span class="fw-num">${String(i+1).padStart(2,"0")}</span>
+      <span class="fw-name">${f.name}</span>
+      <span class="fw-toggle">show buckets ▾</span>
     `;
     const body = document.createElement("div");
-    body.className = "essay-body";
-    const hint = document.createElement("div");
-    hint.className   = "essay-hint";
-    hint.textContent = e.hint;
-    body.appendChild(hint);
+    body.className = "fw-body";
+    const ul = document.createElement("ul");
+    ul.className = "fw-buckets";
+    f.buckets.forEach(b => {
+      const li = document.createElement("li");
+      li.textContent = b;
+      ul.appendChild(li);
+    });
+    body.appendChild(ul);
+    if (f.note){
+      const note = document.createElement("p");
+      note.className = "fw-note";
+      note.textContent = f.note;
+      body.appendChild(note);
+    }
     head.addEventListener("click", () => {
       const open = body.classList.toggle("open");
-      head.querySelector(".essay-toggle").textContent = open ? "hide hint ▴" : "show hint ▾";
+      head.querySelector(".fw-toggle").textContent = open ? "hide buckets ▴" : "show buckets ▾";
     });
     item.appendChild(head);
     item.appendChild(body);
     list.appendChild(item);
   });
 }
-renderEssays();
+renderFrameworks();
+
+/* =========================================================
+   CASES — accordion with sub-sections + show/hide answers
+   ========================================================= */
+function renderCases(){
+  const list = document.getElementById("case-list");
+  list.innerHTML = "";
+
+  // toolbar: expand all / collapse all
+  const toolbar = document.getElementById("case-toolbar");
+  toolbar.innerHTML = "";
+  const expandAll   = document.createElement("button");
+  expandAll.className = "mini-btn";
+  expandAll.textContent = "expand all";
+  const collapseAll = document.createElement("button");
+  collapseAll.className = "mini-btn";
+  collapseAll.textContent = "collapse all";
+  toolbar.appendChild(expandAll);
+  toolbar.appendChild(collapseAll);
+
+  CASES.forEach(c => {
+    const item = document.createElement("div");
+    item.className = "case-item";
+
+    const head = document.createElement("button");
+    head.className = "case-head";
+    head.innerHTML = `
+      <span class="case-num">${String(c.id).padStart(2,"0")}</span>
+      <span class="case-title">
+        <span class="case-name">${c.title}</span>
+        <span class="case-meta">${c.industry} · ${c.type} · ${c.difficulty}</span>
+      </span>
+      <span class="case-toggle">show ▾</span>
+    `;
+
+    const body = document.createElement("div");
+    body.className = "case-body";
+
+    const section = (label, html) => {
+      const wrap = document.createElement("div");
+      wrap.className = "case-section";
+      const h = document.createElement("h5");
+      h.className = "case-section-h";
+      h.textContent = label;
+      const d = document.createElement("div");
+      d.className = "case-section-body";
+      d.innerHTML = html;
+      wrap.appendChild(h);
+      wrap.appendChild(d);
+      return wrap;
+    };
+
+    const list2html = arr =>
+      "<ul>" + arr.map(x => `<li>${escapeHTML(x)}</li>`).join("") + "</ul>";
+
+    if (c.behavioral)
+      body.appendChild(section("Behavioral warm-up", `<em>"${escapeHTML(c.behavioral)}"</em>`));
+    body.appendChild(section("Prompt", escapeHTML(c.prompt)));
+    if (c.clarifying?.length)
+      body.appendChild(section("Clarifying info", list2html(c.clarifying)));
+    if (c.framework?.length)
+      body.appendChild(section("Framework buckets", list2html(c.framework)));
+    if (c.math?.length)
+      body.appendChild(section("Key math", list2html(c.math)));
+    if (c.brainstorm)
+      body.appendChild(section("Brainstorming", escapeHTML(c.brainstorm)));
+    if (c.recommendation)
+      body.appendChild(section("Recommendation", escapeHTML(c.recommendation)));
+
+    head.addEventListener("click", () => {
+      const open = body.classList.toggle("open");
+      head.querySelector(".case-toggle").textContent = open ? "hide ▴" : "show ▾";
+    });
+
+    item.appendChild(head);
+    item.appendChild(body);
+    list.appendChild(item);
+  });
+
+  expandAll.addEventListener("click", () => {
+    document.querySelectorAll(".case-body").forEach(b => b.classList.add("open"));
+    document.querySelectorAll(".case-head .case-toggle").forEach(t => t.textContent = "hide ▴");
+  });
+  collapseAll.addEventListener("click", () => {
+    document.querySelectorAll(".case-body").forEach(b => b.classList.remove("open"));
+    document.querySelectorAll(".case-head .case-toggle").forEach(t => t.textContent = "show ▾");
+  });
+}
+
+function escapeHTML(s){
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+renderCases();
+
+/* =========================================================
+   FORMULAS — reference list
+   ========================================================= */
+function renderFormulas(){
+  const list = document.getElementById("formula-list");
+  list.innerHTML = "";
+  FORMULAS.forEach(f => {
+    const item = document.createElement("div");
+    item.className = "formula-item";
+    item.innerHTML = `
+      <div class="formula-name">${escapeHTML(f.name)}</div>
+      <pre class="formula-body">${escapeHTML(f.formula)}</pre>
+      <div class="formula-note">${escapeHTML(f.note || "")}</div>
+    `;
+    list.appendChild(item);
+  });
+}
+renderFormulas();
