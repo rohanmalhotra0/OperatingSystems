@@ -1,6 +1,7 @@
 /* =========================================================
    1Z0-1080-25 — Oracle Planning 2025 Implementation Professional
    v2 expanded: CARDS (106) · ESSAYS (19) · ESSAY_MC (34) · EXAM_Q (36)
+   CARDS (33) · ESSAYS (10) · ESSAY_MC (10) · EXAM_Q (8)
    Categories:
      "Application Setup"   — Planning overview, dims, metadata/data, security
      "Content & Rules"     — Forms/dashboards/navflows, rules, reports
