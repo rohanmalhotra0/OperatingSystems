@@ -186,11 +186,11 @@
      CLIENT — streams from /api/chat via SSE
      ========================================================= */
   const client = {
-    async streamChat({ tab, messages, mode, focus, onDelta, onDone, onError, signal }){
+    async streamChat({ tab, messages, mode, focus, mockCaseId, mockBlock, onDelta, onDone, onError, signal }){
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tab, messages, mode, focus }),
+        body: JSON.stringify({ tab, messages, mode, focus, mockCaseId, mockBlock }),
         signal,
       });
       if (!res.ok){
@@ -223,6 +223,20 @@
         }
       }
       onDone && onDone({ ok: true });
+    },
+
+    async jsonChat({ tab, messages, mode, focus, mockCaseId, mockBlock, signal }){
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tab, messages, mode, focus, mockCaseId, mockBlock, format: "json" }),
+        signal,
+      });
+      if (!res.ok){
+        const txt = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status}: ${txt || "json chat failed"}`);
+      }
+      return res.json();
     },
   };
 
@@ -263,6 +277,7 @@
       <div class="cw-modes" id="cw-modes"></div>
       <div class="cw-msgs" id="cw-msgs"></div>
       <div class="cw-quiz" id="cw-quiz"></div>
+      <div class="cw-mock" id="cw-mock"></div>
       <div class="cw-suggest" id="cw-suggest"></div>
       <div class="cw-input-row" id="cw-input-row">
         <textarea class="cw-textarea" id="cw-input" rows="1" placeholder="ask about ${escapeHtml(CURRENT_TAB.scope)}…"></textarea>
@@ -282,6 +297,7 @@
       modes:   panel.querySelector("#cw-modes"),
       msgs:    panel.querySelector("#cw-msgs"),
       quiz:    panel.querySelector("#cw-quiz"),
+      mock:    panel.querySelector("#cw-mock"),
       suggest: panel.querySelector("#cw-suggest"),
       inputRow:panel.querySelector("#cw-input-row"),
       input:   panel.querySelector("#cw-input"),
@@ -330,7 +346,7 @@
       session = store.getOrCreateForTab(CURRENT_TAB.id, "chat");
     }
     renderSession();
-    setTimeout(() => { if (!isQuizMode()) el.input?.focus(); }, 50);
+    setTimeout(() => { if (!isStructuredMode()) el.input?.focus(); }, 50);
   }
   function closePanel(){
     el.fab.classList.remove("cw-fab--open");
@@ -356,27 +372,40 @@
   }
 
   let quizInstance = null;
+  let mockInstance = null;
 
   function isQuizMode(){ return session?.mode === "quiz"; }
+  function isMockMode(){ return session?.mode === "mock"; }
+  function isStructuredMode(){ return isQuizMode() || isMockMode(); }
 
   function setSurfaceForMode(){
     const quiz = isQuizMode();
+    const mock = isMockMode();
+    const structured = quiz || mock;
     // swap visible sections
-    el.msgs.style.display    = quiz ? "none" : "";
-    el.suggest.style.display = quiz ? "none" : "";
-    el.inputRow.style.display= quiz ? "none" : "";
-    el.foot.style.display    = quiz ? "none" : "";
+    el.msgs.style.display    = structured ? "none" : "";
+    el.suggest.style.display = structured ? "none" : "";
+    el.inputRow.style.display= structured ? "none" : "";
+    el.foot.style.display    = structured ? "none" : "";
+
+    // Quiz
     if (quiz){
-      if (!quizInstance){
-        mountQuiz();
-      }
-    } else {
-      if (quizInstance){
-        window.ChatLab?.quiz?.unmount?.(quizInstance);
-        quizInstance = null;
-        el.quiz.classList.remove("cw-quiz--mounted");
-        el.quiz.innerHTML = "";
-      }
+      if (!quizInstance) mountQuiz();
+    } else if (quizInstance){
+      window.ChatLab?.quiz?.unmount?.(quizInstance);
+      quizInstance = null;
+      el.quiz.classList.remove("cw-quiz--mounted");
+      el.quiz.innerHTML = "";
+    }
+
+    // Mock
+    if (mock){
+      if (!mockInstance) mountMock();
+    } else if (mockInstance){
+      window.ChatLab?.mock?.unmount?.(mockInstance);
+      mockInstance = null;
+      el.mock.classList.remove("cw-mock--mounted");
+      el.mock.innerHTML = "";
     }
   }
 
@@ -400,18 +429,33 @@
     });
   }
 
+  function mountMock(){
+    if (!window.ChatLab?.mock){
+      el.mock.classList.add("cw-mock--mounted");
+      el.mock.innerHTML = `<div class="cw-mock-err">mock module didn't load — check that /assets/mock.js is included on this page.</div>`;
+      return;
+    }
+    mockInstance = window.ChatLab.mock.mount(el.mock, {
+      tabId:    CURRENT_TAB.id,
+      tabLabel: CURRENT_TAB.label,
+      surface:  "widget",
+      streamClient: client,
+      onExit:   () => switchMode("chat"),
+    });
+  }
+
   function switchMode(id){
     if (!session) session = store.getOrCreateForTab(CURRENT_TAB.id, id);
     store.updateSession(session.id, { mode: id });
     session = store.getSession(session.id);
     renderSession();
-    setTimeout(() => { if (!isQuizMode()) el.input?.focus(); }, 50);
+    setTimeout(() => { if (!isStructuredMode()) el.input?.focus(); }, 50);
   }
 
   function renderSession(){
     renderModeBar();
     setSurfaceForMode();
-    if (!isQuizMode()){
+    if (!isStructuredMode()){
       renderMessages();
       renderSuggestions();
     }
