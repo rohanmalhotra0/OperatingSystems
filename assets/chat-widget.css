@@ -931,6 +931,23 @@
   font-size: 18px;
   margin-bottom: 8px;
   color: var(--cw-ink);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cw-mock-settings-close{
+  all: unset;
+  cursor: pointer;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--cw-pencil);
+  padding: 2px 6px;
+  border: 1px solid transparent;
+}
+.cw-mock-settings-close:hover{
+  color: var(--cw-red);
+  border-color: var(--cw-red);
 }
 .cw-mock-settings-row{
   display: flex; align-items: center; justify-content: space-between;

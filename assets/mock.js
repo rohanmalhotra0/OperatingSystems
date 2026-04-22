@@ -100,6 +100,15 @@
       this._stopRecording();
       this._stopAudio();
       if (this.blockTickTimer) { clearInterval(this.blockTickTimer); this.blockTickTimer = null; }
+      // tear down any document listeners attached for the settings popover
+      if (this._settingsDocHandler) {
+        document.removeEventListener("mousedown", this._settingsDocHandler);
+        this._settingsDocHandler = null;
+      }
+      if (this._settingsKeyHandler) {
+        document.removeEventListener("keydown", this._settingsKeyHandler);
+        this._settingsKeyHandler = null;
+      }
       this.root.innerHTML = "";
       this.root.classList.remove("cw-mock--mounted");
     }
@@ -329,7 +338,7 @@
       const label =
         state === "listening"  ? "listening — tap to send" :
         state === "processing" ? "transcribing…" :
-        state === "error"      ? "mic error — tap to retry" :
+        state === "error"      ? (this._micErrorMsg || "mic error — tap to retry") :
                                  "tap to speak · auto-stops on 2s silence";
       const timer = state === "listening"
         ? `<span class="cw-mic-timer" id="cw-mic-timer">${fmtMMSS(this.recordElapsed * 1000)}</span>`
@@ -528,11 +537,14 @@
         if (send) send.disabled = false;
       }
 
-      // Voice mode: speak the AI reply, then auto-arm the mic for the student
-      if (finishedOK && this.voicePrefs.voiceMode && this.voicePrefs.speakReplies && buf.trim()) {
-        await this._playAIReply(buf, aiEl);
-        if (this.voicePrefs.voiceMode && !this.streaming) {
-          // small pause so the student can think before mic re-arms
+      // Voice mode: optionally TTS the reply, then auto-arm the mic.
+      // Auto-arm happens whether or not TTS is enabled — the user is in voice
+      // mode for a reason and shouldn't have to manually tap to keep going.
+      if (finishedOK && this.voicePrefs.voiceMode && buf.trim()) {
+        if (this.voicePrefs.speakReplies) {
+          await this._playAIReply(buf, aiEl);
+        }
+        if (this.voicePrefs.voiceMode && !this.streaming && this.phase === "running") {
           setTimeout(() => {
             if (this.phase === "running" && this.voicePrefs.voiceMode && this.micState === "idle") {
               this.startRecording();
@@ -556,19 +568,25 @@
               <button class="cw-mock-msg-btn" data-act="replay">↻ replay</button>
             `;
             actions.querySelector('[data-act="pause"]').addEventListener("click", () => {
-              if (audio.paused) { audio.play(); }
+              if (audio.paused) { audio.play().catch(() => {}); }
               else { audio.pause(); }
             });
             actions.querySelector('[data-act="replay"]').addEventListener("click", () => {
-              audio.currentTime = 0; audio.play();
+              audio.currentTime = 0;
+              audio.play().catch(() => {});
             });
           }
         }
-        await audio.play();
-        // wait for finish
+        // Resolve when audio finishes naturally OR is stopped externally
+        // (via _stopAudio dispatching a "lab:stopped" event). Without this,
+        // pausing the audio would leave the awaiter hung indefinitely.
         await new Promise(resolve => {
-          audio.addEventListener("ended", resolve, { once: true });
-          audio.addEventListener("error", resolve, { once: true });
+          let done = false;
+          const finish = () => { if (!done) { done = true; resolve(); } };
+          audio.addEventListener("ended",      finish, { once: true });
+          audio.addEventListener("error",      finish, { once: true });
+          audio.addEventListener("lab:stopped", finish, { once: true });
+          audio.play().catch(finish);
         });
       } catch (err) {
         console.warn("TTS failed:", err);
@@ -579,7 +597,11 @@
 
     _stopAudio(){
       if (this.currentAudio) {
-        try { this.currentAudio.pause(); } catch {}
+        try {
+          this.currentAudio.pause();
+          // notify any awaiter inside _playAIReply
+          this.currentAudio.dispatchEvent(new Event("lab:stopped"));
+        } catch {}
         this.currentAudio = null;
       }
     }
@@ -598,10 +620,42 @@
       const pop = this.root.querySelector("#cw-mock-settings");
       if (!pop) return;
       const showing = pop.style.display === "block";
-      if (showing) { pop.style.display = "none"; pop.innerHTML = ""; return; }
+      if (showing) { this._closeSettings(); return; }
+      if (!window.ChatLab?.voice) {
+        pop.style.display = "block";
+        pop.innerHTML = `<div class="cw-mock-settings-h">voice unavailable — /assets/voice.js failed to load.</div>`;
+        return;
+      }
       pop.style.display = "block";
       pop.innerHTML = this._renderSettingsHTML();
       this._wireSettings();
+      // Click-outside-to-close (use mousedown so the dropdown <select> still works)
+      this._settingsDocHandler = (e) => {
+        if (!pop.contains(e.target) && !e.target.closest(".cw-mock-gear")) {
+          this._closeSettings();
+        }
+      };
+      // Escape-to-close
+      this._settingsKeyHandler = (e) => {
+        if (e.key === "Escape") this._closeSettings();
+      };
+      setTimeout(() => {
+        document.addEventListener("mousedown", this._settingsDocHandler);
+        document.addEventListener("keydown",   this._settingsKeyHandler);
+      }, 0);
+    }
+
+    _closeSettings(){
+      const pop = this.root.querySelector("#cw-mock-settings");
+      if (pop) { pop.style.display = "none"; pop.innerHTML = ""; }
+      if (this._settingsDocHandler) {
+        document.removeEventListener("mousedown", this._settingsDocHandler);
+        this._settingsDocHandler = null;
+      }
+      if (this._settingsKeyHandler) {
+        document.removeEventListener("keydown", this._settingsKeyHandler);
+        this._settingsKeyHandler = null;
+      }
     }
 
     _renderSettingsHTML(){
@@ -610,7 +664,10 @@
         `<option value="${esc(x)}"${x === v.voice ? " selected" : ""}>${esc(x)}</option>`
       ).join("");
       return `
-        <div class="cw-mock-settings-h">voice settings</div>
+        <div class="cw-mock-settings-h">
+          voice settings
+          <button class="cw-mock-settings-close" type="button" id="cw-mock-settings-close" aria-label="close">×</button>
+        </div>
         <label class="cw-mock-settings-row">
           <span>interviewer voice</span>
           <select id="cw-mock-voice-sel">${voiceOpts}</select>
@@ -634,6 +691,7 @@
       const speak = this.root.querySelector("#cw-mock-speak-toggle");
       const autoStop = this.root.querySelector("#cw-mock-autostop-toggle");
       const preview = this.root.querySelector("#cw-mock-preview-voice");
+      const close = this.root.querySelector("#cw-mock-settings-close");
       if (sel) sel.addEventListener("change", e => {
         this.voicePrefs.voice = e.target.value;
         saveVoicePrefs(this.voicePrefs);
@@ -654,6 +712,7 @@
           await audio.play();
         } catch (err) { console.warn("preview tts failed:", err); }
       });
+      if (close) close.addEventListener("click", () => this._closeSettings());
     }
 
     /* ---------- mic recording ---------- */
@@ -683,6 +742,16 @@
         onStop: ({ blob, durationMs }) => this._onRecordingStopped(blob, durationMs),
         onError: (err) => {
           console.warn("recorder error:", err);
+          if (this.recordElapsedTimer) {
+            clearInterval(this.recordElapsedTimer);
+            this.recordElapsedTimer = null;
+          }
+          this.recorder = null;
+          // surface a clearer message for the most common failure (mic permission)
+          const msg = (err && err.name === "NotAllowedError")
+            ? "mic permission denied — enable in your browser address bar, then tap to retry"
+            : "mic error — tap to retry";
+          this._micErrorMsg = msg;
           this._setMicState("error");
         },
       });
@@ -726,7 +795,8 @@
         // push as user message
         this.pushVisible("user", text);
         this.turnMeta.push({ audioFromVoice: true, durationMs, audioBlob: blob });
-        this.appendMsgEl("user", text, false, { audioFromVoice: true, durationMs });
+        const msgEl = this.appendMsgEl("user", text, false, { audioFromVoice: true, durationMs });
+        if (msgEl) this._wireUserVoiceActions(msgEl);
         this.scrollMsgsBottom();
         this.runTurn();
       } catch (err) {
@@ -735,12 +805,60 @@
       }
     }
 
+    // Adds re-record / edit buttons to a user voice message. Re-record is
+    // only useful for the LAST user message (otherwise we'd have to surgically
+    // splice the conversation), so the first call to this on each new user
+    // message also strips re-record from any prior ones.
+    _wireUserVoiceActions(msgEl){
+      // strip re-record from any prior user voice messages
+      this.root.querySelectorAll('.cw-msg--user .cw-msg-actions [data-act="rerec"]').forEach(b => b.remove());
+      const actions = msgEl.querySelector(".cw-msg-actions");
+      if (!actions) return;
+      actions.style.display = "flex";
+      actions.innerHTML = `
+        <button class="cw-mock-msg-btn" data-act="rerec">↻ re-record</button>
+      `;
+      actions.querySelector('[data-act="rerec"]').addEventListener("click", () => {
+        if (this.streaming) return;
+        // Pop the last user message (and the AI's empty placeholder if one exists yet)
+        // and re-arm the mic. A guard: only if we're in voice mode.
+        if (!this.voicePrefs.voiceMode) return;
+        // If a turn is mid-stream, abort it.
+        if (this.streamCtrl) try { this.streamCtrl.abort(); } catch {}
+        // Drop the last user msg + any subsequent assistant entries
+        while (this.messages.length && this.messages[this.messages.length - 1].role !== "user") {
+          this.messages.pop();
+          this.turnMeta.pop();
+        }
+        // Drop the user message itself
+        if (this.messages.length && this.messages[this.messages.length - 1].role === "user") {
+          this.messages.pop();
+          this.turnMeta.pop();
+        }
+        // Re-render messages from state
+        const box = this.root.querySelector("#cw-mock-msgs");
+        if (box) {
+          box.innerHTML = "";
+          this.messages.forEach((m, i) => {
+            if (m.hidden) return;
+            const meta = this.turnMeta[i];
+            const el = this.appendMsgEl(m.role, m.content, false, meta);
+            if (el && m.role === "user" && meta?.audioFromVoice) this._wireUserVoiceActions(el);
+          });
+        }
+        this.scrollMsgsBottom();
+        this.startRecording();
+      });
+    }
+
     _setMicState(state){
       this.micState = state;
+      if (!this.voicePrefs.voiceMode) return; // user toggled to text mode mid-recording
       const zone = this.root.querySelector("#cw-mock-input-zone");
       if (!zone) return;
       zone.innerHTML = this._renderVoiceInputHTML();
       this._wireInputZone();
+      if (state !== "error") this._micErrorMsg = null;
     }
 
     _renderMicLevel(rms){
