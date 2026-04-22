@@ -420,12 +420,20 @@ function buildCaseStages(c){
       prompt: "Lay out your framework — 3–4 top-level buckets, MECE. Say it out loud before revealing the book's answer.",
     });
   }
+  if (c.exhibits?.length){
+    stages.push({
+      id: "exhibits",
+      label: "Exhibits",
+      html: c.exhibits.map(renderExhibitHTML).join(""),
+      prompt: "Before peeking at the interviewer's data — what exhibit would you ask for? Sketch what shape of chart or table would clarify the problem.",
+    });
+  }
   if (c.math?.length){
     stages.push({
       id: "math",
       label: "Key math",
       html: list2html(c.math),
-      prompt: "Ask for the exhibit, set up the formula, work through the numbers. Only then reveal.",
+      prompt: "Set up the formula, work through the numbers. Only then reveal.",
     });
   }
   if (c.brainstorm){
@@ -445,6 +453,97 @@ function buildCaseStages(c){
     });
   }
   return stages;
+}
+
+/* =========================================================
+   Exhibit renderer — tables, bar charts, simple line charts.
+   No external libs; SVG + CSS only.
+   ========================================================= */
+function renderExhibitHTML(ex){
+  const title = escapeHTML(ex.title || "Exhibit");
+  const note = ex.note ? `<figcaption class="case-exhibit-note">${escapeHTML(ex.note)}</figcaption>` : "";
+
+  if (ex.type === "table"){
+    const thead = "<tr>" + (ex.columns || []).map(c => `<th>${escapeHTML(c)}</th>`).join("") + "</tr>";
+    const tbody = (ex.rows || []).map(row =>
+      "<tr>" + row.map(cell => `<td>${escapeHTML(cell)}</td>`).join("") + "</tr>"
+    ).join("");
+    return `
+      <figure class="case-exhibit case-exhibit--table">
+        <figcaption class="case-exhibit-title">${title}</figcaption>
+        <table><thead>${thead}</thead><tbody>${tbody}</tbody></table>
+        ${note}
+      </figure>`;
+  }
+
+  if (ex.type === "bar"){
+    const bars = ex.bars || [];
+    const max = Math.max(1, ...bars.map(b => Number(b.value) || 0));
+    const unit = ex.unit ? " " + escapeHTML(ex.unit) : "";
+    const rows = bars.map(b => {
+      const v = Number(b.value) || 0;
+      const pct = Math.max(2, (v / max) * 100);
+      return `
+        <div class="case-bar-row">
+          <div class="case-bar-label">${escapeHTML(b.label)}</div>
+          <div class="case-bar-track"><div class="case-bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
+          <div class="case-bar-value">${escapeHTML(String(b.value))}${unit}</div>
+        </div>`;
+    }).join("");
+    return `
+      <figure class="case-exhibit case-exhibit--bar">
+        <figcaption class="case-exhibit-title">${title}</figcaption>
+        <div class="case-bars">${rows}</div>
+        ${note}
+      </figure>`;
+  }
+
+  if (ex.type === "line"){
+    const pts = ex.points || [];
+    if (!pts.length) return `<figure class="case-exhibit"><figcaption>${title}</figcaption><div class="case-exhibit-empty">no data</div></figure>`;
+    const W = 560, H = 200, padL = 44, padR = 14, padT = 14, padB = 34;
+    const vals = pts.map(p => Number(p.y) || 0);
+    const maxY = Math.max(...vals);
+    const minY = Math.min(...vals);
+    const range = Math.max(1, maxY - minY);
+    const chartW = W - padL - padR;
+    const chartH = H - padT - padB;
+    const xAt = i => padL + (pts.length > 1 ? (i / (pts.length - 1)) * chartW : chartW / 2);
+    const yAt = v => padT + chartH - ((v - minY) / range) * chartH;
+
+    const gridLines = [0.25, 0.5, 0.75].map(t => {
+      const y = padT + chartH - t * chartH;
+      return `<line x1="${padL}" y1="${y}" x2="${padL + chartW}" y2="${y}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="2 3"/>`;
+    }).join("");
+
+    const line = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${xAt(i).toFixed(1)} ${yAt(p.y).toFixed(1)}`).join(" ");
+    const dots = pts.map((p, i) =>
+      `<circle cx="${xAt(i).toFixed(1)}" cy="${yAt(p.y).toFixed(1)}" r="3" fill="currentColor"/>`
+    ).join("");
+    const xLabels = pts.map((p, i) =>
+      `<text x="${xAt(i).toFixed(1)}" y="${H - 12}" text-anchor="middle" font-size="10" fill="currentColor">${escapeHTML(String(p.x))}</text>`
+    ).join("");
+    const yTop    = `<text x="${padL - 6}" y="${padT + 4}" text-anchor="end" font-size="10" fill="currentColor">${escapeHTML(String(maxY))}</text>`;
+    const yBot    = `<text x="${padL - 6}" y="${padT + chartH + 2}" text-anchor="end" font-size="10" fill="currentColor">${escapeHTML(String(minY))}</text>`;
+
+    const unit = ex.unit ? `<div class="case-line-unit">${escapeHTML(ex.unit)}</div>` : "";
+
+    return `
+      <figure class="case-exhibit case-exhibit--line">
+        <figcaption class="case-exhibit-title">${title}</figcaption>
+        <svg class="case-line-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+          ${gridLines}
+          ${yTop}${yBot}
+          <path d="${line}" fill="none" stroke="currentColor" stroke-width="2"/>
+          ${dots}
+          ${xLabels}
+        </svg>
+        ${unit}
+        ${note}
+      </figure>`;
+  }
+
+  return `<figure class="case-exhibit"><figcaption>${title}</figcaption><div class="case-exhibit-empty">unsupported exhibit type: ${escapeHTML(ex.type || "?")}</div></figure>`;
 }
 
 function getInitialRevealed(stages){
@@ -526,6 +625,43 @@ function renderCaseBody(c, body){
   }
 }
 
+function sourceOf(c){ return c.source === "practice" ? "practice" : "darden"; }
+
+function buildCaseItem(c){
+  const src = sourceOf(c);
+  const item = document.createElement("div");
+  item.className = "case-item case-item--" + src;
+  item.dataset.caseId = String(c.id);
+
+  const head = document.createElement("button");
+  head.className = "case-head";
+  head.type = "button";
+  head.innerHTML = `
+    <span class="case-num">${String(c.id).padStart(2,"0")}</span>
+    <span class="case-title">
+      <span class="case-name">${escapeHTML(c.title)}</span>
+      <span class="case-meta">${escapeHTML(c.industry || "")} · ${escapeHTML(c.type || "")} · ${escapeHTML(c.difficulty || "")}</span>
+    </span>
+    <span class="case-source-badge case-source-badge--${src}">${src === "practice" ? "practice pack" : "darden"}</span>
+    <span class="ask-ai-btn" data-ask-mock="${escapeHTML(String(c.id))}" title="run this case as a mock interview" role="button" tabindex="0">mock this ↗</span>
+    <span class="case-toggle">show ▾</span>
+  `;
+
+  const body = document.createElement("div");
+  body.className = "case-body";
+
+  head.addEventListener("click", (e) => {
+    if (e.target.closest(".ask-ai-btn")) return;
+    const open = body.classList.toggle("open");
+    head.querySelector(".case-toggle").textContent = open ? "hide ▴" : "show ▾";
+    if (open) renderCaseBody(c, body);
+  });
+
+  item.appendChild(head);
+  item.appendChild(body);
+  return item;
+}
+
 function renderCases(){
   const list = document.getElementById("case-list");
   list.innerHTML = "";
@@ -549,39 +685,34 @@ function renderCases(){
   toolbar.appendChild(resetAll);
   toolbar.appendChild(collapseAll);
 
-  CASES.forEach(c => {
-    const state = ensureCaseState(c);
-    const item = document.createElement("div");
-    item.className = "case-item";
-    item.dataset.caseId = String(c.id);
+  // Split into Darden + Practice Pack
+  const darden   = CASES.filter(c => sourceOf(c) === "darden");
+  const practice = CASES.filter(c => sourceOf(c) === "practice");
 
-    const head = document.createElement("button");
-    head.className = "case-head";
-    head.type = "button";
-    head.innerHTML = `
-      <span class="case-num">${String(c.id).padStart(2,"0")}</span>
-      <span class="case-title">
-        <span class="case-name">${escapeHTML(c.title)}</span>
-        <span class="case-meta">${escapeHTML(c.industry || "")} · ${escapeHTML(c.type || "")} · ${escapeHTML(c.difficulty || "")}</span>
-      </span>
-      <span class="ask-ai-btn" data-ask-mock="${escapeHTML(String(c.id))}" title="run this case as a mock interview" role="button" tabindex="0">mock this ↗</span>
-      <span class="case-toggle">show ▾</span>
+  const renderSection = (label, sublabel, items, sourceKey) => {
+    if (!items.length) return;
+    const header = document.createElement("div");
+    header.className = "case-section-banner case-section-banner--" + sourceKey;
+    header.innerHTML = `
+      <div class="case-section-banner-main">${escapeHTML(label)}</div>
+      <div class="case-section-banner-sub">${escapeHTML(sublabel)}</div>
     `;
+    list.appendChild(header);
+    items.forEach(c => list.appendChild(buildCaseItem(c)));
+  };
 
-    const body = document.createElement("div");
-    body.className = "case-body";
-
-    head.addEventListener("click", (e) => {
-      if (e.target.closest(".ask-ai-btn")) return;
-      const open = body.classList.toggle("open");
-      head.querySelector(".case-toggle").textContent = open ? "hide ▴" : "show ▾";
-      if (open) renderCaseBody(c, body);
-    });
-
-    item.appendChild(head);
-    item.appendChild(body);
-    list.appendChild(item);
-  });
+  renderSection(
+    "Darden 2024-25 Casebook",
+    "UVA Darden School of Business · 15 cases",
+    darden,
+    "darden"
+  );
+  renderSection(
+    "Practice Pack",
+    "Original supplemental cases in the Darden style · 15 cases · exhibits included",
+    practice,
+    "practice"
+  );
 
   revealAll.addEventListener("click", () => {
     document.querySelectorAll(".case-item").forEach(item => {
