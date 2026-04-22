@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>consult.lab — case interview study notebook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Architects+Daughter&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<!-- PAPER TAPE HEADER -->
+<header class="masthead">
+  <div class="tape tape-left"></div>
+  <div class="tape tape-right"></div>
+  <div class="brand">
+    <h1 class="brand-title">consult<span class="brand-dot">.</span>lab</h1>
+    <p class="brand-sub">consulting & case interviews · 50 terms · 10 essays · interview lead · candidate lead</p>
+  </div>
+  <div class="stamp">
+    <div class="stamp-ring">
+      <span>case</span>
+      <span>PREP</span>
+      <span>interview</span>
+    </div>
+  </div>
+</header>
+
+<!-- INDEX TABS -->
+<nav class="file-tabs" role="tablist">
+  <button class="tab tab--active" data-target="cards">01 · Flashcards</button>
+  <button class="tab" data-target="learn">02 · Learn</button>
+  <button class="tab" data-target="quiz">03 · Quiz</button>
+  <button class="tab" data-target="match">04 · Match</button>
+  <button class="tab" data-target="defs">05 · Definitions</button>
+  <button class="tab" data-target="essays">06 · Essays</button>
+  <button class="tab" data-target="home" onclick="location.href='../index.html';return false">↩ home</button>
+</nav>
+
+<main id="page">
+
+<!-- ================= FLASHCARDS ================= -->
+<section class="sheet sheet--active" id="cards">
+  <div class="sheet-margin">
+    <h2 class="pencil">Flashcards</h2>
+    <p class="kicker">Space = flip · &larr;/&rarr; = prev/next · [K] = got it · [D] = missed. Missed cards resurface more often.</p>
+    <div class="deck-bar">
+      <label class="deck-chip"><input type="radio" name="deck" value="all" checked>All (50)</label>
+      <label class="deck-chip"><input type="radio" name="deck" value="Case Frameworks">Case Frameworks (20)</label>
+      <label class="deck-chip"><input type="radio" name="deck" value="Interview Lead">Interview Lead (15)</label>
+      <label class="deck-chip"><input type="radio" name="deck" value="Candidate Lead">Candidate Lead (15)</label>
+      <button id="shuffle" class="mini-btn">shuffle</button>
+    </div>
+
+    <div class="card-stage">
+      <div class="card" id="flashcard">
+        <div class="card-face card-front">
+          <div class="card-corner">term</div>
+          <div class="card-body" id="card-front">Tap to start</div>
+          <div class="fc-badge cat-badge" id="card-tag" style="display:none"></div>
+        </div>
+        <div class="card-face card-back">
+          <div class="card-corner">def.</div>
+          <div class="card-body" id="card-back"></div>
+          <div class="fc-note" id="card-note"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-controls">
+      <button class="mini-btn" id="prev-card">&larr; prev</button>
+      <button class="mini-btn" id="flip-card">flip</button>
+      <button class="mini-btn" id="next-card">next &rarr;</button>
+      <span class="counter" id="card-counter">0 / 0</span>
+      <button class="mini-btn mini-btn--ok" id="knew">K — got it</button>
+      <button class="mini-btn mini-btn--bad" id="missed">D — missed</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LEARN ================= -->
+<section class="sheet" id="learn">
+  <div class="sheet-margin">
+    <h2 class="pencil">Learn — 4-option multiple choice</h2>
+    <p class="kicker">Pick a category or mix. Each correct answer marks the term mastered; each miss requeues it. Session ends when all selected terms are mastered.</p>
+
+    <div id="learn-start">
+      <p class="deck-label">Pick one or more — mix freely across categories and roles.</p>
+      <div class="deck-bar">
+        <label class="deck-chip"><input type="checkbox" name="lfilter" value="Case Frameworks" checked>Case Frameworks (20)</label>
+        <label class="deck-chip"><input type="checkbox" name="lfilter" value="Interview Lead" checked>Interview Lead (15)</label>
+        <label class="deck-chip"><input type="checkbox" name="lfilter" value="Candidate Lead" checked>Candidate Lead (15)</label>
+        <label class="deck-chip"><input type="checkbox" name="lfilter" value="essays" checked>Essay concepts (10)</label>
+        <button class="mini-btn" data-sel="lfilter" data-act="all">all</button>
+        <button class="mini-btn" data-sel="lfilter" data-act="clear">clear</button>
+      </div>
+      <button class="mini-btn" id="learn-start-btn" style="margin-top:6px">start session &rarr;</button>
+      <span class="sel-count" id="learn-sel-count"></span>
+    </div>
+
+    <div id="learn-session" style="display:none">
+      <div class="learn-prog">
+        <div class="learn-prog-bar"><div class="learn-prog-fill" id="learn-prog-fill" style="width:0%"></div></div>
+        <span class="learn-prog-txt" id="learn-prog-txt">0 / 0 mastered</span>
+      </div>
+
+      <div class="check-box">
+        <h4>multiple choice</h4>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--pencil);margin:0 0 4px" id="learn-mc-cat"></p>
+        <p style="font-family:'Spectral',serif;font-size:17px;margin:0 0 10px" id="learn-mc-q"></p>
+        <div class="learn-mc-opts" id="learn-mc-opts"></div>
+        <div class="check-feedback" id="learn-mc-fb"></div>
+        <button class="mini-btn" id="learn-mc-next" style="display:none;margin-top:10px">continue &rarr;</button>
+      </div>
+    </div>
+
+    <div id="learn-done" style="display:none">
+      <div class="done-screen">
+        <div class="done-icon">✓</div>
+        <div class="done-title">All mastered!</div>
+        <div class="done-sub" id="learn-done-txt"></div>
+        <button class="mini-btn" id="learn-restart">study again &rarr;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="sheet" id="quiz">
+  <div class="sheet-margin">
+    <h2 class="pencil">Quiz — graded, 3 difficulties</h2>
+    <p class="kicker">Easy = definition&rarr;term. Medium mixes directions. Hard adds clue&rarr;term and essay-concept questions. Score at the end with missed-item review.</p>
+
+    <div id="quiz-start">
+      <p class="deck-label">Pick what's on the quiz — then choose a difficulty.</p>
+      <div class="deck-bar">
+        <label class="deck-chip"><input type="checkbox" name="qfilter" value="Case Frameworks" checked>Case Frameworks (20)</label>
+        <label class="deck-chip"><input type="checkbox" name="qfilter" value="Interview Lead" checked>Interview Lead (15)</label>
+        <label class="deck-chip"><input type="checkbox" name="qfilter" value="Candidate Lead" checked>Candidate Lead (15)</label>
+        <label class="deck-chip"><input type="checkbox" name="qfilter" value="essays" checked>Essay concepts (10)</label>
+        <button class="mini-btn" data-sel="qfilter" data-act="all">all</button>
+        <button class="mini-btn" data-sel="qfilter" data-act="clear">clear</button>
+      </div>
+      <span class="sel-count" id="quiz-sel-count" style="display:block;margin:4px 0 10px"></span>
+      <div class="quiz-diff-row">
+        <button class="diff-btn diff-easy" data-diff="easy">
+          <span class="diff-label">easy</span>
+          <span class="diff-desc">10 Q · definition &rarr; term</span>
+        </button>
+        <button class="diff-btn diff-medium" data-diff="medium">
+          <span class="diff-label">medium</span>
+          <span class="diff-desc">15 Q · mixed direction</span>
+        </button>
+        <button class="diff-btn diff-hard" data-diff="hard">
+          <span class="diff-label">hard</span>
+          <span class="diff-desc">20 Q · mixed + essay concepts</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="quiz-session" style="display:none">
+      <div class="quiz-meta">
+        <span class="quiz-diff-badge" id="quiz-diff-badge">easy</span>
+        <span class="quiz-score" id="quiz-score">0 correct</span>
+      </div>
+      <div class="learn-prog">
+        <div class="learn-prog-bar"><div class="learn-prog-fill" id="quiz-prog-fill" style="width:0%"></div></div>
+        <span class="learn-prog-txt" id="quiz-prog-txt">0 / 0</span>
+      </div>
+
+      <div class="check-box">
+        <h4 id="quiz-type-label">multiple choice</h4>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--pencil);margin:0 0 4px" id="quiz-mc-cat"></p>
+        <p style="font-family:'Spectral',serif;font-size:17px;margin:0 0 10px" id="quiz-mc-q"></p>
+        <div class="learn-mc-opts" id="quiz-mc-opts"></div>
+        <div class="check-feedback" id="quiz-mc-fb"></div>
+        <div class="q-explain" id="quiz-mc-explain" style="display:none"></div>
+        <button class="mini-btn" id="quiz-mc-next" style="display:none;margin-top:10px">next &rarr;</button>
+      </div>
+      <button class="mini-btn" id="quiz-quit" style="margin-top:10px">quit quiz</button>
+    </div>
+
+    <div id="quiz-done" style="display:none">
+      <div class="done-screen">
+        <div class="done-icon" id="quiz-done-icon">✓</div>
+        <div class="done-title" id="quiz-done-title">Quiz complete</div>
+        <div class="done-sub"   id="quiz-done-txt"></div>
+        <div class="score-slip" id="quiz-score-slip"></div>
+        <div id="quiz-missed-wrap" style="display:none;text-align:left;margin-top:18px">
+          <h4 style="font-family:'Caveat',cursive;font-size:24px;color:var(--red);margin:0 0 8px">review — missed items</h4>
+          <ul id="quiz-missed-list" class="quiz-missed-list"></ul>
+        </div>
+        <button class="mini-btn" id="quiz-restart" style="margin-top:14px">try another quiz &rarr;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MATCH ================= -->
+<section class="sheet" id="match">
+  <div class="sheet-margin">
+    <h2 class="pencil">Match — 6 pairs, timed</h2>
+    <p class="kicker">Click a term, then click its definition. Match all 6 pairs as fast as you can. Terms are drawn randomly from all 50 cards each round.</p>
+
+    <div class="match-bar">
+      <span>time: <strong id="match-time" class="match-timer">0.0s</strong></span>
+      <span>pairs: <strong id="match-pairs">0 / 6</strong></span>
+      <button class="mini-btn" id="match-new">new round</button>
+    </div>
+
+    <div class="match-grid" id="match-grid"></div>
+    <div class="match-win" id="match-win"></div>
+  </div>
+</section>
+
+<!-- ================= DEFINITIONS ================= -->
+<section class="sheet" id="defs">
+  <div class="sheet-margin">
+    <h2 class="pencil">Definitions — all 50 terms</h2>
+    <p class="kicker">Full glossary grouped by category. Filter by role or search by keyword. Click any row to reveal the study hint.</p>
+
+    <div class="deck-bar">
+      <label class="deck-chip"><input type="radio" name="dfilter" value="all" checked>All (50)</label>
+      <label class="deck-chip"><input type="radio" name="dfilter" value="Case Frameworks">Case Frameworks (20)</label>
+      <label class="deck-chip"><input type="radio" name="dfilter" value="Interview Lead">Interview Lead (15)</label>
+      <label class="deck-chip"><input type="radio" name="dfilter" value="Candidate Lead">Candidate Lead (15)</label>
+    </div>
+    <div class="def-search-row">
+      <input type="text" id="def-search" class="def-search" placeholder="search term, definition, or hint…" autocomplete="off">
+      <span class="def-count" id="def-count"></span>
+    </div>
+
+    <div class="def-list" id="def-list"></div>
+  </div>
+</section>
+
+<!-- ================= ESSAYS ================= -->
+<section class="sheet" id="essays">
+  <div class="sheet-margin">
+    <h2 class="pencil">Essay prompts — 10 practice cases</h2>
+    <p class="kicker">Each prompt is a full open-ended case or scenario from the interviewer or candidate perspective. Try to outline an answer before expanding the hint. Hints are structured argument skeletons, not model answers.</p>
+    <div class="essay-list" id="essay-list"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <span>consult.lab · case & interview prep · &larr;/&rarr; arrow keys switch tabs · good luck in the room!</span>
+  <div style="margin-top:6px">
+    want to contribute? →
+    <a href="https://github.com/rohanmalhotra0/OperatingSystems" style="color:var(--ink);border-bottom:1px solid var(--red);text-decoration:none;margin:0 4px">github repo</a>
+    ·
+    <a href="https://rohanm.org" style="color:var(--ink);border-bottom:1px solid var(--red);text-decoration:none;margin:0 4px">rohanm.org</a>
+  </div>
+</footer>
+
+<script src="content.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
