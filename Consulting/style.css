@@ -1338,6 +1338,42 @@ h2.pencil::after{
 .case-section-body li{ padding: 2px 0; }
 .case-section-body em{ color: var(--pencil); }
 
+/* ---------- Progressive-reveal "think first" panel ---------- */
+.case-think{
+  margin-top: 14px;
+  background: var(--paper-soft);
+  border: 1.5px dashed var(--ink);
+  padding: 14px 16px;
+  position: relative;
+}
+.case-think::before{
+  content: "🧠  your turn";
+  position: absolute;
+  top: -10px; left: 14px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  padding: 1px 8px;
+  color: var(--red);
+  text-transform: uppercase;
+}
+.case-think-prompt{
+  font-family:'Spectral', serif;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 6px 0 12px;
+}
+.case-think-actions{
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.case-reset{
+  margin-top: 14px;
+}
+
 /* ---------- Vocab empty state (reuses German-style .vocab-grid / .vocab-card / .search) ---------- */
 .vocab-empty{
   font-family:'IBM Plex Mono', monospace;
