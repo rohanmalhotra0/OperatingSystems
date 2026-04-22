@@ -35,6 +35,7 @@
       this.surface = opts.surface || "widget"; // "widget" | "page"
       this.onExit = typeof opts.onExit === "function" ? opts.onExit : () => {};
       this.streamClient = opts.streamClient || window.ChatLab?.client;
+      this.initialCaseId = opts.initialCaseId != null ? String(opts.initialCaseId) : null;
 
       this.allCases = [];
       this.filter = { type: "all", difficulty: "all" };
@@ -59,8 +60,25 @@
         this.renderError("no cases available for this tab — mock mode is built for Consulting cases.");
         return;
       }
+      // If the caller pre-selected a case (askAI from a case header), jump
+      // straight into it and skip the picker.
+      if (this.initialCaseId){
+        const preset = this.allCases.find(c => String(c.id) === this.initialCaseId);
+        this.initialCaseId = null;
+        if (preset){ this.startCase(preset); return; }
+      }
       this.phase = "picker";
       this.renderPicker();
+    }
+
+    startCaseById(id){
+      if (!this.allCases.length){
+        // not loaded yet — remember it for begin() to pick up
+        this.initialCaseId = String(id);
+        return;
+      }
+      const c = this.allCases.find(x => String(x.id) === String(id));
+      if (c) this.startCase(c);
     }
 
     teardown(){

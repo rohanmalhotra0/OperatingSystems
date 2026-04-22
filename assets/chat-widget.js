@@ -7,13 +7,16 @@
   "use strict";
 
   /* ---------- tab detection ---------- */
+  // hasCases flags which tabs have a CASES array in their content pack
+  // (→ show the "mock" pill in the chat widget). Only Consulting currently
+  // does; if you add cases to another tab, flip the flag here.
   const TABS = {
-    "":           { id: "home",       label: "rohan.lab",       scope: "cross-course help" },
-    "consulting": { id: "consulting", label: "darden.lab",      scope: "consulting / case interviews" },
-    "politics":   { id: "politics",   label: "pol500.lab",      scope: "pol-ua 500 exam #2" },
-    "oracle":     { id: "oracle",     label: "epm1080.lab",     scope: "oracle planning cert" },
-    "german":     { id: "german",     label: "deutsch.lab",     scope: "german II k5–k8" },
-    "studytool":  { id: "studytool",  label: "cs202.lab",       scope: "operating systems" },
+    "":           { id: "home",       label: "rohan.lab",       scope: "cross-course help",           hasCases: false },
+    "consulting": { id: "consulting", label: "darden.lab",      scope: "consulting / case interviews", hasCases: true  },
+    "politics":   { id: "politics",   label: "pol500.lab",      scope: "pol-ua 500 exam #2",          hasCases: false },
+    "oracle":     { id: "oracle",     label: "epm1080.lab",     scope: "oracle planning cert",        hasCases: false },
+    "german":     { id: "german",     label: "deutsch.lab",     scope: "german II k5–k8",             hasCases: false },
+    "studytool":  { id: "studytool",  label: "cs202.lab",       scope: "operating systems",           hasCases: false },
   };
 
   function detectTab(){
@@ -28,43 +31,34 @@
 
   const CURRENT_TAB = detectTab();
 
-  /* ---------- starter prompts per tab + mode ---------- */
+  /* ---------- starter prompts per tab + mode ----------
+     Only chat and explain show starters. Quiz and mock mount their own
+     structured UIs (picker → session), so their starter arrays are dead
+     code and have been removed. */
   const STARTERS = {
     consulting: {
       chat:    ["What's the difference between a profitability and growth case?", "Walk me through the 5 building blocks of a case.", "When do I use perpetuity vs simple payback?"],
-      quiz:    ["Quiz me on industry vocab.", "Quiz me on formulas and margins.", "Quiz me on case types and frameworks."],
       explain: ["Explain the M&A framework.", "Explain NPV of a perpetuity.", "Explain the Ansoff growth matrix."],
-      mock:    ["Run case #7 (Jane Darden's Ranch).", "Pick a random 2-star case and interview me.", "Give me a market-entry case I haven't seen."],
     },
     politics: {
       chat:    ["Why do people bother to vote at all?", "What's the difference between ethnic fractionalization and polarization?", "Running tally vs partisan identity — how do they differ?"],
-      quiz:    ["Quiz me on Voting & Participation.", "Quiz me on Parties & Systems.", "Mixed quiz across all 3 categories."],
       explain: ["Explain Duverger's Law.", "Explain cross-cutting vs reinforcing cleavages.", "Explain the collective action problem."],
-      mock:    ["Give me an essay prompt from the exam and grade my answer.", "Essay drill: Voice vs Exit vs Loyalty."],
     },
     oracle: {
       chat:    ["What's the difference between dimensions and members?", "When should I use a calculation rule vs a business rule?"],
-      quiz:    ["Quiz me on EPM Planning modules.", "Quiz me on IPM features."],
       explain: ["Explain approvals workflow.", "Explain data map vs smart push."],
-      mock:    ["Run an exam-style multi-select question."],
     },
     german: {
       chat:    ["When do I use Dativ vs Akkusativ with two-way prepositions?", "Perfekt vs Präteritum — when is each used?"],
-      quiz:    ["Quiz me on K7 vocab.", "Quiz me on Konjunktiv II forms."],
       explain: ["Explain Relativpronomen case rules.", "Explain Passiv vs Aktiv."],
-      mock:    ["Drill verb conjugations."],
     },
     studytool: {
       chat:    ["Walk me through fork/exec/pipe.", "How does x86-64 paging work?"],
-      quiz:    ["Quiz me on WeensyOS.", "Quiz me on mutexes and concurrency."],
       explain: ["Explain crash recovery.", "Explain TLB misses."],
-      mock:    ["Give me an exam-style problem."],
     },
     home: {
       chat:    ["What's on rohan.lab?", "Which course should I study first today?"],
-      quiz:    ["Pick a random term from any course and quiz me."],
       explain: ["Explain how this site is organized."],
-      mock:    ["Pick any mock exercise from any course."],
     },
   };
 
@@ -363,6 +357,8 @@
     ];
     el.modes.innerHTML = "";
     modes.forEach(([id, label]) => {
+      // Mock only makes sense on tabs that have cases — hide it elsewhere.
+      if (id === "mock" && !CURRENT_TAB.hasCases) return;
       const b = document.createElement("button");
       b.className = "cw-mode" + (session?.mode === id ? " cw-mode--active" : "");
       b.textContent = label;
@@ -441,6 +437,8 @@
       surface:  "widget",
       streamClient: client,
       onExit:   () => switchMode("chat"),
+      // Honor any case pre-selected by askAI() before mount.
+      initialCaseId: window.ChatLab?._consumePendingMockCaseId?.(),
     });
   }
 
@@ -571,9 +569,59 @@
     }[c]));
   }
 
+  /* =========================================================
+     askAI() — one-call entry point used by content pages to jump the
+     student into the chat widget pre-populated. Called by small
+     "ask AI" icons scattered across vocab cards, cases, frameworks, etc.
+     Shapes:
+       askAI({ mode: "explain", focus: "NPV", prompt: "Explain NPV…" })
+       askAI({ mode: "mock",    caseId: 7 })
+       askAI({ mode: "chat",    prompt: "open a discussion about…" })
+     ========================================================= */
+  let pendingMockCaseId = null;
+
+  function askAI(opts){
+    const o = opts || {};
+    const mode = o.mode || "chat";
+
+    // Ensure panel + session exist
+    if (!el.panel) return; // widget not initialized (e.g., on /chat.html)
+    if (!session) session = store.getOrCreateForTab(CURRENT_TAB.id, mode);
+    if (session.mode !== mode){
+      store.updateSession(session.id, { mode });
+      session = store.getSession(session.id);
+    }
+    openPanel();
+
+    if (mode === "mock"){
+      // If mock is already mounted, tell it to start this case now; otherwise
+      // stash the id so mountMock() picks it up.
+      pendingMockCaseId = o.caseId || null;
+      if (mockInstance && typeof mockInstance.startCaseById === "function" && pendingMockCaseId){
+        const id = pendingMockCaseId;
+        pendingMockCaseId = null;
+        mockInstance.startCaseById(id);
+      }
+      return;
+    }
+
+    // explain / chat: pre-fill the input, auto-send if a prompt was given
+    const promptText = o.prompt || (o.focus ? `Explain "${o.focus}" in depth — definition, intuition, one example, and common traps.` : "");
+    if (!promptText) return;
+    // wait for renderSession to have swapped to chat UI, then send
+    setTimeout(() => {
+      if (!el.input) return;
+      el.input.value = promptText;
+      onSend();
+    }, 60);
+  }
+
   /* ---------- expose for full-page + init ---------- */
   window.ChatLab = Object.assign(window.ChatLab || {}, {
     store, client, TABS, CURRENT_TAB, STARTERS, escapeHtml,
+    askAI,
+    // expose a getter so mock mount can consume the pending caseId
+    _consumePendingMockCaseId(){ const id = pendingMockCaseId; pendingMockCaseId = null; return id; },
   });
 
   if (document.readyState === "loading"){

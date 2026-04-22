@@ -744,10 +744,18 @@ h2.pencil::after{
   padding: 10px 14px;
   box-shadow: 2px 2px 0 var(--ink);
 }
+.vocab-card-head{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
 .vocab-de{
   font-family:'Architects Daughter', cursive;
   font-size: 18px;
   color: var(--ink);
+  flex: 1;
+  min-width: 0;
 }
 .vocab-en{
   font-family:'Spectral', serif;
@@ -1351,12 +1359,20 @@ h2.pencil::after{
   box-shadow: 3px 3px 0 var(--ink);
   padding: 14px 16px;
 }
+.formula-head{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
 .formula-name{
   font-family:'Caveat', cursive;
   font-size: 24px;
   color: var(--ink);
   line-height: 1.1;
-  margin-bottom: 6px;
+  flex: 1;
+  min-width: 0;
 }
 .formula-body{
   background: var(--tab-3);

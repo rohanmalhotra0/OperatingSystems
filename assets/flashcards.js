@@ -195,6 +195,22 @@
         }
       }
 
+      // Inject "ask AI" button on the back of the card (only if the widget is
+      // present — i.e., not on /chat.html). Hidden until the card is flipped
+      // so it doesn't distract from active recall.
+      if (!document.getElementById("card-ask-ai")) {
+        const back = cardsSheet.querySelector(".card-back");
+        if (back) {
+          const btn = document.createElement("button");
+          btn.id = "card-ask-ai";
+          btn.className = "fc-ask-ai";
+          btn.type = "button";
+          btn.textContent = "ask AI ↗";
+          btn.title = "open the tutor pre-loaded with this term";
+          back.appendChild(btn);
+        }
+      }
+
       // cache refs
       this.el = {
         card:        document.getElementById("flashcard"),
@@ -203,6 +219,7 @@
         tag:         document.getElementById("card-tag"),
         note:        document.getElementById("card-note"),
         hintToggle:  document.getElementById("card-hint-toggle"),
+        askAiBtn:    document.getElementById("card-ask-ai"),
         counter:     document.getElementById("card-counter"),
         undoBtn:     document.getElementById("undo-card"),
         flipBtn:     document.getElementById("flip-card"),
@@ -227,9 +244,10 @@
     }
 
     wireButtons(){
-      const { card, flipBtn, undoBtn, knewBtn, missedBtn, shuffleBtn, retryBtn, newRunBtn, hintToggle } = this.el;
+      const { card, flipBtn, undoBtn, knewBtn, missedBtn, shuffleBtn, retryBtn, newRunBtn, hintToggle, askAiBtn } = this.el;
       if (card) card.addEventListener("click", (e) => {
         if (e.target.closest(".fc-hint-toggle")) return;
+        if (e.target.closest(".fc-ask-ai")) return;
         this.flip();
       });
       if (flipBtn)    flipBtn.addEventListener("click",    (e) => { e.stopPropagation(); this.flip(); });
@@ -240,6 +258,18 @@
       if (retryBtn)   retryBtn.addEventListener("click",   () => this.retryMissed());
       if (newRunBtn)  newRunBtn.addEventListener("click",  () => this.startRun());
       if (hintToggle) hintToggle.addEventListener("click", (e) => { e.stopPropagation(); this.toggleHint(); });
+      if (askAiBtn)   askAiBtn.addEventListener("click",   (e) => {
+        e.stopPropagation();
+        const s = this.active;
+        const card = s?.queue?.[0];
+        if (!card || !window.ChatLab?.askAI) return;
+        const term = this.termOf(card);
+        window.ChatLab.askAI({
+          mode: "explain",
+          focus: term,
+          prompt: `Explain "${term}" in depth — definition, intuition, one concrete example, and 1-2 common traps a student might fall into.`,
+        });
+      });
     }
 
     wireKeyboard(){
