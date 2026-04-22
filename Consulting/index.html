@@ -40,34 +40,56 @@
 <section class="sheet sheet--active" id="cards">
   <div class="sheet-margin">
     <h2 class="pencil">Flashcards</h2>
-    <p class="kicker">Space = flip · &larr;/&rarr; = prev/next · [K] = got it · [D] = missed. Missed cards come back more often. Filter by topic below.</p>
+    <p class="kicker">Space = flip · [K] = got it (retires card) · [D] = missed (requeues) · [H] = reveal hint · [U] = undo. Each filter is a finite session — you're done when every card is mastered.</p>
     <div class="deck-bar" id="card-filter-bar">
       <!-- filter chips injected by app.js -->
-      <button id="shuffle" class="mini-btn">shuffle</button>
+      <button id="shuffle" class="mini-btn" title="restart this session">↻ reset</button>
     </div>
 
-    <div class="card-stage">
-      <div class="card" id="flashcard">
-        <div class="card-face card-front">
-          <div class="card-corner">term</div>
-          <div class="card-body" id="card-front">Tap to start</div>
-          <div class="fc-badge cat-badge" id="card-tag" style="display:none"></div>
+    <!-- progress -->
+    <div class="fc-prog" id="fc-prog">
+      <div class="fc-prog-bar"><div class="fc-prog-fill" id="fc-prog-fill" style="width:0%"></div></div>
+      <span class="fc-prog-txt" id="fc-prog-txt">0 / 0 mastered</span>
+      <span class="fc-prog-queue" id="fc-prog-queue"></span>
+    </div>
+
+    <!-- active card stage -->
+    <div id="fc-stage-active">
+      <div class="card-stage">
+        <div class="card" id="flashcard">
+          <div class="card-face card-front">
+            <div class="card-corner">term</div>
+            <div class="card-body" id="card-front">Tap to start</div>
+            <div class="fc-badge cat-badge" id="card-tag" style="display:none"></div>
+          </div>
+          <div class="card-face card-back">
+            <div class="card-corner">def.</div>
+            <div class="card-body" id="card-back"></div>
+            <button class="fc-hint-toggle" id="card-hint-toggle" type="button" style="display:none">show hint</button>
+            <div class="fc-note" id="card-note" hidden></div>
+          </div>
         </div>
-        <div class="card-face card-back">
-          <div class="card-corner">def.</div>
-          <div class="card-body" id="card-back"></div>
-          <div class="fc-note" id="card-note"></div>
-        </div>
+      </div>
+
+      <div class="card-controls">
+        <button class="mini-btn" id="undo-card" title="undo last rating" disabled>↶ undo</button>
+        <button class="mini-btn" id="flip-card">flip</button>
+        <span class="counter" id="card-counter">0 / 0</span>
+        <button class="mini-btn mini-btn--ok" id="knew">K — got it</button>
+        <button class="mini-btn mini-btn--bad" id="missed">D — missed</button>
       </div>
     </div>
 
-    <div class="card-controls">
-      <button class="mini-btn" id="prev-card">&larr; prev</button>
-      <button class="mini-btn" id="flip-card">flip</button>
-      <button class="mini-btn" id="next-card">next &rarr;</button>
-      <span class="counter" id="card-counter">0 / 0</span>
-      <button class="mini-btn mini-btn--ok" id="knew">K — got it</button>
-      <button class="mini-btn mini-btn--bad" id="missed">D — missed</button>
+    <!-- session complete -->
+    <div id="fc-stage-done" class="fc-done" style="display:none">
+      <div class="fc-done-icon">✓</div>
+      <div class="fc-done-title">session complete</div>
+      <div class="fc-done-stats" id="fc-done-stats"></div>
+      <div class="fc-done-actions">
+        <button class="mini-btn mini-btn--ok" id="fc-retry-missed">retry missed</button>
+        <button class="mini-btn" id="fc-new-run">new session</button>
+        <button class="mini-btn" id="fc-switch-filter">switch filter</button>
+      </div>
     </div>
   </div>
 </section>
