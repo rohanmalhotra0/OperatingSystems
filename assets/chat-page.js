@@ -217,9 +217,8 @@
     activeSession = store.getSession(activeSession.id);
     el.input.value = ""; autosize();
 
-    // clear empty state; re-render fresh
+    // replace empty state with persisted messages (includes the user msg we just added)
     renderMessages();
-    appendMsgEl("user", text);
     const aiEl = appendMsgEl("assistant", "");
     aiEl.classList.add("cw-msg--typing");
     const bodyEl = aiEl.querySelector(".cw-msg-body");
