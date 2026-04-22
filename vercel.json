@@ -8,6 +8,12 @@
     "api/content.js": {
       "maxDuration": 10,
       "includeFiles": "{Consulting,Politics,Oracle,German,StudyTool}/content.js"
+    },
+    "api/transcribe.js": {
+      "maxDuration": 30
+    },
+    "api/tts.js": {
+      "maxDuration": 30
     }
   },
   "headers": [

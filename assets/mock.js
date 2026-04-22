@@ -46,6 +46,20 @@
       this.streamCtrl = null;
       this.phase = "loading";   // loading | picker | running | done
       this.grade = null;
+
+      /* ---------- voice state ---------- */
+      this.voicePrefs = loadVoicePrefs();
+      this.recorder = null;
+      this.micState = "idle";   // idle | listening | processing | error
+      this.micLevel = 0;
+      this.recordElapsed = 0;   // seconds since recording started
+      this.recordElapsedTimer = null;
+      this.currentAudio = null; // Audio element for AI TTS playback
+      this.lastTurnAudio = null; // { blob, durationMs, mimeType } for the last recorded user turn
+      this.turnMeta = [];       // one entry per visible chat msg: { role, durationMs?, audioUrl?, audioBlob? }
+      this.blockStartTimes = [Date.now()];
+      this.blockDurations = []; // closed durations (ms) for completed blocks
+      this.blockTickTimer = null;
     }
 
     async begin(){
@@ -83,6 +97,18 @@
 
     teardown(){
       if (this.streamCtrl) try { this.streamCtrl.abort(); } catch {}
+      this._stopRecording();
+      this._stopAudio();
+      if (this.blockTickTimer) { clearInterval(this.blockTickTimer); this.blockTickTimer = null; }
+      // tear down any document listeners attached for the settings popover
+      if (this._settingsDocHandler) {
+        document.removeEventListener("mousedown", this._settingsDocHandler);
+        this._settingsDocHandler = null;
+      }
+      if (this._settingsKeyHandler) {
+        document.removeEventListener("keydown", this._settingsKeyHandler);
+        this._settingsKeyHandler = null;
+      }
       this.root.innerHTML = "";
       this.root.classList.remove("cw-mock--mounted");
     }
@@ -189,8 +215,12 @@
       this.selected = caseData;
       this.blockIdx = 0;
       this.messages = [];
+      this.turnMeta = [];
       this.grade = null;
       this.phase = "running";
+      this.blockStartTimes = [Date.now()];
+      this.blockDurations = [];
+      this._startBlockTicker();
       this.renderRun();
       // kick off the interviewer: send a starter user message to prompt the AI to open the case
       this.sendControl("Ready when you are — give me the prompt and open the first block.");
@@ -199,18 +229,11 @@
     renderRun(){
       const c = this.selected;
       const blk = BLOCKS[this.blockIdx];
-      const stepHTML = BLOCKS.map((b, i) => {
-        const state = i < this.blockIdx ? "done" : i === this.blockIdx ? "active" : "todo";
-        return `
-          <div class="cw-mock-step cw-mock-step--${state}" data-step="${i}">
-            <span class="cw-mock-step-n">${i+1}</span>
-            <span class="cw-mock-step-lbl">${esc(b.label)}</span>
-          </div>`;
-      }).join('<span class="cw-mock-step-sep"></span>');
+      const voice = !!this.voicePrefs.voiceMode;
 
       this.root.innerHTML = `
-        <div class="cw-mock-run cw-mock-run--${this.surface}">
-          <div class="cw-mock-stepper">${stepHTML}</div>
+        <div class="cw-mock-run cw-mock-run--${this.surface}${voice ? " cw-mock-run--voice" : ""}">
+          <div class="cw-mock-stepper" id="cw-mock-stepper">${this._renderStepperHTML()}</div>
 
           <div class="cw-mock-split">
             <aside class="cw-mock-casepane">
@@ -227,28 +250,35 @@
               </div>
               <div class="cw-mock-case-section">
                 <div class="cw-mock-case-lbl">current block</div>
-                <div class="cw-mock-case-body"><b>${esc(blk.full)}</b></div>
+                <div class="cw-mock-case-body"><b id="cw-mock-cur-block">${esc(blk.full)}</b></div>
               </div>
               <div class="cw-mock-case-section cw-mock-tips">
                 <div class="cw-mock-case-lbl">tips</div>
-                <ul class="cw-mock-tips-list">${tipsFor(blk.id).map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+                <ul class="cw-mock-tips-list" id="cw-mock-tips-list">${tipsFor(blk.id).map(t => `<li>${esc(t)}</li>`).join("")}</ul>
               </div>
             </aside>
 
             <section class="cw-mock-chatpane">
               <div class="cw-mock-msgs" id="cw-mock-msgs"></div>
-              <div class="cw-mock-input-row">
-                <textarea class="cw-textarea" id="cw-mock-input" rows="1" placeholder="your answer to the interviewer…"></textarea>
-                <button class="cw-send" id="cw-mock-send">send</button>
+
+              <div class="cw-mock-input-zone" id="cw-mock-input-zone">
+                ${voice ? this._renderVoiceInputHTML() : this._renderTextInputHTML()}
               </div>
+
               <div class="cw-mock-runbar">
                 <button class="cw-iconbtn cw-iconbtn--ghost" data-act="exit">exit</button>
                 <button class="cw-iconbtn" data-act="hint" title="ask for a nudge without giving the answer">?  hint</button>
+                <button class="cw-iconbtn cw-mock-mode-toggle" data-act="mode" title="${voice ? "switch to typing" : "switch to voice"}">
+                  ${voice ? "✎ type" : "🎙 voice"}
+                </button>
+                <button class="cw-iconbtn cw-mock-gear" data-act="settings" title="voice settings">⚙</button>
                 <span class="cw-mock-runbar-spacer"></span>
                 <button class="cw-iconbtn${this.blockIdx === BLOCKS.length - 1 ? " cw-iconbtn--primary" : ""}" data-act="advance">
                   ${this.blockIdx === BLOCKS.length - 1 ? "finish & grade →" : `next: ${esc(BLOCKS[this.blockIdx+1].label)} →`}
                 </button>
               </div>
+
+              <div class="cw-mock-settings-popover" id="cw-mock-settings" style="display:none"></div>
             </section>
           </div>
         </div>
@@ -256,25 +286,95 @@
       this.root.classList.add("cw-mock--mounted");
 
       this.renderMessages();
-
-      const send = () => this.onUserSend();
-      const input = this.root.querySelector("#cw-mock-input");
-      this.root.querySelector("#cw-mock-send").addEventListener("click", send);
-      input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send(); }
-      });
-      input.addEventListener("input", () => {
-        input.style.height = "auto";
-        input.style.height = Math.min(160, input.scrollHeight) + "px";
-      });
+      this._wireInputZone();
 
       this.root.querySelector('[data-act="exit"]').addEventListener("click", () => {
         if (confirm("exit the mock? your progress will be discarded.")) this.onExit();
       });
       this.root.querySelector('[data-act="hint"]').addEventListener("click", () => this.requestHint());
       this.root.querySelector('[data-act="advance"]').addEventListener("click", () => this.advanceBlock());
+      this.root.querySelector('[data-act="mode"]').addEventListener("click", () => this.toggleVoiceMode());
+      this.root.querySelector('[data-act="settings"]').addEventListener("click", () => this.toggleSettings());
 
-      setTimeout(() => input.focus(), 50);
+      if (!voice) {
+        const input = this.root.querySelector("#cw-mock-input");
+        if (input) setTimeout(() => input.focus(), 50);
+      }
+    }
+
+    _renderStepperHTML(){
+      return BLOCKS.map((b, i) => {
+        const state = i < this.blockIdx ? "done" : i === this.blockIdx ? "active" : "todo";
+        let timerHTML = "";
+        if (state === "done") {
+          const dur = this.blockDurations[i];
+          if (dur != null) timerHTML = `<span class="cw-mock-step-time">${fmtMMSS(dur)}</span>`;
+        } else if (state === "active") {
+          const start = this.blockStartTimes[i] || Date.now();
+          const dur = Date.now() - start;
+          timerHTML = `<span class="cw-mock-step-time cw-mock-step-time--live" data-live="1">${fmtMMSS(dur)}</span>`;
+        }
+        return `
+          <div class="cw-mock-step cw-mock-step--${state}" data-step="${i}">
+            <span class="cw-mock-step-n">${i+1}</span>
+            <span class="cw-mock-step-lbl">${esc(b.label)}</span>
+            ${timerHTML}
+          </div>`;
+      }).join('<span class="cw-mock-step-sep"></span>');
+    }
+
+    _renderTextInputHTML(){
+      return `
+        <div class="cw-mock-input-row">
+          <textarea class="cw-textarea" id="cw-mock-input" rows="1" placeholder="your answer to the interviewer…"></textarea>
+          <button class="cw-send" id="cw-mock-send">send</button>
+        </div>
+      `;
+    }
+
+    _renderVoiceInputHTML(){
+      const state = this.micState;
+      const levelBars = Array.from({ length: 32 }, () => `<span class="cw-mic-bar"></span>`).join("");
+      const label =
+        state === "listening"  ? "listening — tap to send" :
+        state === "processing" ? "transcribing…" :
+        state === "error"      ? (this._micErrorMsg || "mic error — tap to retry") :
+                                 "tap to speak · auto-stops on 2s silence";
+      const timer = state === "listening"
+        ? `<span class="cw-mic-timer" id="cw-mic-timer">${fmtMMSS(this.recordElapsed * 1000)}</span>`
+        : "";
+      return `
+        <div class="cw-mock-voice-row">
+          <button class="cw-mic-btn cw-mic-btn--${state}" id="cw-mic-btn" type="button" aria-label="record">
+            <span class="cw-mic-icon">${state === "listening" ? "●" : state === "processing" ? "…" : "🎙"}</span>
+          </button>
+          <div class="cw-mic-meter-wrap">
+            <div class="cw-mic-meter" id="cw-mic-meter">${levelBars}</div>
+            <div class="cw-mic-label">${esc(label)} ${timer}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    _wireInputZone(){
+      const voice = !!this.voicePrefs.voiceMode;
+      if (!voice) {
+        const input = this.root.querySelector("#cw-mock-input");
+        const sendBtn = this.root.querySelector("#cw-mock-send");
+        if (!input || !sendBtn) return;
+        const send = () => this.onUserSend();
+        sendBtn.addEventListener("click", send);
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send(); }
+        });
+        input.addEventListener("input", () => {
+          input.style.height = "auto";
+          input.style.height = Math.min(160, input.scrollHeight) + "px";
+        });
+      } else {
+        const btn = this.root.querySelector("#cw-mic-btn");
+        if (btn) btn.addEventListener("click", () => this.onMicButton());
+      }
     }
 
     renderMessages(){
@@ -285,14 +385,25 @@
       this.scrollMsgsBottom();
     }
 
-    appendMsgEl(role, content, hidden){
+    appendMsgEl(role, content, hidden, meta){
       if (hidden) return null;  // control messages don't render
       const box = this.root.querySelector("#cw-mock-msgs");
       if (!box) return null;
       const wrap = document.createElement("div");
       wrap.className = "cw-msg cw-msg--" + (role === "user" ? "user" : (role === "error" ? "err" : "ai"));
+      wrap.dataset.role = role;
       const roleTxt = role === "user" ? "you" : (role === "error" ? "error" : "interviewer");
-      wrap.innerHTML = `<div class="cw-msg-role">${roleTxt}</div><div class="cw-msg-body"></div>`;
+      const chip =
+        meta && meta.audioFromVoice && role === "user"
+          ? `<span class="cw-msg-chip">🎙 ${fmtMMSS(meta.durationMs || 0)}</span>`
+          : meta && meta.audioFromTTS && role !== "user"
+          ? `<span class="cw-msg-chip">🔊 ${esc(meta.voice || "")}</span>`
+          : "";
+      wrap.innerHTML = `
+        <div class="cw-msg-role">${roleTxt}${chip}</div>
+        <div class="cw-msg-body"></div>
+        <div class="cw-msg-actions" style="display:none"></div>
+      `;
       wrap.querySelector(".cw-msg-body").textContent = content;
       box.appendChild(wrap);
       return wrap;
@@ -340,6 +451,10 @@
 
     advanceBlock(){
       if (this.streaming) return;
+      // close out current block timer
+      const start = this.blockStartTimes[this.blockIdx] || Date.now();
+      this.blockDurations[this.blockIdx] = Date.now() - start;
+
       if (this.blockIdx >= BLOCKS.length - 1){
         this.finishAndGrade();
         return;
@@ -347,27 +462,18 @@
       const next = BLOCKS[this.blockIdx + 1];
       this.pushHidden("user", `[advance] The student is ready to move from ${BLOCKS[this.blockIdx].full} to ${next.full}. Give 2-3 sentences of feedback on the block we just finished, then open the next block with an opening prompt.`);
       this.blockIdx += 1;
+      this.blockStartTimes[this.blockIdx] = Date.now();
       this.updateStepperAndCase();
       this.runTurn();
     }
 
     updateStepperAndCase(){
-      // re-render just the stepper + case pane (not messages)
-      const stepper = this.root.querySelector(".cw-mock-stepper");
-      if (stepper){
-        stepper.innerHTML = BLOCKS.map((b, i) => {
-          const state = i < this.blockIdx ? "done" : i === this.blockIdx ? "active" : "todo";
-          return `
-            <div class="cw-mock-step cw-mock-step--${state}" data-step="${i}">
-              <span class="cw-mock-step-n">${i+1}</span>
-              <span class="cw-mock-step-lbl">${esc(b.label)}</span>
-            </div>`;
-        }).join('<span class="cw-mock-step-sep"></span>');
-      }
+      const stepper = this.root.querySelector("#cw-mock-stepper");
+      if (stepper) stepper.innerHTML = this._renderStepperHTML();
       const blk = BLOCKS[this.blockIdx];
-      const currBlkEl = this.root.querySelector(".cw-mock-case-section:nth-of-type(2) .cw-mock-case-body b");
+      const currBlkEl = this.root.querySelector("#cw-mock-cur-block");
       if (currBlkEl) currBlkEl.textContent = blk.full;
-      const tipsEl = this.root.querySelector(".cw-mock-tips-list");
+      const tipsEl = this.root.querySelector("#cw-mock-tips-list");
       if (tipsEl) tipsEl.innerHTML = tipsFor(blk.id).map(t => `<li>${esc(t)}</li>`).join("");
       const advBtn = this.root.querySelector('[data-act="advance"]');
       if (advBtn){
@@ -376,17 +482,34 @@
       }
     }
 
+    _startBlockTicker(){
+      if (this.blockTickTimer) clearInterval(this.blockTickTimer);
+      this.blockTickTimer = setInterval(() => {
+        if (this.phase !== "running") return;
+        const liveEl = this.root.querySelector('.cw-mock-step--active .cw-mock-step-time--live');
+        if (liveEl) {
+          const start = this.blockStartTimes[this.blockIdx] || Date.now();
+          liveEl.textContent = fmtMMSS(Date.now() - start);
+        }
+      }, 1000);
+    }
+
     async runTurn(){
       if (this.streaming) return;
       this.streaming = true;
       this.streamCtrl = new AbortController();
-      const aiEl = this.appendMsgEl("assistant", "");
+      const aiMeta = this.voicePrefs.voiceMode && this.voicePrefs.speakReplies
+        ? { audioFromTTS: true, voice: this.voicePrefs.voice }
+        : null;
+      const aiEl = this.appendMsgEl("assistant", "", false, aiMeta);
       if (aiEl) aiEl.classList.add("cw-msg--typing");
       const bodyEl = aiEl?.querySelector(".cw-msg-body");
       this.pushVisible("assistant", "");
+      this.turnMeta.push(aiMeta || {});
       let buf = "";
       const send = this.root.querySelector("#cw-mock-send");
       if (send) send.disabled = true;
+      let finishedOK = false;
 
       try {
         await this.streamClient.streamChat({
@@ -400,6 +523,7 @@
           onDone: () => {
             if (aiEl) aiEl.classList.remove("cw-msg--typing");
             this.messages[this.messages.length - 1].content = buf;
+            finishedOK = true;
           },
           onError: (err) => {
             if (aiEl){ aiEl.classList.remove("cw-msg--typing","cw-msg--ai"); aiEl.classList.add("cw-msg--err"); }
@@ -412,11 +536,352 @@
         this.streamCtrl = null;
         if (send) send.disabled = false;
       }
+
+      // Voice mode: optionally TTS the reply, then auto-arm the mic.
+      // Auto-arm happens whether or not TTS is enabled — the user is in voice
+      // mode for a reason and shouldn't have to manually tap to keep going.
+      if (finishedOK && this.voicePrefs.voiceMode && buf.trim()) {
+        if (this.voicePrefs.speakReplies) {
+          await this._playAIReply(buf, aiEl);
+        }
+        if (this.voicePrefs.voiceMode && !this.streaming && this.phase === "running") {
+          setTimeout(() => {
+            if (this.phase === "running" && this.voicePrefs.voiceMode && this.micState === "idle") {
+              this.startRecording();
+            }
+          }, 600);
+        }
+      }
+    }
+
+    async _playAIReply(text, aiEl){
+      this._stopAudio();
+      try {
+        const audio = await window.ChatLab.voice.speak(text, this.voicePrefs.voice);
+        this.currentAudio = audio;
+        if (aiEl) {
+          const actions = aiEl.querySelector(".cw-msg-actions");
+          if (actions) {
+            actions.style.display = "flex";
+            actions.innerHTML = `
+              <button class="cw-mock-msg-btn" data-act="pause">⏸ pause</button>
+              <button class="cw-mock-msg-btn" data-act="replay">↻ replay</button>
+            `;
+            actions.querySelector('[data-act="pause"]').addEventListener("click", () => {
+              if (audio.paused) { audio.play().catch(() => {}); }
+              else { audio.pause(); }
+            });
+            actions.querySelector('[data-act="replay"]').addEventListener("click", () => {
+              audio.currentTime = 0;
+              audio.play().catch(() => {});
+            });
+          }
+        }
+        // Resolve when audio finishes naturally OR is stopped externally
+        // (via _stopAudio dispatching a "lab:stopped" event). Without this,
+        // pausing the audio would leave the awaiter hung indefinitely.
+        await new Promise(resolve => {
+          let done = false;
+          const finish = () => { if (!done) { done = true; resolve(); } };
+          audio.addEventListener("ended",      finish, { once: true });
+          audio.addEventListener("error",      finish, { once: true });
+          audio.addEventListener("lab:stopped", finish, { once: true });
+          audio.play().catch(finish);
+        });
+      } catch (err) {
+        console.warn("TTS failed:", err);
+      } finally {
+        this.currentAudio = null;
+      }
+    }
+
+    _stopAudio(){
+      if (this.currentAudio) {
+        try {
+          this.currentAudio.pause();
+          // notify any awaiter inside _playAIReply
+          this.currentAudio.dispatchEvent(new Event("lab:stopped"));
+        } catch {}
+        this.currentAudio = null;
+      }
+    }
+
+    /* ---------- voice mode controls ---------- */
+
+    toggleVoiceMode(){
+      this.voicePrefs.voiceMode = !this.voicePrefs.voiceMode;
+      saveVoicePrefs(this.voicePrefs);
+      this._stopRecording();
+      this._stopAudio();
+      this.renderRun();
+    }
+
+    toggleSettings(){
+      const pop = this.root.querySelector("#cw-mock-settings");
+      if (!pop) return;
+      const showing = pop.style.display === "block";
+      if (showing) { this._closeSettings(); return; }
+      if (!window.ChatLab?.voice) {
+        pop.style.display = "block";
+        pop.innerHTML = `<div class="cw-mock-settings-h">voice unavailable — /assets/voice.js failed to load.</div>`;
+        return;
+      }
+      pop.style.display = "block";
+      pop.innerHTML = this._renderSettingsHTML();
+      this._wireSettings();
+      // Click-outside-to-close (use mousedown so the dropdown <select> still works)
+      this._settingsDocHandler = (e) => {
+        if (!pop.contains(e.target) && !e.target.closest(".cw-mock-gear")) {
+          this._closeSettings();
+        }
+      };
+      // Escape-to-close
+      this._settingsKeyHandler = (e) => {
+        if (e.key === "Escape") this._closeSettings();
+      };
+      setTimeout(() => {
+        document.addEventListener("mousedown", this._settingsDocHandler);
+        document.addEventListener("keydown",   this._settingsKeyHandler);
+      }, 0);
+    }
+
+    _closeSettings(){
+      const pop = this.root.querySelector("#cw-mock-settings");
+      if (pop) { pop.style.display = "none"; pop.innerHTML = ""; }
+      if (this._settingsDocHandler) {
+        document.removeEventListener("mousedown", this._settingsDocHandler);
+        this._settingsDocHandler = null;
+      }
+      if (this._settingsKeyHandler) {
+        document.removeEventListener("keydown", this._settingsKeyHandler);
+        this._settingsKeyHandler = null;
+      }
+    }
+
+    _renderSettingsHTML(){
+      const v = this.voicePrefs;
+      const voiceOpts = window.ChatLab.voice.VOICES.map(x =>
+        `<option value="${esc(x)}"${x === v.voice ? " selected" : ""}>${esc(x)}</option>`
+      ).join("");
+      return `
+        <div class="cw-mock-settings-h">
+          voice settings
+          <button class="cw-mock-settings-close" type="button" id="cw-mock-settings-close" aria-label="close">×</button>
+        </div>
+        <label class="cw-mock-settings-row">
+          <span>interviewer voice</span>
+          <select id="cw-mock-voice-sel">${voiceOpts}</select>
+        </label>
+        <label class="cw-mock-settings-row">
+          <span>auto-play replies</span>
+          <input type="checkbox" id="cw-mock-speak-toggle" ${v.speakReplies ? "checked" : ""}>
+        </label>
+        <label class="cw-mock-settings-row">
+          <span>auto-stop on silence (~2s)</span>
+          <input type="checkbox" id="cw-mock-autostop-toggle" ${v.autoStop ? "checked" : ""}>
+        </label>
+        <div class="cw-mock-settings-foot">
+          <button class="cw-iconbtn cw-iconbtn--ghost" id="cw-mock-preview-voice">preview voice</button>
+        </div>
+      `;
+    }
+
+    _wireSettings(){
+      const sel = this.root.querySelector("#cw-mock-voice-sel");
+      const speak = this.root.querySelector("#cw-mock-speak-toggle");
+      const autoStop = this.root.querySelector("#cw-mock-autostop-toggle");
+      const preview = this.root.querySelector("#cw-mock-preview-voice");
+      const close = this.root.querySelector("#cw-mock-settings-close");
+      if (sel) sel.addEventListener("change", e => {
+        this.voicePrefs.voice = e.target.value;
+        saveVoicePrefs(this.voicePrefs);
+      });
+      if (speak) speak.addEventListener("change", e => {
+        this.voicePrefs.speakReplies = e.target.checked;
+        saveVoicePrefs(this.voicePrefs);
+      });
+      if (autoStop) autoStop.addEventListener("change", e => {
+        this.voicePrefs.autoStop = e.target.checked;
+        saveVoicePrefs(this.voicePrefs);
+      });
+      if (preview) preview.addEventListener("click", async () => {
+        try {
+          this._stopAudio();
+          const audio = await window.ChatLab.voice.speak("Hello — let's start with the case prompt.", this.voicePrefs.voice);
+          this.currentAudio = audio;
+          await audio.play();
+        } catch (err) { console.warn("preview tts failed:", err); }
+      });
+      if (close) close.addEventListener("click", () => this._closeSettings());
+    }
+
+    /* ---------- mic recording ---------- */
+
+    onMicButton(){
+      if (this.micState === "listening") {
+        this._stopRecording();
+      } else if (this.micState === "idle" || this.micState === "error") {
+        this.startRecording();
+      }
+    }
+
+    async startRecording(){
+      if (this.streaming) return;
+      if (!window.ChatLab?.voice) {
+        this._setMicState("error");
+        return;
+      }
+      this._stopAudio();
+      this.recordElapsed = 0;
+      this.lastTurnAudio = null;
+
+      this.recorder = new window.ChatLab.voice.Recorder({
+        autoStop: this.voicePrefs.autoStop !== false,
+        onLevel: (rms) => this._renderMicLevel(rms),
+        onAutoStop: () => { /* triggered before stop event */ },
+        onStop: ({ blob, durationMs }) => this._onRecordingStopped(blob, durationMs),
+        onError: (err) => {
+          console.warn("recorder error:", err);
+          if (this.recordElapsedTimer) {
+            clearInterval(this.recordElapsedTimer);
+            this.recordElapsedTimer = null;
+          }
+          this.recorder = null;
+          // surface a clearer message for the most common failure (mic permission)
+          const msg = (err && err.name === "NotAllowedError")
+            ? "mic permission denied — enable in your browser address bar, then tap to retry"
+            : "mic error — tap to retry";
+          this._micErrorMsg = msg;
+          this._setMicState("error");
+        },
+      });
+
+      this._setMicState("listening");
+      this.recordElapsedTimer = setInterval(() => {
+        this.recordElapsed += 1;
+        const t = this.root.querySelector("#cw-mic-timer");
+        if (t) t.textContent = fmtMMSS(this.recordElapsed * 1000);
+      }, 1000);
+
+      await this.recorder.start();
+    }
+
+    _stopRecording(){
+      if (this.recorder) {
+        try { this.recorder.stop(); } catch {}
+      }
+      if (this.recordElapsedTimer) {
+        clearInterval(this.recordElapsedTimer);
+        this.recordElapsedTimer = null;
+      }
+    }
+
+    async _onRecordingStopped(blob, durationMs){
+      if (this.recordElapsedTimer) { clearInterval(this.recordElapsedTimer); this.recordElapsedTimer = null; }
+      this.recorder = null;
+      if (!blob || blob.size < 1000) {
+        this._setMicState("idle");
+        return;
+      }
+      this.lastTurnAudio = { blob, durationMs };
+      this._setMicState("processing");
+      try {
+        const text = await window.ChatLab.voice.transcribe(blob);
+        if (!text || !text.trim()) {
+          this._setMicState("idle");
+          return;
+        }
+        this._setMicState("idle");
+        // push as user message
+        this.pushVisible("user", text);
+        this.turnMeta.push({ audioFromVoice: true, durationMs, audioBlob: blob });
+        const msgEl = this.appendMsgEl("user", text, false, { audioFromVoice: true, durationMs });
+        if (msgEl) this._wireUserVoiceActions(msgEl);
+        this.scrollMsgsBottom();
+        this.runTurn();
+      } catch (err) {
+        console.warn("transcription failed:", err);
+        this._setMicState("error");
+      }
+    }
+
+    // Adds re-record / edit buttons to a user voice message. Re-record is
+    // only useful for the LAST user message (otherwise we'd have to surgically
+    // splice the conversation), so the first call to this on each new user
+    // message also strips re-record from any prior ones.
+    _wireUserVoiceActions(msgEl){
+      // strip re-record from any prior user voice messages
+      this.root.querySelectorAll('.cw-msg--user .cw-msg-actions [data-act="rerec"]').forEach(b => b.remove());
+      const actions = msgEl.querySelector(".cw-msg-actions");
+      if (!actions) return;
+      actions.style.display = "flex";
+      actions.innerHTML = `
+        <button class="cw-mock-msg-btn" data-act="rerec">↻ re-record</button>
+      `;
+      actions.querySelector('[data-act="rerec"]').addEventListener("click", () => {
+        if (this.streaming) return;
+        // Pop the last user message (and the AI's empty placeholder if one exists yet)
+        // and re-arm the mic. A guard: only if we're in voice mode.
+        if (!this.voicePrefs.voiceMode) return;
+        // If a turn is mid-stream, abort it.
+        if (this.streamCtrl) try { this.streamCtrl.abort(); } catch {}
+        // Drop the last user msg + any subsequent assistant entries
+        while (this.messages.length && this.messages[this.messages.length - 1].role !== "user") {
+          this.messages.pop();
+          this.turnMeta.pop();
+        }
+        // Drop the user message itself
+        if (this.messages.length && this.messages[this.messages.length - 1].role === "user") {
+          this.messages.pop();
+          this.turnMeta.pop();
+        }
+        // Re-render messages from state
+        const box = this.root.querySelector("#cw-mock-msgs");
+        if (box) {
+          box.innerHTML = "";
+          this.messages.forEach((m, i) => {
+            if (m.hidden) return;
+            const meta = this.turnMeta[i];
+            const el = this.appendMsgEl(m.role, m.content, false, meta);
+            if (el && m.role === "user" && meta?.audioFromVoice) this._wireUserVoiceActions(el);
+          });
+        }
+        this.scrollMsgsBottom();
+        this.startRecording();
+      });
+    }
+
+    _setMicState(state){
+      this.micState = state;
+      if (!this.voicePrefs.voiceMode) return; // user toggled to text mode mid-recording
+      const zone = this.root.querySelector("#cw-mock-input-zone");
+      if (!zone) return;
+      zone.innerHTML = this._renderVoiceInputHTML();
+      this._wireInputZone();
+      if (state !== "error") this._micErrorMsg = null;
+    }
+
+    _renderMicLevel(rms){
+      const meter = this.root.querySelector("#cw-mic-meter");
+      if (!meter) return;
+      const bars = meter.querySelectorAll(".cw-mic-bar");
+      // map rms (0..50ish) → bar count
+      const pct = Math.min(1, rms / 30);
+      const litCount = Math.floor(pct * bars.length);
+      bars.forEach((b, i) => {
+        b.classList.toggle("cw-mic-bar--lit", i < litCount);
+      });
     }
 
     /* ---------- grading ---------- */
     async finishAndGrade(){
       if (this.streaming) return;
+      // close out the final block timer
+      const start = this.blockStartTimes[this.blockIdx] || Date.now();
+      this.blockDurations[this.blockIdx] = Date.now() - start;
+      if (this.blockTickTimer) { clearInterval(this.blockTickTimer); this.blockTickTimer = null; }
+      this._stopRecording();
+      this._stopAudio();
       this.phase = "done";
       this.renderGradingLoading();
 
@@ -494,6 +959,61 @@ Only return the JSON object. No prose outside it.`
           </div>`;
       };
 
+      // Voice analytics — aggregate across all user voice turns
+      const voiceTurns = this.turnMeta
+        .map((m, i) => ({ meta: m, msg: this.messages[i] }))
+        .filter(x => x.meta?.audioFromVoice && x.msg?.role === "user");
+      let voiceAnalytics = null;
+      if (voiceTurns.length && window.ChatLab?.voice?.analyze) {
+        let totalWords = 0, totalDur = 0, totalFillers = 0;
+        const fillerBreakdown = {};
+        const sigSet = new Set();
+        voiceTurns.forEach(({ meta, msg }) => {
+          const a = window.ChatLab.voice.analyze(msg.content || "", meta.durationMs || 0);
+          totalWords += a.wordCount;
+          totalDur += (meta.durationMs || 0);
+          totalFillers += a.fillerTotal;
+          Object.entries(a.fillers).forEach(([k, n]) => {
+            fillerBreakdown[k] = (fillerBreakdown[k] || 0) + n;
+          });
+          a.signposts.forEach(s => sigSet.add(s));
+        });
+        const minutes = Math.max(0.05, totalDur / 60000);
+        const wpm = Math.round(totalWords / minutes);
+        const band = wpm < 110 ? "too slow" : wpm > 175 ? "too fast" : "in target range";
+        voiceAnalytics = {
+          turns: voiceTurns.length,
+          totalDurMs: totalDur,
+          wpm,
+          band,
+          totalFillers,
+          fillerBreakdown,
+          signposts: Array.from(sigSet),
+        };
+      }
+      // Block timing summary
+      const timingHTML = (this.blockDurations.length ? `
+        <div class="cw-mock-listblock">
+          <div class="cw-mock-listblock-h">block timing</div>
+          <ul class="cw-mock-blocknotes">
+            ${BLOCKS.map((b, i) => {
+              const d = this.blockDurations[i];
+              if (d == null) return "";
+              return `<li><b>${esc(b.full)}</b> — ${fmtMMSS(d)}</li>`;
+            }).join("")}
+          </ul>
+        </div>` : "");
+      const voiceHTML = (voiceAnalytics ? `
+        <div class="cw-mock-listblock">
+          <div class="cw-mock-listblock-h">voice performance</div>
+          <ul class="cw-mock-blocknotes">
+            <li><b>pace</b> — ${voiceAnalytics.wpm} wpm (${voiceAnalytics.band}; target 130–160)</li>
+            <li><b>filler words</b> — ${voiceAnalytics.totalFillers} total${voiceAnalytics.totalFillers ? ` (${Object.entries(voiceAnalytics.fillerBreakdown).slice(0, 5).map(([k, n]) => `${esc(k)} ×${n}`).join(", ")})` : ""}</li>
+            <li><b>structure signposts</b> — ${voiceAnalytics.signposts.length}${voiceAnalytics.signposts.length ? ` (${voiceAnalytics.signposts.slice(0,5).map(esc).join(", ")})` : ""}</li>
+            <li><b>airtime</b> — ${fmtMMSS(voiceAnalytics.totalDurMs)} across ${voiceAnalytics.turns} voice turns</li>
+          </ul>
+        </div>` : "");
+
       this.root.innerHTML = `
         <div class="cw-mock-donecard">
           <div class="cw-mock-done-hdr">
@@ -528,6 +1048,9 @@ Only return the JSON object. No prose outside it.`
                 ${BLOCKS.map(b => blocks[b.id] ? `<li><b>${esc(b.full)}</b> — ${esc(blocks[b.id])}</li>` : "").join("")}
               </ul>
             </div>` : ""}
+
+          ${timingHTML}
+          ${voiceHTML}
 
           <div class="cw-mock-actions">
             <button class="cw-iconbtn cw-iconbtn--ghost" data-act="exit">back to chat</button>
@@ -588,6 +1111,31 @@ Only return the JSON object. No prose outside it.`
       recommend:  ["Lead with the recommendation in one sentence.", "Support with 2–3 data points from earlier.", "Name 1–2 risks and one next step."],
     })[blockId] || [];
   }
+  function fmtMMSS(ms){
+    const s = Math.max(0, Math.floor((ms || 0) / 1000));
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `${m}:${String(r).padStart(2, "0")}`;
+  }
+
+  const VOICE_PREFS_KEY = "rohan.lab.mock.voice.prefs";
+  function loadVoicePrefs(){
+    try {
+      const v = JSON.parse(localStorage.getItem(VOICE_PREFS_KEY) || "{}");
+      return Object.assign({
+        voiceMode: false,
+        speakReplies: true,
+        autoStop: true,
+        voice: "onyx",
+      }, v);
+    } catch {
+      return { voiceMode: false, speakReplies: true, autoStop: true, voice: "onyx" };
+    }
+  }
+  function saveVoicePrefs(prefs){
+    try { localStorage.setItem(VOICE_PREFS_KEY, JSON.stringify(prefs)); } catch {}
+  }
+
   function logFinishedMock(tabId, caseData, grade){
     try {
       const log = JSON.parse(localStorage.getItem(MOCKS_LOG_KEY) || "[]");

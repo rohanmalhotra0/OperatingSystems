@@ -885,3 +885,195 @@
   display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
   margin-top: 6px;
 }
+
+/* =========================================================
+   Mock interview — voice mode UI
+   ========================================================= */
+
+/* Stepper time chips (live + done) */
+.cw-mock-step-time{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.4px;
+  color: var(--cw-pencil);
+  margin-left: 4px;
+}
+.cw-mock-step--done .cw-mock-step-time{ color: var(--cw-olive); }
+.cw-mock-step--active .cw-mock-step-time--live{
+  color: var(--cw-paper);
+  background: var(--cw-red);
+  padding: 1px 5px;
+}
+
+/* Voice / type toggle + gear */
+.cw-mock-mode-toggle{
+  font-size: 11px;
+}
+.cw-mock-gear{
+  padding: 4px 8px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Voice settings popover */
+.cw-mock-settings-popover{
+  position: relative;
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: var(--cw-paper-soft);
+  border: 1.5px solid var(--cw-ink);
+  box-shadow: 3px 3px 0 var(--cw-ink);
+  font-family:'Spectral', serif;
+  font-size: 13.5px;
+}
+.cw-mock-settings-h{
+  font-family:'Caveat', cursive;
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--cw-ink);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cw-mock-settings-close{
+  all: unset;
+  cursor: pointer;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--cw-pencil);
+  padding: 2px 6px;
+  border: 1px solid transparent;
+}
+.cw-mock-settings-close:hover{
+  color: var(--cw-red);
+  border-color: var(--cw-red);
+}
+.cw-mock-settings-row{
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 4px 0;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  color: var(--cw-ink-soft);
+}
+.cw-mock-settings-row select{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  border: 1px solid var(--cw-ink);
+  padding: 2px 4px;
+  background: var(--cw-paper);
+}
+.cw-mock-settings-foot{
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--cw-ink);
+  display: flex; justify-content: flex-end;
+}
+
+/* Voice input row + mic button */
+.cw-mock-voice-row{
+  display: flex; gap: 12px; align-items: center;
+  padding: 10px 12px;
+  border-top: 1.5px dashed var(--cw-ink);
+  background: var(--cw-paper-soft);
+}
+.cw-mic-btn{
+  all: unset;
+  cursor: pointer;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--cw-ink);
+  background: var(--cw-paper);
+  color: var(--cw-red);
+  display: grid; place-items: center;
+  font-size: 22px;
+  font-family:'Architects Daughter', cursive;
+  box-shadow: 4px 4px 0 var(--cw-ink);
+  flex-shrink: 0;
+  transition: transform 0.1s, box-shadow 0.1s;
+  position: relative;
+}
+.cw-mic-btn:hover{ transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--cw-ink); }
+.cw-mic-btn:active{ transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--cw-ink); }
+.cw-mic-btn--listening{
+  background: var(--cw-tab-warn);
+  color: var(--cw-red);
+  animation: cw-mic-pulse 1.4s ease-in-out infinite;
+}
+.cw-mic-btn--processing{
+  background: var(--cw-paper-soft);
+  color: var(--cw-pencil);
+  cursor: progress;
+  pointer-events: none;
+}
+.cw-mic-btn--error{
+  background: var(--cw-tab-warn);
+  border-color: var(--cw-red);
+}
+@keyframes cw-mic-pulse{
+  0%,100%{ box-shadow: 4px 4px 0 var(--cw-ink), 0 0 0 0 rgba(181,45,45,0.5); }
+  50%   { box-shadow: 4px 4px 0 var(--cw-ink), 0 0 0 12px rgba(181,45,45,0); }
+}
+.cw-mic-icon{ display: block; line-height: 1; }
+
+.cw-mic-meter-wrap{
+  flex: 1;
+  display: flex; flex-direction: column; gap: 6px;
+  min-width: 0;
+}
+.cw-mic-meter{
+  display: flex; align-items: end; gap: 2px;
+  height: 22px;
+}
+.cw-mic-bar{
+  flex: 1;
+  background: var(--cw-paper);
+  border: 1px solid var(--cw-ink);
+  height: 4px;
+  transition: height 0.06s linear, background 0.1s;
+}
+.cw-mic-bar--lit{
+  background: var(--cw-olive);
+  height: 100%;
+}
+.cw-mic-label{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--cw-pencil);
+  display: flex; align-items: center; gap: 8px;
+}
+.cw-mic-timer{
+  background: var(--cw-red);
+  color: var(--cw-paper);
+  padding: 1px 6px;
+  font-weight: 600;
+}
+
+/* Message chips for voice context (you · 0:14 / 🔊 onyx) */
+.cw-msg-chip{
+  display: inline-block;
+  margin-left: 6px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  color: var(--cw-pencil);
+  background: var(--cw-paper-soft);
+  border: 1px solid var(--cw-ink);
+  padding: 0 5px;
+  text-transform: lowercase;
+}
+.cw-msg-actions{
+  display: none; gap: 6px;
+  margin-top: 6px;
+}
+.cw-mock-msg-btn{
+  all: unset;
+  cursor: pointer;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border: 1px solid var(--cw-ink);
+  background: var(--cw-paper);
+  color: var(--cw-ink);
+}
+.cw-mock-msg-btn:hover{ background: var(--cw-paper-soft); }
