@@ -105,93 +105,17 @@ function openModule(m){
   });
 }
 
-/* ============================= FLASHCARDS ============================= */
-let currentDeck = 'all';
-let cardOrder = [];
-let cardIdx = 0;
-const cardFront = document.getElementById('card-front');
-const cardBack  = document.getElementById('card-back');
-const cardEl    = document.getElementById('flashcard');
-const cardCounter = document.getElementById('card-counter');
-
-// per-card weight (missed cards surface more often)
-const weights = JSON.parse(localStorage.getItem('cs202.card.weights') || '{}');
-
-function buildDeck(){
-  const pool = (currentDeck === 'all') ? CARDS : CARDS.filter(c => c.deck === currentDeck);
-  // weighted shuffle: cards with higher weight appear more frequently
-  const seq = [];
-  pool.forEach((c, i) => {
-    const key = c.deck + ':' + c.front;
-    const w = weights[key] || 1;
-    for (let k = 0; k < w; k++) seq.push({c, i});
-  });
-  // Fisher-Yates
-  for (let i = seq.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [seq[i], seq[j]] = [seq[j], seq[i]];
-  }
-  cardOrder = seq.map(x => x.c);
-  cardIdx = 0;
-  showCard();
-}
-
-function showCard(){
-  cardEl.classList.remove('flipped');
-  if (!cardOrder.length) {
-    cardFront.textContent = 'empty deck';
-    cardBack.textContent  = '';
-    cardCounter.textContent = '0 / 0';
-    return;
-  }
-  const c = cardOrder[cardIdx];
-  cardFront.textContent = c.front;
-  cardBack.textContent  = c.back;
-  cardCounter.textContent = `${cardIdx + 1} / ${cardOrder.length}`;
-}
-
-document.querySelectorAll('input[name="deck"]').forEach(r => {
-  r.addEventListener('change', () => { currentDeck = r.value; buildDeck(); });
+/* ============================= FLASHCARDS =============================
+   Delegated to the shared session module. CS202 uses front/back/deck
+   fields and keys weights by deck:front.
+*/
+window.StudyLab?.flashcards?.init({
+  cards:       CARDS,
+  fields:      { term: 'front', def: 'back', hint: 'note', cat: 'deck' },
+  weightKey:   'cs202.card.weights',
+  masteredKey: 'cs202.card.mastered',
+  weightKeyFor: c => c.deck + ':' + c.front,
 });
-document.getElementById('shuffle').addEventListener('click', buildDeck);
-document.getElementById('flip-card').addEventListener('click', () => cardEl.classList.toggle('flipped'));
-cardEl.addEventListener('click', () => cardEl.classList.toggle('flipped'));
-document.getElementById('prev-card').addEventListener('click', () => {
-  cardIdx = (cardIdx - 1 + cardOrder.length) % cardOrder.length;
-  showCard();
-});
-document.getElementById('next-card').addEventListener('click', () => {
-  cardIdx = (cardIdx + 1) % cardOrder.length;
-  showCard();
-});
-document.getElementById('knew').addEventListener('click', () => {
-  const c = cardOrder[cardIdx];
-  const key = c.deck + ':' + c.front;
-  weights[key] = Math.max(1, (weights[key] || 1) - 1);
-  localStorage.setItem('cs202.card.weights', JSON.stringify(weights));
-  advance();
-});
-document.getElementById('missed').addEventListener('click', () => {
-  const c = cardOrder[cardIdx];
-  const key = c.deck + ':' + c.front;
-  weights[key] = Math.min(5, (weights[key] || 1) + 2);
-  localStorage.setItem('cs202.card.weights', JSON.stringify(weights));
-  advance();
-});
-function advance(){ cardIdx = (cardIdx + 1) % cardOrder.length; showCard(); }
-
-/* flashcard keyboard shortcuts (only when on that tab) */
-document.addEventListener('keydown', e => {
-  if (!isFlashActive()) return;
-  if (e.target.matches('input, textarea')) return;
-  if (e.key === ' ') { e.preventDefault(); cardEl.classList.toggle('flipped'); }
-  else if (e.key === 'ArrowRight') { advance(); }
-  else if (e.key === 'ArrowLeft')  { cardIdx = (cardIdx - 1 + cardOrder.length) % cardOrder.length; showCard(); }
-  else if (e.key.toLowerCase() === 'k') { document.getElementById('knew').click(); }
-  else if (e.key.toLowerCase() === 'd') { document.getElementById('missed').click(); }
-});
-
-buildDeck();
 
 /* ============================= QUIZ ============================= */
 const quizArea = document.getElementById('quiz-area');
