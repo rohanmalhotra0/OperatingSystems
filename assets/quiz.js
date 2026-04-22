@@ -323,11 +323,19 @@
      Helpers
      ========================================================= */
   async function loadCards(tabId){
-    // prefer the global CARDS defined by the tab's own content.js
-    if (Array.isArray(window.CARDS) && window.CARDS.length){
-      return window.CARDS.slice();
-    }
-    // fallback: fetch via /api/content (used by /chat.html)
+    // The tab's content.js declares `const CARDS = [...]` at the top level of a
+    // classic script. That lives in script-scope (shared across scripts on the
+    // same page) but is NOT attached to `window`, so we probe it by name.
+    try {
+      // eslint-disable-next-line no-undef
+      if (typeof CARDS !== "undefined" && Array.isArray(CARDS) && CARDS.length) {
+        // eslint-disable-next-line no-undef
+        return CARDS.slice();
+      }
+    } catch (_) { /* CARDS not defined on this page — fall through to API */ }
+
+    // fallback: fetch via /api/content (used by /chat.html which doesn't
+    // load the tab's content.js)
     const res = await fetch(`/api/content?tab=${encodeURIComponent(tabId)}`);
     if (!res.ok) throw new Error(`content ${res.status}`);
     const pack = await res.json();
