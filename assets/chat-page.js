@@ -216,6 +216,7 @@
     const modes = [["chat","chat"],["quiz","quiz me"],["explain","explain"],["mock","mock"]];
     el.modes.innerHTML = "";
     modes.forEach(([id,label]) => {
+      if (id === "mock" && !activeTab.hasCases) return; // hide mock pill on case-less tabs
       const b = document.createElement("button");
       b.className = "cw-mode" + ((activeSession?.mode || "chat") === id ? " cw-mode--active" : "");
       b.textContent = label;
