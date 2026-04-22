@@ -17,6 +17,8 @@
     scope:   document.getElementById("cp-scope"),
     modes:   document.getElementById("cp-modes"),
     msgs:    document.getElementById("cp-msgs"),
+    quiz:    document.getElementById("cp-quiz"),
+    inputWrap:document.getElementById("cp-input-wrap"),
     input:   document.getElementById("cp-input"),
     send:    document.getElementById("cp-send"),
     clearAll:document.getElementById("cp-clear-all"),
@@ -30,6 +32,53 @@
 
   let streaming = false;
   let streamCtrl = null;
+  let quizInstance = null;
+
+  function isQuizMode(){ return activeSession?.mode === "quiz"; }
+
+  function setSurfaceForMode(){
+    const quiz = isQuizMode();
+    el.msgs.style.display      = quiz ? "none" : "";
+    el.inputWrap.style.display = quiz ? "none" : "";
+    // Tear down any prior quiz instance when leaving quiz mode OR switching tab
+    if (quizInstance && (!quiz || quizInstance._tabId !== activeTab.id)){
+      window.ChatLab?.quiz?.unmount?.(quizInstance);
+      quizInstance = null;
+      el.quiz.classList.remove("cw-quiz--mounted");
+      el.quiz.innerHTML = "";
+    }
+    if (quiz && !quizInstance){
+      mountQuiz();
+      if (quizInstance) quizInstance._tabId = activeTab.id;
+    }
+  }
+
+  function mountQuiz(){
+    if (!window.ChatLab?.quiz){
+      el.quiz.classList.add("cw-quiz--mounted");
+      el.quiz.innerHTML = `<div class="cw-quiz-err">quiz module didn't load.</div>`;
+      return;
+    }
+    quizInstance = window.ChatLab.quiz.mount(el.quiz, {
+      tabId: activeTab.id,
+      tabLabel: activeTab.label,
+      surface: "page",
+      onExit: () => switchModeFromQuiz("chat"),
+      onAskExplain: (term) => {
+        switchModeFromQuiz("explain");
+        el.input.value = `Explain "${term}" in depth — definition, intuition, one example, and common traps.`;
+        onSend();
+      },
+    });
+  }
+
+  function switchModeFromQuiz(id){
+    if (!activeSession) activeSession = store.createSession(activeTab.id, id);
+    store.updateSession(activeSession.id, { mode: id });
+    activeSession = store.getSession(activeSession.id);
+    renderAll();
+    setTimeout(() => el.input?.focus(), 50);
+  }
 
   function resolveTab(id){
     if (!id) return null;
@@ -196,7 +245,8 @@
     renderTabPicker();
     renderSessionList();
     renderHead();
-    renderMessages();
+    setSurfaceForMode();
+    if (!isQuizMode()) renderMessages();
   }
 
   /* ---------- actions ---------- */

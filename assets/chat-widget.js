@@ -262,12 +262,13 @@
       </div>
       <div class="cw-modes" id="cw-modes"></div>
       <div class="cw-msgs" id="cw-msgs"></div>
+      <div class="cw-quiz" id="cw-quiz"></div>
       <div class="cw-suggest" id="cw-suggest"></div>
-      <div class="cw-input-row">
+      <div class="cw-input-row" id="cw-input-row">
         <textarea class="cw-textarea" id="cw-input" rows="1" placeholder="ask about ${escapeHtml(CURRENT_TAB.scope)}…"></textarea>
         <button class="cw-send" id="cw-send">send</button>
       </div>
-      <div class="cw-foot">enter · send  ·  shift-enter · newline</div>
+      <div class="cw-foot" id="cw-foot">enter · send  ·  shift-enter · newline</div>
     `;
     document.body.appendChild(panel);
 
@@ -280,9 +281,12 @@
       close:   panel.querySelector("#cw-close"),
       modes:   panel.querySelector("#cw-modes"),
       msgs:    panel.querySelector("#cw-msgs"),
+      quiz:    panel.querySelector("#cw-quiz"),
       suggest: panel.querySelector("#cw-suggest"),
+      inputRow:panel.querySelector("#cw-input-row"),
       input:   panel.querySelector("#cw-input"),
       send:    panel.querySelector("#cw-send"),
+      foot:    panel.querySelector("#cw-foot"),
     };
 
     renderModeBar();
@@ -326,7 +330,7 @@
       session = store.getOrCreateForTab(CURRENT_TAB.id, "chat");
     }
     renderSession();
-    setTimeout(() => el.input.focus(), 50);
+    setTimeout(() => { if (!isQuizMode()) el.input?.focus(); }, 50);
   }
   function closePanel(){
     el.fab.classList.remove("cw-fab--open");
@@ -346,21 +350,71 @@
       const b = document.createElement("button");
       b.className = "cw-mode" + (session?.mode === id ? " cw-mode--active" : "");
       b.textContent = label;
-      b.addEventListener("click", () => {
-        if (!session) session = store.getOrCreateForTab(CURRENT_TAB.id, id);
-        store.updateSession(session.id, { mode: id });
-        session = store.getSession(session.id);
-        renderModeBar();
-        renderSuggestions();
-      });
+      b.addEventListener("click", () => switchMode(id));
       el.modes.appendChild(b);
     });
   }
 
+  let quizInstance = null;
+
+  function isQuizMode(){ return session?.mode === "quiz"; }
+
+  function setSurfaceForMode(){
+    const quiz = isQuizMode();
+    // swap visible sections
+    el.msgs.style.display    = quiz ? "none" : "";
+    el.suggest.style.display = quiz ? "none" : "";
+    el.inputRow.style.display= quiz ? "none" : "";
+    el.foot.style.display    = quiz ? "none" : "";
+    if (quiz){
+      if (!quizInstance){
+        mountQuiz();
+      }
+    } else {
+      if (quizInstance){
+        window.ChatLab?.quiz?.unmount?.(quizInstance);
+        quizInstance = null;
+        el.quiz.classList.remove("cw-quiz--mounted");
+        el.quiz.innerHTML = "";
+      }
+    }
+  }
+
+  function mountQuiz(){
+    if (!window.ChatLab?.quiz){
+      el.quiz.classList.add("cw-quiz--mounted");
+      el.quiz.innerHTML = `<div class="cw-quiz-err">quiz module didn't load — check that /assets/quiz.js is included on this page.</div>`;
+      return;
+    }
+    quizInstance = window.ChatLab.quiz.mount(el.quiz, {
+      tabId:    CURRENT_TAB.id,
+      tabLabel: CURRENT_TAB.label,
+      surface:  "widget",
+      onExit:   () => switchMode("chat"),
+      onAskExplain: (term) => {
+        switchMode("explain");
+        // pre-fill a request
+        el.input.value = `Explain "${term}" in depth — definition, intuition, one example, and common traps.`;
+        onSend();
+      },
+    });
+  }
+
+  function switchMode(id){
+    if (!session) session = store.getOrCreateForTab(CURRENT_TAB.id, id);
+    store.updateSession(session.id, { mode: id });
+    session = store.getSession(session.id);
+    renderSession();
+    setTimeout(() => { if (!isQuizMode()) el.input?.focus(); }, 50);
+  }
+
   function renderSession(){
     renderModeBar();
-    renderMessages();
-    renderSuggestions();
+    setSurfaceForMode();
+    if (!isQuizMode()){
+      renderMessages();
+      renderSuggestions();
+    }
   }
 
   function renderMessages(){
