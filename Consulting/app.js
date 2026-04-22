@@ -376,27 +376,184 @@ function renderFrameworks(){
 renderFrameworks();
 
 /* =========================================================
-   CASES — accordion with sub-sections + show/hide answers
+   CASES — progressive reveal
+   Expanding a case shows only the prompt (+ behavioral warm-up).
+   Each subsequent section (clarifying / framework / math / brainstorm /
+   recommendation) is gated behind a "think first, then reveal" button —
+   mimics a real case-interview flow instead of dumping the answer key.
    ========================================================= */
+
+// In-memory state keyed by case.id. Preserved across expand/collapse but
+// reset on a full page reload.
+const caseRevealState = new Map();
+
+function buildCaseStages(c){
+  const list2html = arr => "<ul>" + arr.map(x => `<li>${escapeHTML(x)}</li>`).join("") + "</ul>";
+  const stages = [];
+  if (c.behavioral){
+    stages.push({
+      id: "behavioral",
+      label: "Behavioral warm-up",
+      html: `<em>"${escapeHTML(c.behavioral)}"</em>`,
+      prompt: null,
+    });
+  }
+  stages.push({
+    id: "prompt",
+    label: "Prompt",
+    html: escapeHTML(c.prompt || ""),
+    prompt: null,
+  });
+  if (c.clarifying?.length){
+    stages.push({
+      id: "clarifying",
+      label: "Clarifying info",
+      html: list2html(c.clarifying),
+      prompt: "What clarifying questions would you ask? Think of 2–3 (goal, constraints, success metric) before peeking.",
+    });
+  }
+  if (c.framework?.length){
+    stages.push({
+      id: "framework",
+      label: "Framework buckets",
+      html: list2html(c.framework),
+      prompt: "Lay out your framework — 3–4 top-level buckets, MECE. Say it out loud before revealing the book's answer.",
+    });
+  }
+  if (c.math?.length){
+    stages.push({
+      id: "math",
+      label: "Key math",
+      html: list2html(c.math),
+      prompt: "Ask for the exhibit, set up the formula, work through the numbers. Only then reveal.",
+    });
+  }
+  if (c.brainstorm){
+    stages.push({
+      id: "brainstorm",
+      label: "Brainstorming",
+      html: escapeHTML(c.brainstorm),
+      prompt: "What creative angles would you explore here? Aim for 4–6 distinct ideas before peeking.",
+    });
+  }
+  if (c.recommendation){
+    stages.push({
+      id: "recommend",
+      label: "Recommendation",
+      html: escapeHTML(c.recommendation),
+      prompt: "State your recommendation in one sentence, then 2–3 supporting points and a risk. Then reveal how the book answered.",
+    });
+  }
+  return stages;
+}
+
+function getInitialRevealed(stages){
+  // Reveal everything up to and including the prompt stage.
+  const promptIdx = stages.findIndex(s => s.id === "prompt");
+  return stages.map((_, i) => i <= promptIdx);
+}
+
+function ensureCaseState(c){
+  if (!caseRevealState.has(c.id)){
+    const stages = buildCaseStages(c);
+    caseRevealState.set(c.id, { stages, revealed: getInitialRevealed(stages) });
+  }
+  return caseRevealState.get(c.id);
+}
+
+function renderCaseBody(c, body){
+  const state = ensureCaseState(c);
+  body.innerHTML = "";
+
+  state.stages.forEach((s, i) => {
+    if (!state.revealed[i]) return;
+    const wrap = document.createElement("div");
+    wrap.className = "case-section";
+    wrap.innerHTML = `
+      <h5 class="case-section-h">${escapeHTML(s.label)}</h5>
+      <div class="case-section-body">${s.html}</div>
+    `;
+    body.appendChild(wrap);
+  });
+
+  const nextIdx = state.revealed.findIndex(r => !r);
+  if (nextIdx >= 0){
+    const nextStage = state.stages[nextIdx];
+    const think = document.createElement("div");
+    think.className = "case-think";
+    think.innerHTML = `
+      ${nextStage.prompt ? `<div class="case-think-prompt">${escapeHTML(nextStage.prompt)}</div>` : ""}
+      <div class="case-think-actions">
+        <button type="button" class="mini-btn mini-btn--ok" data-act="next">reveal: ${escapeHTML(nextStage.label.toLowerCase())} ↓</button>
+        ${nextIdx < state.stages.length - 1 ? `<button type="button" class="mini-btn" data-act="all">reveal all remaining ↓</button>` : ""}
+        <button type="button" class="mini-btn" data-act="ask-explain" data-term="${escapeHTML(nextStage.label)}">hint from tutor ↗</button>
+      </div>
+    `;
+    body.appendChild(think);
+    think.querySelector('[data-act="next"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.revealed[nextIdx] = true;
+      renderCaseBody(c, body);
+    });
+    const allBtn = think.querySelector('[data-act="all"]');
+    if (allBtn) allBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.revealed = state.revealed.map(() => true);
+      renderCaseBody(c, body);
+    });
+    const hintBtn = think.querySelector('[data-act="ask-explain"]');
+    if (hintBtn) hintBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!window.ChatLab?.askAI) return;
+      window.ChatLab.askAI({
+        mode: "explain",
+        focus: `${c.title} – ${nextStage.label}`,
+        prompt: `For Darden case "${c.title}" (#${c.id}), give me a small nudge on the ${nextStage.label.toLowerCase()} block. Don't reveal the answer — just one guiding question or prompt that would help me think through it.`,
+      });
+    });
+  } else {
+    // All revealed — offer to reset for another pass.
+    const reset = document.createElement("button");
+    reset.type = "button";
+    reset.className = "mini-btn case-reset";
+    reset.textContent = "↺ hide sections · start over";
+    reset.addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.revealed = getInitialRevealed(state.stages);
+      renderCaseBody(c, body);
+    });
+    body.appendChild(reset);
+  }
+}
+
 function renderCases(){
   const list = document.getElementById("case-list");
   list.innerHTML = "";
 
-  // toolbar: expand all / collapse all
+  // toolbar: reveal / hide all cases (overrides per-case state)
   const toolbar = document.getElementById("case-toolbar");
   toolbar.innerHTML = "";
-  const expandAll   = document.createElement("button");
-  expandAll.className = "mini-btn";
-  expandAll.textContent = "expand all";
+  const revealAll = document.createElement("button");
+  revealAll.className = "mini-btn";
+  revealAll.type = "button";
+  revealAll.textContent = "reveal all cases (exam review)";
+  const resetAll = document.createElement("button");
+  resetAll.className = "mini-btn";
+  resetAll.type = "button";
+  resetAll.textContent = "hide all (practice mode)";
   const collapseAll = document.createElement("button");
   collapseAll.className = "mini-btn";
+  collapseAll.type = "button";
   collapseAll.textContent = "collapse all";
-  toolbar.appendChild(expandAll);
+  toolbar.appendChild(revealAll);
+  toolbar.appendChild(resetAll);
   toolbar.appendChild(collapseAll);
 
   CASES.forEach(c => {
+    const state = ensureCaseState(c);
     const item = document.createElement("div");
     item.className = "case-item";
+    item.dataset.caseId = String(c.id);
 
     const head = document.createElement("button");
     head.className = "case-head";
@@ -414,41 +571,11 @@ function renderCases(){
     const body = document.createElement("div");
     body.className = "case-body";
 
-    const section = (label, html) => {
-      const wrap = document.createElement("div");
-      wrap.className = "case-section";
-      const h = document.createElement("h5");
-      h.className = "case-section-h";
-      h.textContent = label;
-      const d = document.createElement("div");
-      d.className = "case-section-body";
-      d.innerHTML = html;
-      wrap.appendChild(h);
-      wrap.appendChild(d);
-      return wrap;
-    };
-
-    const list2html = arr =>
-      "<ul>" + arr.map(x => `<li>${escapeHTML(x)}</li>`).join("") + "</ul>";
-
-    if (c.behavioral)
-      body.appendChild(section("Behavioral warm-up", `<em>"${escapeHTML(c.behavioral)}"</em>`));
-    body.appendChild(section("Prompt", escapeHTML(c.prompt)));
-    if (c.clarifying?.length)
-      body.appendChild(section("Clarifying info", list2html(c.clarifying)));
-    if (c.framework?.length)
-      body.appendChild(section("Framework buckets", list2html(c.framework)));
-    if (c.math?.length)
-      body.appendChild(section("Key math", list2html(c.math)));
-    if (c.brainstorm)
-      body.appendChild(section("Brainstorming", escapeHTML(c.brainstorm)));
-    if (c.recommendation)
-      body.appendChild(section("Recommendation", escapeHTML(c.recommendation)));
-
     head.addEventListener("click", (e) => {
-      if (e.target.closest(".ask-ai-btn")) return; // don't toggle on ask-AI click
+      if (e.target.closest(".ask-ai-btn")) return;
       const open = body.classList.toggle("open");
       head.querySelector(".case-toggle").textContent = open ? "hide ▴" : "show ▾";
+      if (open) renderCaseBody(c, body);
     });
 
     item.appendChild(head);
@@ -456,9 +583,29 @@ function renderCases(){
     list.appendChild(item);
   });
 
-  expandAll.addEventListener("click", () => {
-    document.querySelectorAll(".case-body").forEach(b => b.classList.add("open"));
-    document.querySelectorAll(".case-head .case-toggle").forEach(t => t.textContent = "hide ▴");
+  revealAll.addEventListener("click", () => {
+    document.querySelectorAll(".case-item").forEach(item => {
+      const id = item.dataset.caseId;
+      const c = CASES.find(x => String(x.id) === id);
+      if (!c) return;
+      const state = ensureCaseState(c);
+      state.revealed = state.revealed.map(() => true);
+      const body = item.querySelector(".case-body");
+      body.classList.add("open");
+      item.querySelector(".case-toggle").textContent = "hide ▴";
+      renderCaseBody(c, body);
+    });
+  });
+  resetAll.addEventListener("click", () => {
+    document.querySelectorAll(".case-item").forEach(item => {
+      const id = item.dataset.caseId;
+      const c = CASES.find(x => String(x.id) === id);
+      if (!c) return;
+      const state = ensureCaseState(c);
+      state.revealed = getInitialRevealed(state.stages);
+      const body = item.querySelector(".case-body");
+      if (body.classList.contains("open")) renderCaseBody(c, body);
+    });
   });
   collapseAll.addEventListener("click", () => {
     document.querySelectorAll(".case-body").forEach(b => b.classList.remove("open"));
