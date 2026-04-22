@@ -44,107 +44,20 @@ document.addEventListener("keydown", e => {
 });
 
 /* =========================================================
-   FLASHCARDS
+   FLASHCARDS — delegated to the shared session module
    ========================================================= */
-const WEIGHT_KEY = "epm1080.card.weights";
-const weights = JSON.parse(localStorage.getItem(WEIGHT_KEY) || "{}");
-function saveWeights(){ localStorage.setItem(WEIGHT_KEY, JSON.stringify(weights)); }
-
-let fcDeck = [];
-let fcIdx = 0;
-let fcFilter = "all";
-
 function filterCards(filter){
   if (filter === "all") return CARDS.slice();
   return CARDS.filter(c => c.cat === filter);
 }
 
-function weightedShuffle(pool){
-  const arr = pool.map(c => ({c, w: (weights[c.term] || 1) * (0.5 + Math.random())}));
-  arr.sort((a,b) => b.w - a.w);
-  return arr.map(x => x.c);
-}
-
-function buildDeck(){
-  fcDeck = weightedShuffle(filterCards(fcFilter));
-  fcIdx = 0;
-  showCard();
-}
-
-function showCard(){
-  const card = fcDeck[fcIdx];
-  const fc = document.getElementById("flashcard");
-  fc.classList.remove("flipped");
-  if (!card){
-    document.getElementById("card-front").textContent = "No cards in this deck.";
-    document.getElementById("card-back").textContent  = "";
-    document.getElementById("card-tag").style.display = "none";
-    document.getElementById("card-note").textContent  = "";
-    document.getElementById("card-counter").textContent = "0 / 0";
-    return;
-  }
-  document.getElementById("card-front").textContent = card.term;
-  document.getElementById("card-back").textContent  = card.def;
-  const tag = document.getElementById("card-tag");
-  tag.textContent = card.cat;
-  tag.className = "fc-badge cat-badge " + catClass(card.cat);
-  tag.style.display = "inline-block";
-  document.getElementById("card-note").textContent = card.hint || "";
-  document.getElementById("card-counter").textContent = `${fcIdx+1} / ${fcDeck.length}`;
-}
-
-document.getElementById("flashcard").addEventListener("click", () => {
-  document.getElementById("flashcard").classList.toggle("flipped");
+window.StudyLab?.flashcards?.init({
+  cards:       CARDS,
+  fields:      { term: "term", def: "def", hint: "hint", cat: "cat" },
+  weightKey:   "epm1080.card.weights",
+  masteredKey: "epm1080.card.mastered",
+  catClass:    c => catClass(c.cat || ""),
 });
-document.getElementById("flip-card").addEventListener("click", e => {
-  e.stopPropagation();
-  document.getElementById("flashcard").classList.toggle("flipped");
-});
-document.getElementById("prev-card").addEventListener("click", e => {
-  e.stopPropagation();
-  if (!fcDeck.length) return;
-  fcIdx = (fcIdx - 1 + fcDeck.length) % fcDeck.length;
-  showCard();
-});
-document.getElementById("next-card").addEventListener("click", e => {
-  e.stopPropagation();
-  if (!fcDeck.length) return;
-  fcIdx = (fcIdx + 1) % fcDeck.length;
-  showCard();
-});
-document.getElementById("knew").addEventListener("click", e => {
-  e.stopPropagation();
-  const card = fcDeck[fcIdx]; if (!card) return;
-  weights[card.term] = Math.max(0.25, (weights[card.term] || 1) * 0.6);
-  saveWeights();
-  fcIdx = (fcIdx + 1) % fcDeck.length;
-  showCard();
-});
-document.getElementById("missed").addEventListener("click", e => {
-  e.stopPropagation();
-  const card = fcDeck[fcIdx]; if (!card) return;
-  weights[card.term] = Math.min(5, (weights[card.term] || 1) * 1.8);
-  saveWeights();
-  fcIdx = (fcIdx + 1) % fcDeck.length;
-  showCard();
-});
-document.getElementById("shuffle").addEventListener("click", buildDeck);
-
-document.querySelectorAll('input[name="deck"]').forEach(r => {
-  r.addEventListener("change", e => { fcFilter = e.target.value; buildDeck(); });
-});
-
-document.addEventListener("keydown", e => {
-  if (document.querySelector(".sheet--active")?.id !== "cards") return;
-  if (e.target.matches("input, textarea")) return;
-  if (e.code === "Space"){ e.preventDefault(); document.getElementById("flashcard").classList.toggle("flipped"); }
-  else if (e.key === "ArrowLeft"){ document.getElementById("prev-card").click(); }
-  else if (e.key === "ArrowRight"){ document.getElementById("next-card").click(); }
-  else if (e.key === "k" || e.key === "K"){ document.getElementById("knew").click(); }
-  else if (e.key === "d" || e.key === "D"){ document.getElementById("missed").click(); }
-});
-
-buildDeck();
 
 /* =========================================================
    Shared helpers — unified MC question builder used by
