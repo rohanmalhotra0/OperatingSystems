@@ -69,15 +69,19 @@ function buildFilterChips(containerId, radioName, onChange){
 }
 
 /* =========================================================
-   FLASHCARDS
+   FLASHCARDS — finite session model
+   K retires the card · D requeues 3–5 cards later · U undoes last rating.
+   Persists per-card mastery timestamp so tomorrow's session shows yesterday's progress.
    ========================================================= */
-const WEIGHT_KEY = "darden.card.weights";
-const weights = JSON.parse(localStorage.getItem(WEIGHT_KEY) || "{}");
-function saveWeights(){ localStorage.setItem(WEIGHT_KEY, JSON.stringify(weights)); }
+const WEIGHT_KEY   = "darden.card.weights";
+const MASTERED_KEY = "darden.card.mastered";   // { term: timestampMs }
+const weights  = JSON.parse(localStorage.getItem(WEIGHT_KEY)   || "{}");
+const mastered = JSON.parse(localStorage.getItem(MASTERED_KEY) || "{}");
+function saveWeights(){  localStorage.setItem(WEIGHT_KEY,   JSON.stringify(weights));  }
+function saveMastered(){ localStorage.setItem(MASTERED_KEY, JSON.stringify(mastered)); }
 
-let fcDeck = [];
-let fcIdx = 0;
 let fcFilter = "all";
+let fcSession = null; // { queue, total, masteredCount, missed:[], history:[], hintShown:bool, phase:'active'|'done' }
 
 function filterCards(filter){
   if (filter === "all") return CARDS.slice();
@@ -85,89 +89,216 @@ function filterCards(filter){
 }
 
 function weightedShuffle(pool){
-  const arr = pool.map(c => ({c, w: (weights[c.term] || 1) * (0.5 + Math.random())}));
+  // Weight = higher if recently missed; lower if known. Plus a random jitter.
+  const arr = pool.map(c => ({ c, w: (weights[c.term] || 1) * (0.5 + Math.random()) }));
   arr.sort((a,b) => b.w - a.w);
   return arr.map(x => x.c);
 }
 
-function buildDeck(){
-  fcDeck = weightedShuffle(filterCards(fcFilter));
-  fcIdx = 0;
-  showCard();
+/* ---------- session lifecycle ---------- */
+function startSession(pool){
+  const queue = pool && pool.length ? pool.slice() : weightedShuffle(filterCards(fcFilter));
+  fcSession = {
+    queue,
+    total: queue.length,
+    masteredCount: 0,
+    missed: [],
+    history: [],
+    hintShown: false,
+    phase: queue.length ? "active" : "done",
+  };
+  renderSession();
+}
+
+function renderSession(){
+  if (!fcSession) return;
+  document.getElementById("fc-stage-active").style.display = fcSession.phase === "done" ? "none" : "";
+  document.getElementById("fc-stage-done").style.display   = fcSession.phase === "done" ? "flex" : "none";
+  renderProgress();
+  if (fcSession.phase === "done"){
+    renderDone();
+  } else {
+    showCard();
+  }
+  document.getElementById("undo-card").disabled = !fcSession.history.length;
+}
+
+function renderProgress(){
+  const { masteredCount, total, queue } = fcSession;
+  const pct = total ? Math.round(100 * masteredCount / total) : 0;
+  document.getElementById("fc-prog-fill").style.width = pct + "%";
+  document.getElementById("fc-prog-txt").textContent  = `${masteredCount} / ${total} mastered`;
+  const left = queue.length;
+  document.getElementById("fc-prog-queue").textContent = left ? `· ${left} in queue` : "";
 }
 
 function showCard(){
-  const card = fcDeck[fcIdx];
+  const card = fcSession.queue[0];
   const fc = document.getElementById("flashcard");
   fc.classList.remove("flipped");
+
   if (!card){
-    document.getElementById("card-front").textContent = "No cards in this deck.";
-    document.getElementById("card-back").textContent  = "";
-    document.getElementById("card-tag").style.display = "none";
-    document.getElementById("card-note").textContent  = "";
-    document.getElementById("card-counter").textContent = "0 / 0";
+    fcSession.phase = "done";
+    renderSession();
     return;
   }
   document.getElementById("card-front").textContent = card.term;
   document.getElementById("card-back").textContent  = card.def;
   const tag = document.getElementById("card-tag");
-  tag.textContent = card.cat;
-  tag.className = "fc-badge cat-badge " + catClass(card.cat);
-  tag.style.display = "inline-block";
-  document.getElementById("card-note").textContent = card.hint || "";
-  document.getElementById("card-counter").textContent = `${fcIdx+1} / ${fcDeck.length}`;
+  tag.textContent = card.cat || "";
+  tag.className = "fc-badge cat-badge " + catClass(card.cat || "");
+  tag.style.display = card.cat ? "inline-block" : "none";
+
+  // hint hidden by default (active recall); reveal on H or button click
+  const note   = document.getElementById("card-note");
+  const toggle = document.getElementById("card-hint-toggle");
+  if (card.hint){
+    note.textContent = card.hint;
+    note.hidden = !fcSession.hintShown;
+    toggle.style.display = "inline-block";
+    toggle.textContent = fcSession.hintShown ? "hide hint" : "show hint";
+  } else {
+    note.textContent = "";
+    note.hidden = true;
+    toggle.style.display = "none";
+  }
+
+  // position shown = mastered so far + 1 (what you're looking at), capped at total
+  const pos = Math.min(fcSession.total, fcSession.masteredCount + 1);
+  document.getElementById("card-counter").textContent = `${pos} / ${fcSession.total}`;
+
+  decorateMasteryBadge(card);
 }
 
-buildFilterChips("card-filter-bar", "deck", v => { fcFilter = v; buildDeck(); });
+function decorateMasteryBadge(card){
+  const existing = document.getElementById("card-mastery-badge");
+  if (existing) existing.remove();
+  if (!mastered[card.term]) return;
+  const badge = document.createElement("div");
+  badge.id = "card-mastery-badge";
+  badge.className = "fc-mastery-badge";
+  badge.textContent = "seen before ✓";
+  document.querySelector(".card-front").appendChild(badge);
+}
 
-document.getElementById("flashcard").addEventListener("click", () => {
-  document.getElementById("flashcard").classList.toggle("flipped");
-});
-document.getElementById("flip-card").addEventListener("click", e => {
-  e.stopPropagation();
-  document.getElementById("flashcard").classList.toggle("flipped");
-});
-document.getElementById("prev-card").addEventListener("click", e => {
-  e.stopPropagation();
-  if (!fcDeck.length) return;
-  fcIdx = (fcIdx - 1 + fcDeck.length) % fcDeck.length;
-  showCard();
-});
-document.getElementById("next-card").addEventListener("click", e => {
-  e.stopPropagation();
-  if (!fcDeck.length) return;
-  fcIdx = (fcIdx + 1) % fcDeck.length;
-  showCard();
-});
-document.getElementById("knew").addEventListener("click", e => {
-  e.stopPropagation();
-  const card = fcDeck[fcIdx]; if (!card) return;
-  weights[card.term] = Math.max(0.25, (weights[card.term] || 1) * 0.6);
+function renderDone(){
+  const { masteredCount, total, missed } = fcSession;
+  const pct = total ? Math.round(100 * masteredCount / total) : 0;
+  const stats = document.getElementById("fc-done-stats");
+  stats.innerHTML = `
+    <span class="fc-done-score">${masteredCount}<span>/${total}</span></span>
+    <span class="fc-done-pct">${pct}%</span>
+    ${missed.length
+      ? `<span class="fc-done-missed">${missed.length} needed another pass before you nailed them</span>`
+      : `<span class="fc-done-missed fc-done-missed--clean">no re-tries needed</span>`}
+  `;
+  document.getElementById("fc-retry-missed").style.display = missed.length ? "inline-block" : "none";
+}
+
+/* ---------- actions ---------- */
+function actKnew(){
+  if (!fcSession || fcSession.phase === "done") return;
+  const card = fcSession.queue.shift();
+  if (!card) return;
+  const priorW = weights[card.term] || 1;
+  const wasMasteredBefore = !!mastered[card.term];
+  weights[card.term]  = Math.max(0.25, priorW * 0.6);
+  mastered[card.term] = Date.now();
+  saveWeights(); saveMastered();
+  fcSession.masteredCount++;
+  fcSession.history.push({ card, action:"knew", wasMasteredBefore, priorWeight: priorW });
+  fcSession.hintShown = false;
+  if (!fcSession.queue.length) fcSession.phase = "done";
+  renderSession();
+}
+
+function actMissed(){
+  if (!fcSession || fcSession.phase === "done") return;
+  const card = fcSession.queue.shift();
+  if (!card) return;
+  const priorW = weights[card.term] || 1;
+  weights[card.term] = Math.min(5, priorW * 1.8);
   saveWeights();
-  fcIdx = (fcIdx + 1) % fcDeck.length;
-  showCard();
+  const insertAt = Math.min(fcSession.queue.length, 3 + Math.floor(Math.random() * 3));
+  fcSession.queue.splice(insertAt, 0, card);
+  fcSession.missed.push(card);
+  fcSession.history.push({ card, action:"missed", priorWeight: priorW, insertAt });
+  fcSession.hintShown = false;
+  renderSession();
+}
+
+function actUndo(){
+  if (!fcSession) return;
+  const last = fcSession.history.pop();
+  if (!last) return;
+  if (last.action === "knew"){
+    fcSession.queue.unshift(last.card);
+    fcSession.masteredCount = Math.max(0, fcSession.masteredCount - 1);
+    if (!last.wasMasteredBefore) delete mastered[last.card.term];
+  } else if (last.action === "missed"){
+    const insertedAt = last.insertAt ?? 0;
+    const idx = fcSession.queue.findIndex((c,i) => c === last.card && i >= Math.max(0, insertedAt - 1));
+    if (idx >= 0) fcSession.queue.splice(idx, 1);
+    fcSession.queue.unshift(last.card);
+    const popIdx = fcSession.missed.lastIndexOf(last.card);
+    if (popIdx >= 0) fcSession.missed.splice(popIdx, 1);
+  }
+  weights[last.card.term] = last.priorWeight;
+  saveWeights(); saveMastered();
+  fcSession.phase = "active";
+  fcSession.hintShown = false;
+  renderSession();
+}
+
+function toggleHint(){
+  if (!fcSession) return;
+  fcSession.hintShown = !fcSession.hintShown;
+  const note = document.getElementById("card-note");
+  const btn  = document.getElementById("card-hint-toggle");
+  note.hidden = !fcSession.hintShown;
+  btn.textContent = fcSession.hintShown ? "hide hint" : "show hint";
+}
+
+function flipCard(){
+  document.getElementById("flashcard").classList.toggle("flipped");
+}
+
+/* ---------- wiring ---------- */
+buildFilterChips("card-filter-bar", "deck", v => { fcFilter = v; startSession(); });
+
+document.getElementById("flashcard").addEventListener("click", (e) => {
+  if (e.target.closest(".fc-hint-toggle")) return;
+  flipCard();
 });
-document.getElementById("missed").addEventListener("click", e => {
-  e.stopPropagation();
-  const card = fcDeck[fcIdx]; if (!card) return;
-  weights[card.term] = Math.min(5, (weights[card.term] || 1) * 1.8);
-  saveWeights();
-  fcIdx = (fcIdx + 1) % fcDeck.length;
-  showCard();
+document.getElementById("flip-card").addEventListener("click", e => { e.stopPropagation(); flipCard(); });
+document.getElementById("undo-card").addEventListener("click", e => { e.stopPropagation(); actUndo(); });
+document.getElementById("knew").addEventListener("click",   e => { e.stopPropagation(); actKnew(); });
+document.getElementById("missed").addEventListener("click", e => { e.stopPropagation(); actMissed(); });
+document.getElementById("shuffle").addEventListener("click", () => startSession());
+document.getElementById("card-hint-toggle").addEventListener("click", e => { e.stopPropagation(); toggleHint(); });
+
+document.getElementById("fc-retry-missed").addEventListener("click", () => {
+  const seen = new Set(); const uniq = [];
+  (fcSession?.missed || []).forEach(c => { if (!seen.has(c.term)){ seen.add(c.term); uniq.push(c); } });
+  startSession(uniq);
 });
-document.getElementById("shuffle").addEventListener("click", buildDeck);
+document.getElementById("fc-new-run").addEventListener("click", () => startSession());
+document.getElementById("fc-switch-filter").addEventListener("click", () => {
+  document.querySelector("#card-filter-bar .deck-chip input")?.focus();
+});
 
 document.addEventListener("keydown", e => {
   if (document.querySelector(".sheet--active")?.id !== "cards") return;
   if (e.target.matches("input, textarea")) return;
-  if (e.code === "Space"){ e.preventDefault(); document.getElementById("flashcard").classList.toggle("flipped"); }
-  else if (e.key === "ArrowLeft"){ document.getElementById("prev-card").click(); }
-  else if (e.key === "ArrowRight"){ document.getElementById("next-card").click(); }
-  else if (e.key === "k" || e.key === "K"){ document.getElementById("knew").click(); }
-  else if (e.key === "d" || e.key === "D"){ document.getElementById("missed").click(); }
+  if (fcSession?.phase === "done") return;
+  if (e.code === "Space"){ e.preventDefault(); flipCard(); }
+  else if (e.key === "k" || e.key === "K"){ actKnew(); }
+  else if (e.key === "d" || e.key === "D"){ actMissed(); }
+  else if (e.key === "u" || e.key === "U"){ actUndo(); }
+  else if (e.key === "h" || e.key === "H"){ toggleHint(); }
 });
 
-buildDeck();
+startSession();
 
 /* =========================================================
    LEARN (4-option MC, requeue misses)
