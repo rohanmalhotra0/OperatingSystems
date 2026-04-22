@@ -314,8 +314,11 @@ function renderVocab(){
     return;
   }
   vocabGrid.innerHTML = items.map(v => `
-    <div class="vocab-card">
-      <div class="vocab-de">${escapeHTML(v.term)}</div>
+    <div class="vocab-card" data-ask-term="${escapeHTML(v.term)}">
+      <div class="vocab-card-head">
+        <div class="vocab-de">${escapeHTML(v.term)}</div>
+        <button class="ask-ai-btn ask-ai-btn--small" data-ask-explain="${escapeHTML(v.term)}" title="ask AI to explain this term">ask AI ↗</button>
+      </div>
       <div class="vocab-en">${escapeHTML(v.def)}</div>
       ${v.hint ? `<div class="vocab-note">${escapeHTML(v.hint)}</div>` : ""}
     </div>
@@ -337,9 +340,11 @@ function renderFrameworks(){
     item.className = "fw-item";
     const head = document.createElement("button");
     head.className = "fw-head";
+    head.type = "button";
     head.innerHTML = `
       <span class="fw-num">${String(i+1).padStart(2,"0")}</span>
-      <span class="fw-name">${f.name}</span>
+      <span class="fw-name">${escapeHTML(f.name)}</span>
+      <span class="ask-ai-btn ask-ai-btn--small" data-ask-framework="${escapeHTML(f.name)}" title="ask AI to walk through this framework" role="button" tabindex="0">ask AI ↗</span>
       <span class="fw-toggle">show buckets ▾</span>
     `;
     const body = document.createElement("div");
@@ -358,7 +363,8 @@ function renderFrameworks(){
       note.textContent = f.note;
       body.appendChild(note);
     }
-    head.addEventListener("click", () => {
+    head.addEventListener("click", (e) => {
+      if (e.target.closest(".ask-ai-btn")) return; // don't toggle on ask-AI click
       const open = body.classList.toggle("open");
       head.querySelector(".fw-toggle").textContent = open ? "hide buckets ▴" : "show buckets ▾";
     });
@@ -394,12 +400,14 @@ function renderCases(){
 
     const head = document.createElement("button");
     head.className = "case-head";
+    head.type = "button";
     head.innerHTML = `
       <span class="case-num">${String(c.id).padStart(2,"0")}</span>
       <span class="case-title">
-        <span class="case-name">${c.title}</span>
-        <span class="case-meta">${c.industry} · ${c.type} · ${c.difficulty}</span>
+        <span class="case-name">${escapeHTML(c.title)}</span>
+        <span class="case-meta">${escapeHTML(c.industry || "")} · ${escapeHTML(c.type || "")} · ${escapeHTML(c.difficulty || "")}</span>
       </span>
+      <span class="ask-ai-btn" data-ask-mock="${escapeHTML(String(c.id))}" title="run this case as a mock interview" role="button" tabindex="0">mock this ↗</span>
       <span class="case-toggle">show ▾</span>
     `;
 
@@ -437,7 +445,8 @@ function renderCases(){
     if (c.recommendation)
       body.appendChild(section("Recommendation", escapeHTML(c.recommendation)));
 
-    head.addEventListener("click", () => {
+    head.addEventListener("click", (e) => {
+      if (e.target.closest(".ask-ai-btn")) return; // don't toggle on ask-AI click
       const open = body.classList.toggle("open");
       head.querySelector(".case-toggle").textContent = open ? "hide ▴" : "show ▾";
     });
@@ -478,7 +487,10 @@ function renderFormulas(){
     const item = document.createElement("div");
     item.className = "formula-item";
     item.innerHTML = `
-      <div class="formula-name">${escapeHTML(f.name)}</div>
+      <div class="formula-head">
+        <div class="formula-name">${escapeHTML(f.name)}</div>
+        <button class="ask-ai-btn ask-ai-btn--small" data-ask-explain="${escapeHTML(f.name)}" title="ask AI to walk through this formula">ask AI ↗</button>
+      </div>
       <pre class="formula-body">${escapeHTML(f.formula)}</pre>
       <div class="formula-note">${escapeHTML(f.note || "")}</div>
     `;
@@ -486,3 +498,35 @@ function renderFormulas(){
   });
 }
 renderFormulas();
+
+/* =========================================================
+   Ask-AI delegation — any element with data-ask-explain / data-ask-framework /
+   data-ask-mock routes through window.ChatLab.askAI. Single listener covers
+   everything rendered above (vocab cards, frameworks, cases, formulas).
+   ========================================================= */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-ask-explain], [data-ask-framework], [data-ask-mock]");
+  if (!btn) return;
+  if (!window.ChatLab?.askAI) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (btn.hasAttribute("data-ask-explain")){
+    const term = btn.getAttribute("data-ask-explain");
+    window.ChatLab.askAI({
+      mode: "explain",
+      focus: term,
+      prompt: `Explain "${term}" in depth — definition, intuition, one concrete example, and 1-2 common traps a student might fall into.`,
+    });
+  } else if (btn.hasAttribute("data-ask-framework")){
+    const name = btn.getAttribute("data-ask-framework");
+    window.ChatLab.askAI({
+      mode: "explain",
+      focus: name,
+      prompt: `Walk me through the "${name}" framework — list the bucket set, when to reach for it vs alternatives, and one concrete case where it applies.`,
+    });
+  } else if (btn.hasAttribute("data-ask-mock")){
+    const caseId = btn.getAttribute("data-ask-mock");
+    window.ChatLab.askAI({ mode: "mock", caseId });
+  }
+});

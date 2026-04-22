@@ -116,3 +116,56 @@
   display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
   margin-top: 8px;
 }
+
+/* "ask AI" button on the back of every flashcard */
+.fc-ask-ai{
+  all: unset;
+  position: absolute;
+  top: 10px; right: 12px;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 1.2px;
+  padding: 3px 8px;
+  border: 1px solid var(--ink);
+  background: var(--paper-soft, rgba(0,0,0,0.05));
+  color: var(--pencil);
+  text-transform: uppercase;
+  line-height: 1.2;
+  z-index: 2;
+}
+.fc-ask-ai:hover{
+  background: var(--tab-3, #ead29c);
+  color: var(--ink);
+}
+
+/* ---------- shared content-page "ask AI" button --------
+   Inline icon button placed on vocab cards, cases, frameworks, formulas.
+   Consumed by Consulting (and any other tab that chooses to surface it).
+*/
+.ask-ai-btn{
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 1.2px;
+  padding: 3px 8px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--pencil);
+  text-transform: uppercase;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+.ask-ai-btn:hover{
+  background: var(--red);
+  color: var(--paper);
+  border-color: var(--red);
+}
+.ask-ai-btn--small{
+  font-size: 9.5px;
+  padding: 2px 6px;
+}

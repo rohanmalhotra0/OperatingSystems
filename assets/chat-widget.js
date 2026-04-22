@@ -437,6 +437,8 @@
       surface:  "widget",
       streamClient: client,
       onExit:   () => switchMode("chat"),
+      // Honor any case pre-selected by askAI() before mount.
+      initialCaseId: window.ChatLab?._consumePendingMockCaseId?.(),
     });
   }
 
@@ -567,9 +569,59 @@
     }[c]));
   }
 
+  /* =========================================================
+     askAI() — one-call entry point used by content pages to jump the
+     student into the chat widget pre-populated. Called by small
+     "ask AI" icons scattered across vocab cards, cases, frameworks, etc.
+     Shapes:
+       askAI({ mode: "explain", focus: "NPV", prompt: "Explain NPV…" })
+       askAI({ mode: "mock",    caseId: 7 })
+       askAI({ mode: "chat",    prompt: "open a discussion about…" })
+     ========================================================= */
+  let pendingMockCaseId = null;
+
+  function askAI(opts){
+    const o = opts || {};
+    const mode = o.mode || "chat";
+
+    // Ensure panel + session exist
+    if (!el.panel) return; // widget not initialized (e.g., on /chat.html)
+    if (!session) session = store.getOrCreateForTab(CURRENT_TAB.id, mode);
+    if (session.mode !== mode){
+      store.updateSession(session.id, { mode });
+      session = store.getSession(session.id);
+    }
+    openPanel();
+
+    if (mode === "mock"){
+      // If mock is already mounted, tell it to start this case now; otherwise
+      // stash the id so mountMock() picks it up.
+      pendingMockCaseId = o.caseId || null;
+      if (mockInstance && typeof mockInstance.startCaseById === "function" && pendingMockCaseId){
+        const id = pendingMockCaseId;
+        pendingMockCaseId = null;
+        mockInstance.startCaseById(id);
+      }
+      return;
+    }
+
+    // explain / chat: pre-fill the input, auto-send if a prompt was given
+    const promptText = o.prompt || (o.focus ? `Explain "${o.focus}" in depth — definition, intuition, one example, and common traps.` : "");
+    if (!promptText) return;
+    // wait for renderSession to have swapped to chat UI, then send
+    setTimeout(() => {
+      if (!el.input) return;
+      el.input.value = promptText;
+      onSend();
+    }, 60);
+  }
+
   /* ---------- expose for full-page + init ---------- */
   window.ChatLab = Object.assign(window.ChatLab || {}, {
     store, client, TABS, CURRENT_TAB, STARTERS, escapeHtml,
+    askAI,
+    // expose a getter so mock mount can consume the pending caseId
+    _consumePendingMockCaseId(){ const id = pendingMockCaseId; pendingMockCaseId = null; return id; },
   });
 
   if (document.readyState === "loading"){
