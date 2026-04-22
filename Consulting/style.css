@@ -1338,6 +1338,176 @@ h2.pencil::after{
 .case-section-body li{ padding: 2px 0; }
 .case-section-body em{ color: var(--pencil); }
 
+/* ---------- Case section banner (Darden vs Practice Pack divider) ---------- */
+.case-section-banner{
+  position: relative;
+  margin: 8px 0 16px;
+  padding: 18px 22px 16px;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.case-section-banner--darden{
+  background: var(--tab-3);
+}
+.case-section-banner--practice{
+  background: var(--tab-4);
+  margin-top: 36px;
+}
+.case-section-banner--practice::before{
+  content: "supplemental";
+  position: absolute;
+  top: -12px; left: 22px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  padding: 2px 10px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  color: var(--red);
+  text-transform: uppercase;
+}
+.case-section-banner-main{
+  font-family:'Caveat', cursive;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--ink);
+}
+.case-section-banner-sub{
+  margin-top: 6px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--pencil);
+  letter-spacing: 0.8px;
+}
+
+/* ---------- Source badge on each case head ---------- */
+.case-source-badge{
+  flex-shrink: 0;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid var(--ink);
+  color: var(--pencil);
+  background: var(--paper-soft);
+}
+.case-source-badge--darden{ background: var(--tab-3); color: var(--ink); }
+.case-source-badge--practice{ background: var(--tab-4); color: var(--ink); border-color: var(--red); }
+.case-item--practice{
+  border-left: 4px solid var(--red);
+}
+
+/* ---------- Exhibits (tables, bars, lines) ---------- */
+.case-exhibit{
+  margin: 10px 0 14px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 14px 16px;
+  color: var(--ink);
+}
+.case-exhibit-title{
+  font-family:'Caveat', cursive;
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.case-exhibit-note{
+  margin-top: 10px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  color: var(--pencil);
+  font-style: italic;
+  line-height: 1.45;
+}
+.case-exhibit-empty{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--pencil);
+  padding: 12px 0;
+}
+
+/* -- exhibit: table -- */
+.case-exhibit--table table{
+  width: 100%;
+  border-collapse: collapse;
+  font-family:'Spectral', serif;
+  font-size: 14px;
+}
+.case-exhibit--table th,
+.case-exhibit--table td{
+  padding: 7px 10px;
+  border: 1px solid var(--ink);
+  text-align: left;
+  vertical-align: top;
+}
+.case-exhibit--table thead th{
+  background: var(--paper-soft);
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  color: var(--pencil);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.case-exhibit--table tbody tr:nth-child(odd){ background: rgba(216, 207, 180, 0.18); }
+.case-exhibit--table tbody tr:last-child td{ font-weight: 600; }
+
+/* -- exhibit: bar chart -- */
+.case-bars{
+  display: flex; flex-direction: column; gap: 6px;
+}
+.case-bar-row{
+  display: grid;
+  grid-template-columns: minmax(110px, 22%) 1fr auto;
+  gap: 10px;
+  align-items: center;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12px;
+}
+.case-bar-label{
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.case-bar-track{
+  height: 16px;
+  background: var(--paper-soft);
+  border: 1.5px solid var(--ink);
+  overflow: hidden;
+}
+.case-bar-fill{
+  height: 100%;
+  background: var(--olive);
+  transition: width 0.4s ease-out;
+}
+.case-bar-value{
+  color: var(--ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* -- exhibit: line chart -- */
+.case-line-svg{
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+  display: block;
+  color: var(--ink);
+}
+.case-line-unit{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  color: var(--pencil);
+  text-align: right;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
 /* ---------- Progressive-reveal "think first" panel ---------- */
 .case-think{
   margin-top: 14px;

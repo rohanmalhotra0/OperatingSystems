@@ -658,5 +658,704 @@ const CASES = [
     ],
     brainstorm: "Risks: competition, further cannibalization, personnel, brand implications. Alternatives: R&D new products, expand Diagon Alley store, yield account, retire early.",
     recommendation: "Open Hogsmeade — raises annual profit $102k → $156k (+$54k); meets 4-yr breakeven (3.7 yrs). Risks: ongoing cannibalization; building vs buying may be better. Next steps: renovation partner sourcing; marketing/product programs."
+  },
+
+  /* =========================================================
+     PRACTICE PACK — 15 supplemental cases
+     Not from the Darden casebook. Original cases written in the same
+     style, covering industries and types complementary to the Darden
+     15. Several include exhibits (tables, bar charts, line charts)
+     that you'd ask the interviewer for in a real case.
+     ========================================================= */
+
+  {
+    id: 16,
+    source: "practice",
+    title: "Prairie Power",
+    industry: "Energy",
+    type: "Profitability",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you had to deliver bad news to a team.",
+    prompt: "SunSolve, a residential rooftop-solar installer in Texas, installed 12,000 systems in 2023 for $42M revenue and $12.6M profit (30% margin). In 2025 installs are down to 9,500, revenue to $28M, and profit to $5.6M (20% margin) — even though the Texas residential solar market grew 15%/yr. CEO wants a diagnosis and a fix.",
+    clarifying: [
+      "Texas residential solar market is GROWING 15%/yr — SunSolve is shrinking while the industry expands.",
+      "No new local competitors, but online subscription players ($0-down PPA) expanded into Texas in 2024.",
+      "Panel costs dropped 20% industry-wide; installation labor up 35% due to Texas construction boom.",
+      "SunSolve only sells cash/loan — no subscription/PPA product. Battery attach rate is 10%."
+    ],
+    framework: [
+      "Revenue decomposition — price per system × volume, by customer segment",
+      "Cost decomposition — panels, labor, sales, ops (what's up vs what's down)",
+      "Competitive — share loss to online PPA players, pricing pressure",
+      "Structural — sales channel mix, financing options customers now expect"
+    ],
+    math: [
+      "2023: 12,000 × $3,500 = $42M revenue; 30% margin = $12.6M profit",
+      "2025: 9,500 × $2,947 = $28M revenue; 20% margin = $5.6M profit",
+      "Volume decline: (12k − 9.5k) × $3,500 × 30% = −$2.6M",
+      "Price decline: 9,500 × ($3,500 − $2,947) × 30% = −$1.6M",
+      "Margin compression (labor up > panel savings): $28M × 10pp = −$2.8M",
+      "Volume is the biggest chunk — online PPA players capturing 'no-money-down' segment"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Cost structure as % of revenue",
+        columns: ["Line item", "2023", "2025", "Δ"],
+        rows: [
+          ["Panels & hardware", "35%", "28%", "−7 pp"],
+          ["Installation labor", "25%", "32%", "+7 pp"],
+          ["Sales & marketing", "8%", "14%", "+6 pp"],
+          ["Overhead & other", "2%", "6%", "+4 pp"],
+          ["Profit margin", "30%", "20%", "−10 pp"]
+        ],
+        note: "Savings from cheaper panels got more than offset by a skilled-labor shortage."
+      }
+    ],
+    brainstorm: "Launch a PPA/subscription product to match 'no-money-down' competitors. Push battery attach from 10% → 40% (higher margin, IRA tax credit). Pivot partially to commercial rooftop (higher AOV, different sales motion). Reduce labor via pre-assembled panel modules. Don't compete on price in cash segment — compete on speed + warranty.",
+    recommendation: "Launch a PPA product targeting 30% of new installs in 18 months + push battery attach to 40% → +$6M annual profit (~22% margin, recovering half the collapse). Risks: working-capital drain from subscription accounting; battery supply volatility. Next: 60-day Austin pilot, financing partner RFP, sales retraining on PPA objection-handling."
+  },
+
+  {
+    id: 17,
+    source: "practice",
+    title: "Cold Chain Crunch",
+    industry: "Logistics / Grocery",
+    type: "Market Entry",
+    difficulty: "2 / 3 / 2",
+    behavioral: "Describe a time you launched something on an aggressive timeline.",
+    prompt: "FrostHop, a 20-minute grocery delivery startup in 6 US cities (produce, dry goods, dairy), is considering adding frozen foods. Frozen requires freezer retrofits to each 'dark store.' CEO wants a yes/no on launching in the next 12 months.",
+    clarifying: [
+      "35 dark stores across 6 cities; 28 are big enough to retrofit. Current build-out $80k; freezer retrofit adds $160k.",
+      "Customer research: frozen lifts AOV by $9/order (current AOV $28).",
+      "Frozen GM = 20% vs current 25% (higher energy + spoilage).",
+      "Churn: customers who buy frozen churn 18%/yr vs 26% for non-frozen baskets.",
+      "70,000 total customers, ~2,000 per store, avg 4 orders/month."
+    ],
+    framework: [
+      "Market — customer demand, alternatives (Instacart, Walmart+), cannibalization of dry/fresh",
+      "Operations — retrofit capex, freezer OEM partner, driver cold-bag training, SKU count",
+      "Financials — incremental revenue, margin, churn-reduction dollar value",
+      "Execution — phased rollout, which stores first, go/no-go gates"
+    ],
+    math: [
+      "AOV lift per customer/yr: $9 × 4 orders × 12 months = $432",
+      "Retrofit stores serve: 28 × 2,000 = 56,000 customers",
+      "Incremental revenue: 56,000 × $432 = $24.2M/yr",
+      "Incremental GP at 20%: $24.2M × 20% = $4.8M/yr",
+      "Churn-reduction value: 8pp × 56k = 4,480 customers retained × ~$336 annual profit each = $1.5M/yr",
+      "Total incremental profit: ~$6.3M/yr",
+      "Capex: 28 × $160k = $4.5M; payback ≈ 8–9 months"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Frozen economics by store tier",
+        columns: ["Tier", "Stores", "Customers", "Retrofit capex", "Yr-1 profit"],
+        rows: [
+          ["A — high density", "10", "25,000", "$1.6M", "$3.2M"],
+          ["B — mid density", "12", "22,000", "$1.9M", "$2.4M"],
+          ["C — low density", "6", "9,000", "$1.0M", "$0.7M"]
+        ],
+        note: "Density = orders/mo per square mile. Tier-A has ~5× Tier-C."
+      }
+    ],
+    brainstorm: "Risks: freezer downtime trashes BOTH frozen AND dry goods (shared cold chain); energy prices volatile; FDA/USDA compliance; SKU count triples. Opportunities: private-label frozen (higher margin); 'ice cream in 10 min' as a viral hook; partnerships with DTC frozen brands; meal kits as premium SKUs.",
+    recommendation: "Launch frozen in the 10 Tier-A stores in Q1 ($1.6M capex, $3.2M Yr-1 profit, 6-month payback). Gate Tier-B on 6-month unit economics. Curated 120-SKU assortment — don't try to match Walmart at 800+. Risks: cold-chain failure is brand-catastrophic. Next: freezer OEM RFP, 3-store Austin pilot, VP of frozen category hire."
+  },
+
+  {
+    id: 18,
+    source: "practice",
+    title: "Medicare Match",
+    industry: "Pharmaceuticals",
+    type: "Pricing",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you had to stand firm on an unpopular decision.",
+    prompt: "PharmaCo-X's blockbuster ZenMax (for major depression) generates $3.2B/yr in US revenue at $480/month net across 555k patients. Medicare has offered to include ZenMax on its 2026 negotiated-price list at a 35% mandated discount — covering ~40% of current patients. Refusing keeps ZenMax on the formulary but at a higher copay tier, historically cutting prescribing ~30% for similar drugs. Accept or refuse?",
+    clarifying: [
+      "Marginal cost of production: $12/month per patient. R&D is sunk.",
+      "Patent expires 2031 (6 years).",
+      "Competitor SerenMax launches in 18 months — expected 25% share capture.",
+      "Accepting may trigger private-payer discount pressure — estimated 5pp spillover on private lives.",
+      "PharmaCo has 2 other drugs facing Medicare review in 2027–28."
+    ],
+    framework: [
+      "Direct financials — accept vs refuse over 6-year patent horizon",
+      "Strategic — precedent on private payers; CMS relationship across portfolio",
+      "Competitive — how SerenMax launch shifts each scenario",
+      "Non-financial — patient access, PR, regulatory reputation"
+    ],
+    math: [
+      "Current GP: ($480 − $12) × 555k × 12 = $3.12B/yr",
+      "ACCEPT: Medicare 222k @ $312/mo + private 333k @ $456/mo (5pp spillover)",
+      "  → GP: ($300 × 222k + $444 × 333k) × 12 = $799M + $1,774M = $2.57B/yr",
+      "REFUSE: 30% Medicare prescribing drop → 155k still on drug at $480",
+      "  → GP: ($468 × 488k) × 12 = $2.74B/yr",
+      "Refuse wins by ~$170M/yr pre-competitor. With SerenMax shaving 25% non-Medicare share from month 18:",
+      "  Accept 6-yr cumulative GP ≈ $13.8B; Refuse ≈ $14.7B. Financial gap: $0.9B"
+    ],
+    exhibits: [
+      {
+        type: "bar",
+        title: "Exhibit 1 — 6-year cumulative gross profit by scenario",
+        bars: [
+          { label: "Accept Medicare", value: 13.8 },
+          { label: "Refuse Medicare", value: 14.7 }
+        ],
+        unit: "$B",
+        note: "Includes SerenMax launch effect from month 18."
+      }
+    ],
+    brainstorm: "Refusing is a PR flashpoint — Senate hearings, press cycle, potential spillover scrutiny on other drugs. Accepting smooths 2027–28 Medicare negotiations on 2 other PharmaCo drugs. Patient access: 30% prescribing drop = real patients switching to worse drugs. Pipeline: ZenMax-2 (delayed-release) launches pre-patent-cliff — CMS relationship compounds. DTC spend could partially offset Medicare tier shift.",
+    recommendation: "Accept the negotiation (push for 32% discount but accept the 35%). The $0.9B of 6-year GP is real, but the strategic discount buys (1) goodwill for 2 upcoming Medicare reviews, (2) no PR/access risk, (3) stability for ZenMax-2 launch. Risks: private payers pile on with their own discount asks — monitor quarterly. Next: war-game ZenMax-2 launch with + without this deal; negotiate volume commitments from CMS in exchange."
+  },
+
+  {
+    id: 19,
+    source: "practice",
+    title: "Runway 15",
+    industry: "Transportation / Airlines",
+    type: "Profitability",
+    difficulty: "2 / 2 / 1",
+    behavioral: "Tell me about a time you used data to overturn a popular opinion.",
+    prompt: "NorthJet, a US budget airline, launched a daily round-trip between Austin and Raleigh 9 months ago. The route is losing $180k/month despite a healthy 75% load factor. CFO wants: cut the route or invest to fix it?",
+    clarifying: [
+      "1 daily round-trip. Avg 140 pax each way (75% load on 188-seat plane). Avg fare $89.",
+      "Daily costs: fuel $12k, crew $8k, airport fees $3k, allocated fixed $8k = $31k total.",
+      "Delta entered the same route 4 months in; caused fare to drop from $105 → $89.",
+      "NorthJet has a Nashville → Atlanta leg with spare capacity that could through-route."
+    ],
+    framework: [
+      "Unit economics — daily revenue vs daily cost, fixed vs variable",
+      "Competitive — Delta's response to our price moves; who blinks first",
+      "Network — can the aircraft/crew be redeployed or through-routed?",
+      "Strategic — value of the RDU slot; brand signal of pulling a 9-month-old route"
+    ],
+    math: [
+      "Daily revenue: 280 × $89 = $24.9k",
+      "Daily cost: $23k direct + $8k fixed = $31k → loss $6.1k/day → $183k/month ≈ $180k ✓",
+      "Raise fare to $99 (assume −10% volume): 252 × $99 = $25k — no real improvement",
+      "Cut to 5x/week: revenue falls 5/7 but fixed cost doesn't → loss WIDENS to ~$200k",
+      "Through-route with Nashville leg: +20 connecting pax → 160/trip × $89 × 2 = $28.5k; added cost ~$1k/day → monthly +$50k"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Monthly P&L sensitivity",
+        columns: ["Scenario", "Pax/trip", "Fare", "Monthly P&L"],
+        rows: [
+          ["Current", "140", "$89", "−$180k"],
+          ["Raise fare to $99", "126 (−10%)", "$99", "−$45k"],
+          ["Cut to 5x/week", "140", "$89", "−$200k"],
+          ["Through-route with Nashville", "160", "$89", "+$50k"],
+          ["Cancel route", "0", "—", "$0*"]
+        ],
+        note: "* Cancel assumes aircraft redeploys to a breakeven route. Slot value not included."
+      }
+    ],
+    brainstorm: "Brand damage of cutting a 9-month-old route (signals to investors). RDU slot has future value. Delta will match if we raise fares. Opportunity cost of the 188-seater on a stronger route (Austin → Boston est. +$80k/mo). Loyalty miles redemption rate matters. Marketing offset from a tourism-board partnership.",
+    recommendation: "Through-route Austin → Raleigh with the existing Nashville → Atlanta leg (same aircraft, single stop). Projected +$50k/mo after rebrand. 90-day gate: if through-routing misses, cancel and redeploy to Austin → Boston. Do NOT just raise fares — Delta matches, you lose volume without gaining margin."
+  },
+
+  {
+    id: 20,
+    source: "practice",
+    title: "Mainframe Migration",
+    industry: "Financial Services / Insurance",
+    type: "Operations",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Walk me through a time you managed a complex technical migration.",
+    prompt: "RiverBend Insurance (P&C, $1.8B annual premium) runs its core policy system on 1970s-era mainframes. Annual TCO is $120M; the COBOL-skilled workforce is aging out. CIO asks: migrate to cloud over 5 years, or incrementally modernize the mainframe in place?",
+    clarifying: [
+      "Mainframe TCO $120M/yr. Cloud migration: $300M one-time over 5 yrs, then $60M/yr run-rate.",
+      "'Modernize in place' = API-wrap the mainframe, rehire COBOL, patch. ~$40M/yr incremental for 5 yrs, then reverts to $120M base.",
+      "Cloud gives 3x faster release cycle; modernize-in-place keeps current velocity.",
+      "Regulatory: state DOIs require 2-year change notices for core policy engines."
+    ],
+    framework: [
+      "Financial — TCO over 10 years, NPV of each path",
+      "Risk — migration complexity, data loss, regulatory sign-off, key-talent flight",
+      "Strategic — release velocity unlocks bundled insurance, telematics, same-day bind",
+      "Execution — phased vs big-bang, team readiness, vendor mgmt (Guidewire / Duck Creek)"
+    ],
+    math: [
+      "10-yr cost of status quo: $120M × 10 = $1.2B",
+      "10-yr cost of cloud: $300M (yrs 1–5 migration) + $60M × 5 = $600M",
+      "10-yr cost of modernize-in-place: ($120 + $40) × 5 + $120 × 5 = $800M + $600M = $1.4B — WORSE than status quo",
+      "Cloud saves ~$600M over 10 yrs but front-loads $300M",
+      "Cloud NPV at 8%: ~+$180M, plus the hard-to-quantify release-velocity upside"
+    ],
+    exhibits: [
+      {
+        type: "bar",
+        title: "Exhibit 1 — 10-year cumulative IT cost by scenario",
+        bars: [
+          { label: "Status quo (mainframe)", value: 1200 },
+          { label: "Cloud migration", value: 600 },
+          { label: "Modernize in place", value: 1400 }
+        ],
+        unit: "$M",
+        note: "Cloud crosses status-quo breakeven in Year 7."
+      }
+    ],
+    brainstorm: "Risks: cloud migrations run ~30% over budget; regulatory sign-offs delay go-live; key COBOL people quit mid-migration; data-model translation bugs create policy errors (lawsuit magnet). Mitigations: parallel-run old + new for 12 months; dedicated migration PMO; vendor with P&C-specific track record. Upside: cloud enables telematics-based pricing, AI-assisted underwriting, same-day bind — direct revenue levers.",
+    recommendation: "Migrate to cloud, phased over 5 years (policy module first, then claims, then billing). $300M upfront pain earns $180M NPV plus release-velocity upside. Modernize-in-place is strictly worse — more expensive AND no strategic upside. Risks: budget overruns — include 30% contingency; regulatory delay. Next: RFP for Tier-1 P&C migration partner; VP of platform eng; COBOL retention bonuses through year 3."
+  },
+
+  {
+    id: 21,
+    source: "practice",
+    title: "Campus Cliff",
+    industry: "Education",
+    type: "Profitability",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you made a decision with incomplete data.",
+    prompt: "Oakridge College (private liberal arts, upstate NY, 1,600 students, $52k tuition) has had flat-to-declining enrollment for 8 years. The 2030 demographic cliff looms — college-age population drops 15%. Board wants a 5-year plan to avoid closure.",
+    clarifying: [
+      "Annual: $83M revenue, $89M spend → $6M deficit, funded by endowment draw ($180M × 6% = $11M).",
+      "Enrollment peaked 2,200 in 2017; now 1,600. Applications peaked 4,200; now 2,800. Yield held ~35%.",
+      "Within 90 miles: 3 stronger private peers (Skidmore, Hamilton, Colgate) + SUNY at $10k tuition.",
+      "Oakridge has strong theater/dance programs; CS major launched 2 years ago, growing fast."
+    ],
+    framework: [
+      "Market — size of college-aged population in feeder region, competing schools, demand for small-private model",
+      "Revenue — students × tuition × yield × aid-discount; auxiliary revenue",
+      "Cost — faculty (tenure), facilities, financial aid, admin",
+      "Strategic — niche/differentiation, merger, online, orderly closure"
+    ],
+    math: [
+      "Revenue per student net of aid: $52k × (1 − 0.48) = $27k (48% aid discount is industry median)",
+      "Enrollment needed to break even: $89M ÷ $27k = 3,300 — 2× current; impossible to close the gap with growth alone",
+      "Cost cuts: eliminate 20% of faculty via attrition + buyouts = $9M/yr; close 2 buildings = $2M/yr; admin trim = $3M/yr → $14M/yr",
+      "Revenue growth: double CS (80 → 300 × $30k net = +$6.6M/yr); online MS programs +$4M/yr at scale",
+      "Combined: deficit closes from −$6M toward breakeven over 5 yrs, IF both levers hit"
+    ],
+    exhibits: [
+      {
+        type: "line",
+        title: "Exhibit 1 — Oakridge enrollment trend",
+        points: [
+          { x: "'15", y: 2150 },
+          { x: "'16", y: 2180 },
+          { x: "'17", y: 2200 },
+          { x: "'18", y: 2100 },
+          { x: "'19", y: 2000 },
+          { x: "'20", y: 1900 },
+          { x: "'21", y: 1820 },
+          { x: "'22", y: 1760 },
+          { x: "'23", y: 1680 },
+          { x: "'24", y: 1600 }
+        ],
+        unit: "full-time undergrad",
+        note: "~27% decline since 2017 peak; flat-to-down each of the last 7 years."
+      }
+    ],
+    brainstorm: "Options beyond growth + cut: MERGE with a stronger peer (saves jobs, loses identity); online-first pivot (lose the residential-college brand); niche positioning as 'CS + creative arts' (memorable, quirky); share services with SUNY; accept closure and plan a dignified wind-down. Culture: tenure politics make faculty cuts slow; alumni will push back on most moves.",
+    recommendation: "Pursue TWO paths in parallel: (1) aggressive cost cut to $75M by Year 3, (2) niche repositioning as 'CS + creative arts' — double CS, protect theater, drop 3 weakest majors. Set a Year-3 gate — if deficit still >$4M, open merger conversations with a stronger peer. Risks: demographic cliff worse than expected; endowment draw unsustainable. Next: tenured-faculty transition plan, CS facility investment, hire VP of enrollment with turnaround experience."
+  },
+
+  {
+    id: 22,
+    source: "practice",
+    title: "The Listen-Along",
+    industry: "Technology / Media",
+    type: "Growth",
+    difficulty: "2 / 1 / 3",
+    behavioral: "Tell me about a launch that didn't go as planned. What did you learn?",
+    prompt: "MelodyCo (music streaming, 200M MAU, $14B revenue) is considering launching 'Listen-Along' — a social feature letting friends listen to the same track in sync with real-time chat. PM wants: build it or not, and how to measure success?",
+    clarifying: [
+      "200M global MAU; 90M paid at $10/mo. 110M free users on ads, ~$3/user/yr.",
+      "Engineering cost: $18M over 12 months (40 engineers).",
+      "Competitors: Apple Music has no social; Spotify has basic Jams. Gen Z skews social (TikTok, BeReal).",
+      "Goal: lift engagement (DAU/MAU), cross into 'social' category, improve retention."
+    ],
+    framework: [
+      "User value — who actually benefits? friend pairs, casual groups, creators",
+      "Business value — engagement lift, retention, free → paid conversion",
+      "Competitive — moat, how fast Spotify fast-follows, effort to match",
+      "Execution — scope, A/B plan, launch risk (sync performance, moderation)"
+    ],
+    math: [
+      "If Listen-Along moves DAU/MAU from 50% → 54% (conservative):",
+      "  Active daily users: 108M (was 100M) — +8M daily actives",
+      "  Ad revenue: +8M × $3/yr = +$24M/yr",
+      "  Paid retention: if churn drops 0.5pp/mo → 90M × 0.5% × $10 × 12 = +$54M/yr in retained LTV",
+      "  Total upside: ~$78M/yr vs $18M one-time → payback <4 months IF the 4pp DAU lift is real",
+      "But that's the whole game — most social features flop and get <1% reach"
+    ],
+    brainstorm: "Risks: <1% feature usage (most social features flop — build cost doesn't amortize); moderation problem (chat = harassment); sync audio performance at 200M scale; creator/label licensing questions for synced playback; Spotify fast-follows with a better version in 6 months. Opportunities: concert tie-ins (virtual listening parties); creator tool (artist hosts album-listening event); acquisition signal if TikTok/Apple get serious about music.",
+    recommendation: "Build minimal v1: 1-to-1 only, no chat, web/desktop first. Launch to 5% of users as a 90-day A/B. Success gate: +10% session length AND +2% 30-day retention in cohort. If both hit, scale + add group mode + chat. If neither, deprecate quietly and keep the sync infrastructure for future features (it's a cheap 'free option' on social). Risks: metric noise, moderation explosion once chat launches. Next: scoped eng spec, legal review on synced-playback licensing, moderation policy from day 0."
+  },
+
+  {
+    id: 23,
+    source: "practice",
+    title: "Ghost Kitchen Standoff",
+    industry: "Technology / Food Delivery",
+    type: "Growth",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you negotiated with a partner who had misaligned incentives.",
+    prompt: "EatNow, a US food-delivery platform (15% market share, $22B GMV), is considering launching its own ghost-kitchen brands — EatNow-owned virtual restaurants optimized for delivery. Existing restaurant partners (90k of them) are already upset about commissions. Should EatNow proceed?",
+    clarifying: [
+      "EatNow takes 25% commission on $22B GMV = $5.5B revenue. Partners keep $16.5B.",
+      "Ghost-kitchen economics: delivery-optimized menu, 40% food, 25% labor, 10% rent, 25% operating margin — no partner commission.",
+      "Top 10% of partners drive 45% of GMV — they have leverage.",
+      "Partner churn already rising 12% → 18% yoy; partners testing DoorDash/Uber Eats."
+    ],
+    framework: [
+      "Opportunity — ghost kitchen TAM, segments where partners are weak (late-night, specific cuisines)",
+      "Partner risk — top-partner reaction; cascade to churn; PR risk",
+      "Operational — capex, picking cuisine niches, building delivery-only brands",
+      "Long-term — is this a hedge or a pivot to vertical integration?"
+    ],
+    math: [
+      "If EatNow captures 2% of GMV via owned brands: $22B × 2% = $440M GMV",
+      "Ghost margin $110M (25%) vs commission-model profit $30M on that $440M (after support/tech/CAC) → ~3.5× more profit per GMV dollar",
+      "Capex: 50 ghost kitchens × $800k = $40M. Payback <6 months if demand materializes.",
+      "BUT partner reaction: if 10% of top partners defect → −$250M revenue × 18% EBITDA = −$45M/yr",
+      "Net = positive, but heavily dependent on managing partner relationships"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Profit per $100 GMV: partner vs EatNow ghost",
+        columns: ["Line item", "Partner (commission)", "EatNow ghost"],
+        rows: [
+          ["GMV", "$100", "$100"],
+          ["EatNow revenue", "$25 (commission)", "$100 (direct)"],
+          ["EatNow operating cost", "$18 (support, tech, CAC)", "$75 (food + labor + rent + CAC)"],
+          ["EatNow profit", "$7", "$25"],
+          ["Profit ÷ GMV", "7%", "25%"]
+        ],
+        note: "Ghost kitchen ~3.5× margin per GMV dollar — IF food/labor/rent tracks plan."
+      }
+    ],
+    brainstorm: "Top-partner reactions: public spat (Chipotle-style), lawsuits, lobbying for commission caps, exclusive shift to DoorDash/Uber Eats. PR: 'platform turns on its restaurants' headlines. Talent: running kitchens isn't tech-company muscle memory. Upside: viral potential with niche cuisines (Korean, Halal, late-night breakfast); owned brand IP has spin-off/sale value. Alternative: white-label ghost kitchens FOR top partners — aligned incentives.",
+    recommendation: "Launch 5–10 ghost kitchens in categories UNDER-served by top partners (late-night breakfast, regional cuisines) — not direct competition. Cap at 2% GMV in Year 1. If top-10% partner GMV drops >5% in 6 months, pause. Do NOT compete on flagship cuisines (burgers, pizza) where top partners have brand weight. Risks: PR even in niche; kitchen ops talent. Next: DoorDash competitive monitoring, cuisine research, city-by-city partner sentiment."
+  },
+
+  {
+    id: 24,
+    source: "practice",
+    title: "Offshore or Out",
+    industry: "Energy / Renewables",
+    type: "M&A",
+    difficulty: "3 / 3 / 1",
+    behavioral: "Tell me about a time you championed a long-horizon investment.",
+    prompt: "VortexWind (onshore renewable developer, 3GW pipeline) has a chance to acquire development rights to a 900MW offshore wind project off the Massachusetts coast for $450M. Construction: 4 years at $4.2B capex. Once operating, 30 years of power. Worth it?",
+    clarifying: [
+      "Capacity factor: 45% (offshore runs high). 900MW × 45% × 8,760 = 3,547 GWh/yr.",
+      "20-year PPA locked in at $85/MWh. Years 21–30: estimated market price $65/MWh.",
+      "Opex: $22.5M/yr.",
+      "Industry risk: construction overruns avg +22%; regulatory delays 1–2 yrs common; turbine supply tight.",
+      "VortexWind hurdle rate: 10% IRR."
+    ],
+    framework: [
+      "Base-case NPV — acquisition + capex + 30 yrs cash flow, discounted",
+      "Sensitivity — capex overrun, PPA price, capacity factor, delay",
+      "Strategic — fits VortexWind portfolio (currently all onshore); ESG/investor angle",
+      "Risk — execution, regulatory, turbine supply, counterparty"
+    ],
+    math: [
+      "Annual revenue (yrs 5–24, PPA): 3,547 GWh × $85 = $301M/yr",
+      "Annual revenue (yrs 25–34, market): 3,547 × $65 = $231M/yr",
+      "Opex: $22.5M → net CF: $278M (yrs 5–24), $208M (yrs 25–34)",
+      "Total investment: $450M acquisition + $4.2B capex = $4.65B",
+      "Undiscounted 30-yr net CF: $278 × 20 + $208 × 10 = $7.64B",
+      "NPV at 10%: ~+$450M base case",
+      "Capex overrun +22% (industry avg): NPV swings to ~−$475M"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — NPV sensitivity to key inputs",
+        columns: ["Scenario", "NPV @ 10%"],
+        rows: [
+          ["Base case", "+$450M"],
+          ["Capex overrun +22% (industry avg)", "−$475M"],
+          ["2-year regulatory delay", "+$120M"],
+          ["PPA renegotiated up to $95/MWh", "+$890M"],
+          ["Capacity factor 40% instead of 45%", "+$80M"],
+          ["On-time + on-budget + PPA hold", "+$620M"]
+        ],
+        note: "Single-digit-percent changes in capex and PPA swing NPV by hundreds of millions."
+      }
+    ],
+    brainstorm: "Industry just saw 3 major offshore cancellations (Avangrid, Ørsted) from cost inflation + rates. Turbine supply from GE/Siemens is bottlenecked. Federal tax credit (IRA) worth ~$0.8B NPV — deal hinges on tax equity staying intact. Portfolio fit: capability leap from onshore. Balance sheet: $4.2B is 60% of current assets — financial strain. Partnership with a utility co-investor could de-risk dramatically.",
+    recommendation: "Proceed conditionally: acquire rights ($450M) but structure construction as a 60/40 JV with a strategic utility partner (diversifies risk, eases balance sheet). Lock in turbine supply before signing. NPV range: −$200M to +$500M — acceptable IF tax equity holds and PPA doesn't renegotiate. Risks: overrun >30% turns NPV sharply negative; JV misalignment. Next: term sheets with 2–3 utility co-investors, turbine supply LOI, PPA counterparty credit review."
+  },
+
+  {
+    id: 25,
+    source: "practice",
+    title: "Breach Aftermath",
+    industry: "Financial Services / Fintech",
+    type: "Customer Experience",
+    difficulty: "2 / 2 / 3",
+    behavioral: "Tell me about a time you rebuilt trust after a mistake.",
+    prompt: "PayPoint, a P2P money-transfer app (40M US users), suffered a data breach 3 weeks ago — 8M users had phone, email, and partial account numbers exposed. Active users are down 12% and transaction volume 18%. CEO wants a retention plan.",
+    clarifying: [
+      "8M users directly affected; 4M more 'adjacent' (notified as precaution).",
+      "Transaction volume was $48B/yr; revenue at 1.5% take rate = $720M.",
+      "Brand-trust score: 74 → 51 (biggest category drop post-breach).",
+      "Competitors (Venmo, Cash App, Zelle) aggressive on acquisition right now.",
+      "Regulatory: likely CFPB inquiry + 36 state AG investigations; possible $150M fine."
+    ],
+    framework: [
+      "Immediate — notify, fix, contain; free credit monitoring",
+      "Retention — segment affected users, prioritize high-value, hands-on outreach",
+      "Trust rebuild — long-term brand campaign + product signals (2FA default, biometric)",
+      "Regulatory/legal — manage fines; avoid behavioral commitments that limit future product"
+    ],
+    math: [
+      "12% MAU drop × 40M = 4.8M users at risk. If sustained: −$48B × 12% × 1.5% = −$86M/yr revenue",
+      "Txn volume down MORE than users (18% > 12%) → surviving users transacting less — psychological retention, not full exit yet",
+      "CAC: $30/user → re-acquiring 4.8M = $144M",
+      "Credit monitoring: $8/user × 12M = $96M one-time",
+      "Trust rebuild campaign: $60M over 12 months",
+      "Total cost ~$300M for $86M/yr protected revenue → payback ~3.5 years if fully recovered"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Affected-user cohort retention, 3 weeks post-breach",
+        columns: ["Cohort", "Size", "Still active", "Txn vol vs baseline"],
+        rows: [
+          ["Heavy (>$2k/mo)", "800k", "82%", "60%"],
+          ["Medium ($500–$2k)", "3.1M", "76%", "50%"],
+          ["Light (<$500/mo)", "4.1M", "69%", "30%"],
+          ["Not affected (control)", "32M", "94%", "96%"]
+        ],
+        note: "Heavy users retained better but transacting far less — it's a trust problem, not yet an exit problem."
+      }
+    ],
+    brainstorm: "Immediate: CEO video apology (personal, unscripted); free credit monitoring + ID-theft insurance to all 12M affected/adjacent; security upgrade announcement (2FA required, biometric default); vulnerability bounty. Longer: trust advisory board with industry figures; SOC 2 Type II publication; quarterly transparency reports. Don't: blame the vendor publicly (looks like passing the buck); rush marketing before product security actually ships; offer a rebate (cheapens the apology).",
+    recommendation: "Three-part plan: (1) immediate — free credit monitoring + ID theft insurance to all 12M, CEO video, mandatory 2FA rollout; (2) 90-day — security transparency report, customer advisory board, direct AM call to every heavy-user cohort customer; (3) 365-day — trust rebuild brand campaign, SOC 2 + pen-test publication. Total ~$300M; prevents $86M/yr erosion. Risks: regulatory penalty larger than modeled; future breach during recovery. Next: legal/comms alignment, CRM segmentation for outreach, security roadmap lock."
+  },
+
+  {
+    id: 26,
+    source: "practice",
+    title: "Night Shift Latte",
+    industry: "Food & Beverage",
+    type: "Operations",
+    difficulty: "1 / 1 / 1",
+    behavioral: "Tell me about the most boring problem you enjoyed solving.",
+    prompt: "BeansMart, a regional coffee chain (110 stores), currently closes at 6 PM. A board member suggested that extending hours to 10 PM would 'easily' grow revenue. COO wants a quick evaluation per store.",
+    clarifying: [
+      "Avg store does $6,000/day between 6 AM – 6 PM. Morning rush dominates.",
+      "Staffing 6–10 PM: 2 baristas × 4 hrs × $22/hr fully loaded = $176 labor/day.",
+      "Utilities/fixed: +$40 per store per day for 4 extra hours.",
+      "Board member estimate: $800/day evening revenue per store.",
+      "Food/drink COGS: 28% of revenue."
+    ],
+    framework: [
+      "Unit economics — revenue needed to cover variable + fixed extension costs",
+      "Demand — is $800/day plausible? Benchmarks vs competitors",
+      "Operations — staffing, security, customer mix shift, menu adaptation",
+      "Strategic — 'morning chain' brand vs 'all-day café'; neighborhood variation"
+    ],
+    math: [
+      "Breakeven revenue: ($176 + $40) ÷ (1 − 28%) = $216 ÷ 0.72 = $300/day per store",
+      "If board's $800 is right: profit = ($800 × 0.72) − $216 = $360/day = ~$131k/yr per store × 110 = $14M/yr",
+      "If actual is $300/day — net neutral. If less — loss.",
+      "Sanity check $800/day: at $6 avg ticket = 133 customers over 4 hrs = 33/hr = 1 every 2 min. Plausible in dense urban, unrealistic in suburb."
+    ],
+    brainstorm: "Store-level variance matters enormously. 20 urban stores (student corridors, hospital-adjacent, transit hubs) likely hit $800. 60 suburban stores more like $200–$400. 30 strip-mall likely <$200. Evening menu: desserts, wine/beer where licensed adds revenue. Security (cash, late-night safety) and staffing quality concerns. Don't roll out chain-wide on a hunch.",
+    recommendation: "Don't roll out chain-wide. Pilot evening hours in 20 urban/student/transit-adjacent stores for 60 days. Chain-wide only if pilot stores average ≥$500/day evening revenue. Add an evening-specific menu (pastries, wine/beer where licensed) during pilot. Risks: understaffing on weekends, late-night safety. Next: select 5 pilot stores, add evening menu, track weekly KPIs."
+  },
+
+  {
+    id: 27,
+    source: "practice",
+    title: "Freemium Fence",
+    industry: "Technology / Consumer Software",
+    type: "Pricing",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you balanced short-term revenue against long-term growth.",
+    prompt: "FilingEase (online consumer tax software) serves 8M users a year — 6M free, 2M paid ($60 avg). A board member proposes forcing all users with investment income (1099-DIV, 1099-B) to upgrade to paid. That's 1.5M of the free users. Product VP is worried about brand damage. What to do?",
+    clarifying: [
+      "Revenue: 2M paid × $60 = $120M/yr. Plus $25M ad revenue on free side.",
+      "Of 1.5M investment-income users: 70% have simple 1099-DIV (small dividends), 30% have more complex 1099-B brokerage activity.",
+      "Competitor TaxClear lets investment-income users file free.",
+      "Survey: 40% of forced-upgrade users would switch competitor."
+    ],
+    framework: [
+      "Revenue — incremental from forced upgrade net of churn + competitor wins",
+      "Competitive — does TaxClear grow at your expense? How hard does it lean in?",
+      "Brand — 'free' positioning in tax-season marketing; social-media blowback",
+      "Product — gate WHAT, soft vs hard paywall, upsell language"
+    ],
+    math: [
+      "Force all 1.5M: 60% stay → 0.9M new paid × $60 = +$54M. Lost ad revenue on 0.6M × $4 = −$2.4M. Net +$51.6M.",
+      "Year-2 risk: if free-side overall drops 10% pre-emptively → −$2.4M ad + shrunken future-year conversion funnel",
+      "Softer: gate ONLY 1099-B (450k users). 80% stay → 360k × $60 = +$22M. Less brand risk.",
+      "Hybrid: gate 1099-B + add in-product upsell for 1099-DIV (soft prompt): ~+$37M with medium brand risk"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Upgrade-gate scenarios",
+        columns: ["Scenario", "Users gated", "Retention", "Yr-1 revenue", "Brand risk"],
+        rows: [
+          ["Status quo", "0", "—", "$0", "Low"],
+          ["Gate all 1099 users", "1.5M", "60%", "+$52M", "High"],
+          ["Gate only complex (1099-B)", "450k", "80%", "+$22M", "Medium"],
+          ["Gate complex + soft-prompt simple", "1.5M (mixed)", "80% / 90%", "+$37M", "Medium-high"]
+        ],
+        note: "'Soft prompt' = in-app banner explaining upgrade value, no paywall."
+      }
+    ],
+    brainstorm: "Gating is a user-acquisition drag in Year 2+ (ad spend gets less efficient once 'free for all' claim weakens). Better alternative: keep free, improve upsell — show exactly what paid adds (audit support, deduction scans, state filing) at the right moment. Competitive: TaxClear well-funded, won't stay silent on a price moat. Risk of Reddit/Twitter backlash real (remember Adobe creator-tax backlash).",
+    recommendation: "Phased: gate ONLY 1099-B (complex brokerage) — +$22M Year 1, lower churn risk, keeps 'free for simple' marketing intact. In parallel, ship in-product upsell for 1099-DIV users (banner: 'upgrade for audit support' — choice, not force). Re-evaluate the harder gate in Year 2 based on churn data. Risks: TaxClear aggressively advertising 'free 1099-B'; 80% retention optimistic. Next: user research on 1099-B cohort, competitive tracking, product-marketing prep."
+  },
+
+  {
+    id: 28,
+    source: "practice",
+    title: "Stadium Stalling",
+    industry: "Sports & Entertainment",
+    type: "Customer Experience",
+    difficulty: "2 / 1 / 3",
+    behavioral: "Tell me about a time you changed a team's mind with audience research.",
+    prompt: "The Charleston Rays, a Class-AA minor league baseball team, have seen attendance drop from 6,200/game (2019) to 3,800/game (2024). Owner wants a plan to rebuild to 6,000+ by 2026.",
+    clarifying: [
+      "72 home games/yr; stadium capacity 8,500.",
+      "Per-fan economics: ticket $14, concession $12, merch $4 = $30 total.",
+      "Survey of lapsed attendees: top reasons = time-of-game (45%), on-field talent (30%), stadium experience (25%). NOT price.",
+      "New competition: 4 major concerts + 2 youth sports complexes opened in region since 2021.",
+      "Saturday college football on local TV = direct overlap."
+    ],
+    framework: [
+      "Segment — fan archetypes (diehards, family, young adults, corporate)",
+      "Barriers — time, product quality, substitutes, experience gaps",
+      "Offerings — ticket bundles, themed nights, food/merch, loyalty",
+      "Partnerships — schools, youth teams, sponsors, MLB affiliate"
+    ],
+    math: [
+      "Revenue per fan: $30. Attendance decline: 2,400 × 72 × $30 = $5.2M/yr lost",
+      "Restoring 1,000 fans/game = $2.2M/yr at current mix",
+      "Intervention candidates:",
+      "  Theme nights: 30 nights × +800 fans = +24k × $30 = $720k rev; cost $300k → +$420k",
+      "  Kids-free Sundays: 20 games × +500 = +10k × $16 concession+merch = $160k rev; cost $20k → +$140k",
+      "  Corporate group sales: +300/game × 72 × $45 (premium) = $970k rev; cost $150k → +$820k",
+      "Combined: ~$1.4M Yr-1 profit + halo effect on the base"
+    ],
+    exhibits: [
+      {
+        type: "bar",
+        title: "Exhibit 1 — Per-game attendance by fan segment (2019 vs 2024)",
+        bars: [
+          { label: "Diehards '19", value: 1200 },
+          { label: "Diehards '24", value: 1100 },
+          { label: "Family '19", value: 2400 },
+          { label: "Family '24", value: 1200 },
+          { label: "Young adult '19", value: 1500 },
+          { label: "Young adult '24", value: 800 },
+          { label: "Corporate '19", value: 1100 },
+          { label: "Corporate '24", value: 700 }
+        ],
+        unit: "fans",
+        note: "Diehards held. Family, young-adult, corporate dropped hardest — that's where growth has to come from."
+      }
+    ],
+    brainstorm: "Family segment: more weekend day games, theme nights (fireworks, Star Wars), giveaways, kids-free promos. Young adult: social-worthy experiences (craft beer night, after-game DJ) to compete with bars. Corporate: cold-call 200 regional businesses, bundle suites + catering. Food: MiLB food reputation is bad — upgrade 3 concessions to local restaurant partners (rent-share). Partnerships with Little League = family-ticket pipeline.",
+    recommendation: "Launch three programs: Theme Nights (30/yr), Youth-Free Sundays, Corporate Group Sales — plus upgrade 3 concessions to local-restaurant partners (rent share, no capex). Year-1 target: 5,000 avg attendance (+1,200), +$1.4M revenue, +$900k profit. Gate full 6,000 goal on Year-1 results. Risks: on-field performance (losing teams hurt everything); major concert weekends compete directly. Next: segment research, partnership outreach, hire a director of fan experience."
+  },
+
+  {
+    id: 29,
+    source: "practice",
+    title: "Drone Harvest",
+    industry: "Manufacturing / Agriculture",
+    type: "M&A",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you evaluated a deal that looked great on paper but had hidden risks.",
+    prompt: "SeedFarm Corp (ag inputs, $4B revenue — seeds + fertilizer) is considering acquisition of AerialAg, a 4-year-old drone-based field-mapping and variable-rate-application startup. AerialAg: 2% market share, $80M revenue (+90% yoy), −$30M loss. Asking price $1.2B. Recommend.",
+    clarifying: [
+      "SeedFarm has 28% share in seeds, 15% in fertilizer — dominant but losing ground to Deere and Climate Corp.",
+      "AerialAg tech: multispectral imaging + ML → 'prescription maps' that tell tractors where to plant/spray.",
+      "Competitors: Deere + Bayer have in-house drone teams but offer narrower, bolt-on products.",
+      "AerialAg has 4 major farm-co contracts; key people are the moat (hire value ~$60M).",
+      "SeedFarm needs a drone/precision story for the 2026 farmer-conference season."
+    ],
+    framework: [
+      "Valuation — standalone DCF vs strategic premium",
+      "Strategic — defensive (stop losing to Deere) vs offensive (enable bundled selling)",
+      "Integration — retain AerialAg team, tech stack fit, sales-channel leverage",
+      "Alternatives — in-house build, smaller acquisition, partnership"
+    ],
+    math: [
+      "AerialAg standalone: $80M × 90% yoy × 3 yrs → ~$540M; margins positive at scale, ~$150M EBITDA Yr-5",
+      "12× EBITDA = $1.8B; PV at 15% hurdle ≈ $1.0B standalone",
+      "Strategic synergies: bundle sell to 50k farm customers × 15% attach × $12k/farm = $90M/yr rev at 35% margin = $32M/yr EBITDA = ~$320M PV",
+      "Defensive value: keeps AerialAg away from Deere (avoids ~$50M/yr erosion) = ~$500M PV",
+      "Total: $1.0B + $320M + $500M = ~$1.8B — vs $1.2B ask = ~$600M upside"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Precision-ag acquisition candidates",
+        columns: ["Target", "Revenue", "Growth", "Loss/yr", "Ask ($M)", "Fit"],
+        rows: [
+          ["AerialAg (subject)", "$80M", "90%", "$30M", "$1,200", "High"],
+          ["CropSense", "$45M", "70%", "$18M", "$550", "Medium"],
+          ["Fieldlytics", "$110M", "40%", "$5M", "$1,400", "Medium-high"],
+          ["Build in-house", "$0", "—", "$100M/yr × 3 yrs", "$300", "High / slow"]
+        ],
+        note: "AerialAg has highest growth + clearest tech lead. Fieldlytics is more mature but less integration-ready."
+      }
+    ],
+    brainstorm: "Deere counter-bid risk is real — if Deere bids $1.4B, either deal falls apart or SeedFarm overpays. Integration: drone pilots + ML engineers won't thrive in a fertilizer-company culture (comp + autonomy expectations). In-house build is cheaper but 3-year delay likely fatal vs Deere going to market first. Partnership alternative: 25% stake + tech licensing = $300M, lower optionality but preserves cash. Regulatory: FAA drone rules shifting; operator certification could bottleneck.",
+    recommendation: "Proceed at $1.2B with earn-outs — $900M upfront + $300M over 3 yrs tied to revenue and key-talent retention. Pre-close: executive retention packages (4-year vests), FAA compliance review, test Deere ROFR if possible. Total economic upside ~$600M IF synergies + talent both hit. Risks: Deere counter-bid, talent flight Year 2, FAA regulatory lag. Next: IOI → LOI → DD (tech, talent, regulatory). Walk-away trigger: any bid above $1.5B; execute in-house build + partnership instead."
+  },
+
+  {
+    id: 30,
+    source: "practice",
+    title: "Yellow Bus, Blue Plug",
+    industry: "Transportation / Public Sector",
+    type: "Growth",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you led a team through a major operational transition.",
+    prompt: "BluBus operates a school-bus fleet of 2,400 buses across 12 Midwest school districts. Incoming state regulation bans new-diesel-bus purchases starting 2028. BluBus has to plan the EV transition. What's the right pace and mix?",
+    clarifying: [
+      "Current diesel: $130k purchase, 15-yr life, $18k/yr fuel+maintenance.",
+      "Electric: $340k purchase, 15-yr life, $6k/yr energy+maintenance. Range: 140 mi/day.",
+      "Charging infra: $80k per bus (depot upgrade), amortized over fleet at that depot.",
+      "Federal EPA Clean School Bus grant: $300k per EV, competitive — ~45% historical win rate.",
+      "400 buses currently on routes >120 mi/day (near EV range limit)."
+    ],
+    framework: [
+      "Regulatory timeline — 2028 ban drives replacement-wave planning now",
+      "Unit economics — EV vs diesel lifecycle cost, with/without grant",
+      "Operational — range, charging capacity, driver training, winter performance",
+      "Phasing — which buses/routes first, grant application timing"
+    ],
+    math: [
+      "Per-bus 15-yr TCO, diesel: $130k + $18k × 15 = $400k",
+      "Per-bus 15-yr TCO, EV without grant: $340k + $80k infra + $6k × 15 = $510k → EV +$110k/bus",
+      "WITH $300k grant: EV TCO = $40k + $80k + $90k = $210k → EV $190k CHEAPER per bus",
+      "Fleet-wide if all grants hit: $190k × 2,000 buses = $380M savings",
+      "Realistic grant capture at 45% hit rate: ~900 buses → ~$170M savings",
+      "400 long-route buses exceed EV range — defer to 2031+ (pray for range improvements or use plug-in hybrids)"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Transition phasing by route type",
+        columns: ["Phase", "Buses", "Route mileage", "Timing", "Funding"],
+        rows: [
+          ["Phase 1", "600", "<80 mi/day", "2025", "Grant-funded ($180M ask)"],
+          ["Phase 2", "1,000", "80–120 mi/day", "2026–27", "Grant + district bonds"],
+          ["Phase 3", "400", "120–140 mi/day", "2028–30", "Cash flow + deferred"],
+          ["Phase 4", "400", ">140 mi/day", "2031+", "Wait for range + hybrids"]
+        ],
+        note: "Phase 4 = rural consolidated routes. Range issue is real; don't force the wrong tech."
+      }
+    ],
+    brainstorm: "Grant timing: apply early for max win rate; bundle applications across districts. Charging infrastructure bottleneck — grid connection delays of 18+ months common. Driver training: EV feels different (no engine noise, regen braking) — 2-day training + 30-day onboarding window per depot. Weather: −15°F range drops 25% — plan for winter. V2G revenue: idle fleet earns $1–2k/yr selling grid services. Risk of 2028 ban getting pushed — don't assume political stability.",
+    recommendation: "Phased transition over 6 years: Phase 1 (600 short-route, 2025) federally grant-funded; Phase 2 (1,000 medium, 2026–27) grant + bond; Phase 3 (400 long, 2028–30) pay-as-you-go; defer Phase 4 (400 extreme-range) until range improves or hybrids mature. Front-load charging infrastructure — 12 depot upgrades parallel to Phase 1. Projected ~$170M net savings IF grants hit at 45%. Risks: grant program underfunded, grid delays, 2028 ban weakened. Next: Q1 grant application (early = higher win rate), charging-partner RFP, driver training curriculum, district stakeholder roadshow."
   }
 ];
