@@ -40,18 +40,33 @@ function loadTab(tabId) {
   }
 
   const code = fs.readFileSync(abs, "utf8");
+  // Top-level `const`/`let` declarations in a classic script create lexical
+  // bindings that are NOT properties of globalThis (the sandbox). Append a
+  // footer that copies the ones we care about onto a known global property
+  // — the footer runs in the same script's lexical scope, so it can see them.
+  const KEYS = ["CARDS","CASES","FORMULAS","FRAMEWORKS","ESSAYS","DECKS","MODULES","QUIZZES","SCENARIOS"];
+  const footer = `
+;try {
+  const __out = {};
+  ${KEYS.map(k => `try { if (typeof ${k} !== "undefined") __out.${k} = ${k}; } catch (e) {}`).join("\n  ")}
+  globalThis.__LAB_CONTENT__ = __out;
+} catch (e) {}
+`;
   const sandbox = { module: {}, exports: {} };
   try {
-    vm.runInNewContext(code, sandbox, { timeout: 1000 });
+    vm.runInNewContext(code + footer, sandbox, { timeout: 1500 });
   } catch (err) {
     console.error(`content load failed for ${key}:`, err.message);
     CACHE.set(key, null);
     return null;
   }
-  // Copy globals we care about out of the sandbox
+  const exported = sandbox.__LAB_CONTENT__ || {};
+  // Also fall back to direct sandbox properties for any tab whose content.js
+  // uses `var` (older style) so we don't regress.
   const out = {};
-  for (const k of ["CARDS","CASES","FORMULAS","FRAMEWORKS","ESSAYS","DECKS","MODULES","QUIZZES","SCENARIOS"]) {
-    if (sandbox[k] !== undefined) out[k] = sandbox[k];
+  for (const k of KEYS) {
+    if (exported[k] !== undefined) out[k] = exported[k];
+    else if (sandbox[k] !== undefined) out[k] = sandbox[k];
   }
   CACHE.set(key, out);
   return out;
