@@ -661,6 +661,743 @@ const CASES = [
   },
 
   /* =========================================================
+     TUCK CONSULTING CLUB 2024 — 12 cases
+     From the Tuck School of Business at Dartmouth. Includes LEK,
+     EY-Parthenon, Innosight, IGS, Peter K and Tuck-authored cases.
+     Exhibits extracted from the casebook with a couple of documented
+     extraction gaps (Kitchen Co Ex A/B, Craft Co Ex A right half).
+     ========================================================= */
+
+  {
+    id: 16,
+    source: "tuck",
+    title: "Aftermarket Auto Parts",
+    industry: "Automotive",
+    type: "Growth Strategy",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time when you had to quickly learn something new outside of your expertise.",
+    prompt: "KLE Capital is evaluating acquiring ABC — a leading branded manufacturer of high-performance aftermarket engine air filters that last ~5× longer than standard filters. ABC sells through large retail auto parts stores (AutoZone, Napa), warehouse clubs (Walmart, Costco), auto repair shops, and e-commerce. ABC primarily serves the DIY channel with a small presence in DIFM (do-it-for-me). KLE wants to assess growth opportunities post-acquisition.",
+    clarifying: [
+      "Geography: 90% of ABC's sales are in North America.",
+      "100% of ABC's sales are aftermarket (they replace OEM-installed parts).",
+      "Business: excellent reputation for quality, strong customer following, high awareness among performance-minded drivers."
+    ],
+    framework: [
+      "Geography — international expansion outside NA",
+      "Product — adjacent aftermarket product lines leveraging brand",
+      "Channel — DIFM expansion beyond DIY",
+      "Vehicle type — motorcycles, boats, ATVs beyond automotive",
+      "OEM — shift from pure aftermarket to factory-installed",
+      "Pricing & S&M — selective price increases, targeted spend"
+    ],
+    math: [
+      "DIFM market today: $500M, growing 3%/yr.",
+      "Market in 3 yrs: $500M × (1.03)^3 ≈ $550M.",
+      "ABC DIFM revenue in 3 yrs: 5,000 shops × $5,000 AOV = $25M.",
+      "ABC's DIFM share in 3 yrs: $25M / $550M ≈ 4.5%."
+    ],
+    brainstorm: "Potential growth avenues: international expansion (outside NA), product line extensions (adjacent aftermarket categories), aggressive DIFM push, new vehicle types (motorcycles, boats, ATVs), OEM sales (factory-install), selective price increases, targeted S&M. Press for rationale on price/spend options — ABC already has high awareness in its core segment. For each opportunity: test via desk research → expert interviews → consumer surveys.",
+    recommendation: "DIFM alone gets ABC to only ~4.5% share in 3 years — meaningful but not transformational. Recommend a portfolio: (1) push DIFM aggressively as the near-term lever (biggest, fastest), (2) run international + adjacent-product research in parallel for the 3-5 yr horizon, (3) treat OEM as a long-shot. Risks: DIFM shops may not value 'performance' story the way DIYers do; cannibalization of DIY as repair shops substitute. Next: consumer survey at repair shops, pilot in 3 metros.",
+    source_label: "LEK / Tuck Consulting Club 2024"
+  },
+
+  {
+    id: 17,
+    source: "tuck",
+    title: "Craft Co",
+    industry: "Retail & CPG",
+    type: "Growth Strategy",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time where you had to influence or persuade someone.",
+    prompt: "Craft Co. is a subscription service that ships customers kits for adult crafting and DIY projects (watercolor, woodworking). Customers pay a monthly fee based on the number of kits they want. Craft Co. grew rapidly during COVID but has seen a dip in recent quarters as new competitors entered the field. Management wants (i) how has Craft Co. performed recently, and (ii) what strategies can it implement to grow profitability and regain share in the next 3-5 years?",
+    clarifying: [
+      "Target segment: young adults ages 18-35.",
+      "Craft Co was first major player; new competitors started entering end of 2020.",
+      "No specific ROI target — most interested in short-term (1-3 yr) strategies.",
+      "US market only."
+    ],
+    framework: [
+      "Profitability — subscription revenue × subs, variable COGS + fixed marketing",
+      "Market — size, growth, trajectory, competitors, trends",
+      "Product — pipeline, R&D, new lines (children's kits, cooking kits)",
+      "Execution — increase growth (marketing) vs reduce costs (CAC, streamline components)"
+    ],
+    math: [
+      "Q4 2020 subscribers: 75k (45k × 1-kit + 30k × 2-kit).",
+      "Revenue: 45k × $50 × 3 + 30k × $80 × 3 = $6.75M + $7.2M ≈ $14M/quarter.",
+      "Variable cost: 1-kit $50 × 45k × 3 = $6.75M (breakeven); 2-kit $60 × 30k × 3 = $5.4M.",
+      "Total VC ≈ $12M; Fixed cost $2M ops + $8M marketing = $10M.",
+      "Quarterly profit: $14M − $12M − $10M = −$8M (operationally unprofitable, marketing-driven).",
+      "Subscribers peaked April 2020 at ~120k, declined to ~72k by Dec 2020."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A (left) — Craft Co Q4 2020 revenue & cost structure",
+        columns: ["Segment", "Price", "Cost", "% of subs"],
+        rows: [
+          ["1 kit / month", "$50", "$50", "60%"],
+          ["2 kits / month", "$80", "$60", "40%"],
+          ["Operating costs / Q", "—", "$2M", "—"],
+          ["Marketing costs / Q", "—", "$8M", "—"]
+        ],
+        note: "Source: Internal company data. 1-kit segment is a breakeven — variable cost equals price."
+      },
+      {
+        type: "line",
+        title: "Exhibit A (right) — Monthly subscribers 2019-2020 (reconstructed)",
+        points: [
+          { x: "J19", y: 50 }, { x: "F19", y: 54 }, { x: "M19", y: 58 }, { x: "A19", y: 62 },
+          { x: "M19", y: 66 }, { x: "J19", y: 70 }, { x: "J19", y: 75 }, { x: "A19", y: 80 },
+          { x: "S19", y: 85 }, { x: "O19", y: 90 }, { x: "N19", y: 95 }, { x: "D19", y: 100 },
+          { x: "J20", y: 105 }, { x: "F20", y: 110 }, { x: "M20", y: 115 }, { x: "A20", y: 120 },
+          { x: "M20", y: 115 }, { x: "J20", y: 105 }, { x: "J20", y: 95 }, { x: "A20", y: 88 },
+          { x: "S20", y: 82 }, { x: "O20", y: 78 }, { x: "N20", y: 75 }, { x: "D20", y: 72 }
+        ],
+        unit: "k subscribers",
+        note: "⚠️ SYNTHETIC reconstruction — right half of original slide did not extract. Series anchored to verified facts: Q4 2020 avg = 75k (from Part 1 math), pandemic peak April 2020, documented decline pattern."
+      },
+      {
+        type: "table",
+        title: "Exhibit B — Craft Co. vs competitor perceptions (1-5 scale)",
+        columns: ["Factor", "Craft Co.", "Avg others", "Importance"],
+        rows: [
+          ["Price", "4.3", "2.4", "High"],
+          ["Delivery speed", "2.5", "3.8", "High"],
+          ["Kit quality", "3.7", "3.2", "High"],
+          ["Time required for craft", "2.3", "3.1", "Mid"],
+          ["Variety of craft types", "3.4", "3.6", "Mid"],
+          ["Variety of difficulty levels", "3.1", "3.0", "Low"]
+        ],
+        note: "Source: Survey of recent craft kit purchases. Craft Co wins on price + quality, loses on delivery + convenience."
+      }
+    ],
+    brainstorm: "Revenue levers: grow share-of-wallet with existing customers, new geographies, new channels (retail partnerships). Cost levers: rework the marketing mix ($8M/Q dwarfs ops), streamline 1-kit SKU (currently breakeven). Stabilization levers: better differentiation from new entrants, loyalty incentives, acquire a competitor. Reposition as premium — survey shows customers already rank Craft Co #1 on quality & willing to pay more.",
+    recommendation: "Two-track plan: (i) raise prices 15-20% to reposition as 'premium' (quality rank already #1, pricing gap vs competitors suggests headroom); (ii) cut marketing spend ~30% — $8M/Q is unsustainable and growth is coming from pandemic tailwind, not ROAS. Fix delivery (the biggest perception gap). Risks: churn from price increase; competitor response. Next: A/B test pricing in 2 markets; supply-chain review on delivery; buyer-side M&A screen on top 2 competitors."
+  },
+
+  {
+    id: 18,
+    source: "tuck",
+    title: "Hanover Health",
+    industry: "Healthcare",
+    type: "M&A",
+    difficulty: "3 / 3 / 3",
+    behavioral: "How would you approach a situation where you disagreed with a decision that was made?",
+    prompt: "A PE fund is evaluating the acquisition of Hanover Health (HH), which operates urgent care clinics across the US and has grown quickly over the past 5 years. The client has little industry experience but wants to grow EBITDA each year with minimal CapEx over a 3-5 year horizon. Candidate is being asked for a yes/no decision, not a valuation.",
+    clarifying: [
+      "HH services customers with healthcare only (no insurance issues). 3 out-patient procedures: vaccinations, physicals, x-rays.",
+      "Objective: EBITDA growth above 10% CAGR.",
+      "Exit: standard 3-5 year hold.",
+      "PE client has no healthcare experience but does own a nurse-staffing / talent mgmt portco.",
+      "Out-patient urgent care is highly fragmented → good growth runway.",
+      "Primary profit drivers: cost-effectiveness and time efficiency per procedure."
+    ],
+    framework: [
+      "HH Profitability — revenue (# visits × $ per proc), cost (variable: staff + single-use; fixed: SG&A + equip), time per proc",
+      "Market — out-patient urgent care size + growth, patient needs, substitutes (hospitals, mobile clinics)",
+      "Strategic — portfolio synergies with nurse-staffing portco; risks from healthcare inexperience"
+    ],
+    math: [
+      "Revenue CAGR 2019-23: 100 → 190 = 17% — strong and accelerating.",
+      "EBITDA: 30 → 38 = only 6% CAGR, missing 10% hurdle.",
+      "EBITDA margin fell 30% → 20% in 2023 (x-ray launch year).",
+      "2023 without x-ray fixed costs: EBITDA + (equip 20 + training 12 = 32) = 38 + 32 = 70, margin 70/190 = ~37%.",
+      "2024 expected (no fixed x-ray, variable only): x-ray variable ~$20M, total costs ~$47.5M.",
+      "EBITDA 2024 est: 190 × 1.17 − 47.5 ≈ 174. CAGR 2019→24 on a normalized base → ~12%, clears 10% hurdle.",
+      "Out-patient urgent care market: $4.75T × 4% = $190B. HH share: $190M / $190B ≈ 0.1% (room to run).",
+      "Full urgent care (in + out): $4.75T × 20% ≈ $950B."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — Revenue & EBITDA, 2019-23 ($M)",
+        columns: ["Year", "Revenue", "EBITDA", "Margin"],
+        rows: [
+          ["2019", "100", "30.0", "30%"],
+          ["2020", "114", "34.2", "30%"],
+          ["2021", "130", "39.0", "30%"],
+          ["2022", "150", "45.0", "30%"],
+          ["2023", "190", "38.0", "20%"]
+        ],
+        note: "Revenue CAGR 17%; EBITDA CAGR only 6% (below the 10% hurdle). Margin compression in 2023 — x-ray launch year."
+      },
+      {
+        type: "table",
+        title: "Exhibit B — Costs by procedure ($M)",
+        columns: ["Procedure", "2021", "2022", "2023"],
+        rows: [
+          ["Vaccinations", "91.0", "105.0", "152.0"],
+          ["Physicals", "27.3", "31.5", "39.9"],
+          ["X-Rays", "—", "—", "63.7"],
+          ["Total", "118.3", "136.5", "255.6"]
+        ],
+        note: "X-Ray cost breakdown 2023: Equipment 50% ($31.9M fixed), One-time training 30% ($19.1M fixed), Nurse salaries 20% ($12.7M variable). X-rays have ~20% variable cost share vs vaccinations 30% and physicals 70% — lower unit cost once the fixed layer is absorbed."
+      },
+      {
+        type: "table",
+        title: "Exhibit C — US healthcare market by segment, 2023 (% of $4.75T)",
+        columns: ["Segment", "Out-patient", "In-patient"],
+        rows: [
+          ["Urgent Care", "4%", "0%"],
+          ["Hospitals", "10%", "16%"],
+          ["Mobile Health Clinics", "28%", "42%"]
+        ],
+        note: "Urgent Care Out-Patient = 4% × $4.75T = $190B. HH market share ≈ 0.1% — highly fragmented."
+      },
+      {
+        type: "table",
+        title: "Exhibit D — Customer survey: HH vs Provider A vs Provider B (1-5)",
+        columns: ["Factor (ranked by importance)", "HH", "Provider A", "Provider B"],
+        rows: [
+          ["Quality",              "4.1", "4.7", "4.0"],
+          ["Speed of service",     "3.7", "4.5", "3.2"],
+          ["Consistency",          "4.0", "4.4", "4.5"],
+          ["Range of services",    "4.0", "3.2", "4.5"],
+          ["Cleanliness",          "—",   "—",   "—"],
+          ["Friendliness of staff","—",   "—",   "—"],
+          ["Price",                "—",   "—",   "—"]
+        ],
+        note: "Survey of urgent care out-patients, end of 2023. A, B = comparable out-patient-only clinics. HH worse than A on quality/speed/consistency, better on range; worse than B on consistency/range, better on quality/speed — consistent with learning curve on the 2023 x-ray launch."
+      }
+    ],
+    brainstorm: "Risks: customer survey shows HH weakness vs 2 competitors (service launch drag); revenue growth could slow; execution risk for PE with no healthcare background. Mitigations: nurse-staffing portco can accelerate x-ray hiring + cross-training; fund an ops playbook for service launches; hire a medical-ops operating partner. Upside: market is $190B and fragmented — plenty of M&A roll-up targets; higher-margin x-rays continue improving the mix.",
+    recommendation: "YES, acquire. Headline EBITDA CAGR of 6% is misleading — stripping one-time x-ray fixed costs normalizes 2024 CAGR back above 10% hurdle, and x-rays are the highest-margin line going forward. $190B fragmented market gives ample roll-up opportunity for minimal CapEx. Risks: x-ray learning curve dragging satisfaction → address with nurse-staffing synergy. Next: due diligence on training economics, roll-up target list, customer-satisfaction tracking."
+  },
+
+  {
+    id: 19,
+    source: "tuck",
+    title: "Kitchen Co",
+    industry: "Retail & CPG",
+    type: "Growth Strategy",
+    difficulty: "2 / 2 / 3",
+    behavioral: "How do you ensure quality in your work while managing multiple tasks?",
+    prompt: "A global consumer product company (Kitchen Co) makes small home appliances — blenders, toasters, slow cookers, coffee makers, food preservation, irons, fans, clippers. US brands are typically #1 or #2 in their categories; international is small but growing. Senior execs believe the company has enjoyed considerable growth and profitability for the past decade. CEO Adam thinks 'business as usual' won't sustain the company for long, but his leadership team doesn't share his concerns. He wants our help to identify internal and external forces that could reshape the business over the next 10 years — and recommend how Kitchen Co should act.",
+    clarifying: [
+      "10-yr aspirations: global leader in home solutions, shift from pure durables to durables + consumables.",
+      "Financials: $3.5B total revenue, 35% gross margin.",
+      "Current CVP: mid-tier electric appliances, trusted brand names, sold through mass retailers (Walmart, Target), no marketing beyond packaging.",
+      "Current profit formula: sell-in to retailers (no price control), relatively low margin vs premium, small admin headcount, strong sales support.",
+      "Market used to be 3 tiers (low/mid/premium). Today it's 4 (low / mid / premium mass / premium luxury)."
+    ],
+    framework: [
+      "Current Business — financials, US vs Intl, current business model",
+      "Market Dynamics — trends, consumer behavior, competition",
+      "Future Aspirations — finances, market position, business model",
+      "Hypothesis — Kitchen Co needs to change strategy to deliver 'considerable growth'"
+    ],
+    math: [
+      "US revenue roughly flat at ~$2.8B — low margin growth.",
+      "International ~$700M — small but primary growth driver.",
+      "At 35% GM on $3.5B: GP ≈ $1.2B.",
+      "To hit 'considerable growth' target (say 8% CAGR × 10 yrs), must nearly double → need both Intl expansion + new consumable/service business models.",
+      "(Specific multi-year figures degraded by extraction gap — see Exhibit A note.)"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — Kitchen Co financials 2009-2013",
+        columns: ["Metric", "Availability"],
+        rows: [
+          ["Revenue by region (US vs Intl)", "Chart lost in extraction"],
+          ["Segment margin mix",             "Chart lost in extraction"],
+          ["Growth rate vs plan",            "Chart lost in extraction"]
+        ],
+        note: "⚠️ EXTRACTION GAP: Exhibit A is a financial chart 2009-2013. Chart failed to extract. Only the footnote 'financial data from 2009 to present year, 2013' survived. Ask candidate which metric they want — discuss qualitative trend: US flat, Intl small but growing, overall growth below 'considerable' claim."
+      },
+      {
+        type: "table",
+        title: "Exhibit B — Kitchen Co industry trends",
+        columns: ["Force", "Qualitative direction"],
+        rows: [
+          ["Demographics", "Aging dev markets + growing dev-market middle class"],
+          ["Urbanization", "Smaller homes + more meal services (threat)"],
+          ["Online retail", "Growing rapidly, moving mobile-first"],
+          ["Technology", "Rapid — build vs partner decision"],
+          ["Household roles", "Changing — more women outside home, kitchen as status symbol"]
+        ],
+        note: "⚠️ EXTRACTION GAP: Exhibit B is image-only and fully failed extraction. Substituted with the qualitative trend categories referenced in the Part 2 answer — candidate should still be able to reason about direction."
+      }
+    ],
+    brainstorm: "Examples of what you want to HEAR from candidate: Growth is slower than 'considerable' claim; US flat, international tiny but driving margin/revenue growth. What you DON'T want to hear: 'Overall growth looks good' (misses US stagnation). On market dynamics: aging dev markets (simpler, lighter products); emerging-market middle class (intl growth); urbanization (smaller appliances or meal-service threat); online retail (mobile-first); tech pace (build vs partner); shifting household roles.",
+    recommendation: "Kitchen Co needs a multi-part pivot: (1) invest in both US (defend/refresh) and international (scale) — US getting squeezed between low-end and premium-luxury; (2) move from pure durables to durables-plus-consumables (razor/blade model on food prep, coffee, water filtration); (3) partner for tech capability rather than build in-house. Risks: cannibalization of legacy retail relationships, need brand extension discipline. Next: innovation pipeline, partnership/M&A scan, Intl market entry plan. Candidate must drive direction — case rewards ambiguity tolerance + creative thinking."
+  },
+
+  {
+    id: 20,
+    source: "tuck",
+    title: "Luxury Landscaping",
+    industry: "Engineering & Construction",
+    type: "M&A",
+    difficulty: "3 / 2 / 2",
+    behavioral: "Discuss a time you took the initiative to address an unspoken issue.",
+    prompt: "A PE firm is considering investing in a luxury residential landscaping company focused on large-scale renovation projects for high-value homes ($2MM+). As part of a post-acquisition growth plan, the client wants to study Los Angeles County to evaluate its appeal as a target for geographic expansion.",
+    clarifying: [
+      "Service: total landscape renovation (pools, foliage, beds, patios). Triggers: home sale or major upgrade.",
+      "Frequency: ~every 20 years. Price: ~10% of home value.",
+      "~100-200 small players in the market, each doing <25 projects/yr."
+    ],
+    framework: [
+      "Market size — # relevant homes × renovation rate × price",
+      "Potential share — competitor count, competitor focus, product-market fit",
+      "Potential profit — upfront cost, financing cost, revenue, running cost",
+      "Risks — housing market (price shocks), macro (rates, recessions)"
+    ],
+    math: [
+      "LA County pop 10M / avg household size 6 = ~1.7M households.",
+      "% homes $2MM+: ~10% → 170k homes.",
+      "% single-family (not apt): ~75-80% → ~130k.",
+      "% with large-enough lot: ~65-70% → ~55-60k addressable homes.",
+      "Projects/yr: 55-60k / 20-yr cycle = ~2,500-3,000 projects.",
+      "% outsourced to 3rd party: ~95-100% → ~2,500-3,000 projects.",
+      "Avg home value ~$2.5-3M → project price = 10% × value = $250-300k.",
+      "Addressable market: ~2,750 projects × $275k ≈ $750M."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — LA County demographic & pricing data",
+        columns: ["Input", "Value"],
+        rows: [
+          ["LA County population",              "10M people"],
+          ["Average household size",            "~6 people"],
+          ["Median home sale price",            "$850K"],
+          ["Target population",                 "Households $2MM+ in value"],
+          ["Project price",                     "~10% of home value"],
+          ["Project redo rate",                 "~20 years"]
+        ],
+        note: "Source: LA County demographic data. Candidate must layer assumptions (% of homes $2MM+, % single-family, % with large lot) on top."
+      }
+    ],
+    brainstorm: "Beyond size: market growth outlook; cyclicality vs recessions; competitive intensity / fragmentation / roll-up targets; seasonality; labor availability and wage trends. Growth drivers: residential construction & renovation spend; population growth; single-family mix; home values; renovation frequency; financing dynamics. Remember the client is the PE firm — evaluating attractiveness of the market, not the company.",
+    recommendation: "LA County is an attractive expansion target: ~$750M addressable market, highly fragmented (100-200 sub-scale players doing <25/yr each) — ideal for a roll-up acquirer. Growth likely to outpace US GDP given home-value inflation and renovation frequency. Risks: housing price shocks, recession exposure, interest-rate-driven financing pullback. Next steps: competitive mapping of top 10 players, labor pipeline analysis, pilot acquisition thesis on 2-3 targets."
+  },
+
+  {
+    id: 21,
+    source: "tuck",
+    title: "Nutters of Savile Row",
+    industry: "Retail & CPG",
+    type: "Operations",
+    difficulty: "2 / 3 / 2",
+    behavioral: "At the end of this process, you get offers from X, Y, and Z firms — how do you think about making that decision?",
+    prompt: "Our client is Nutters of Savile Row, a legendary London tailor that opened in 1969 and dressed Mick Jagger, Twiggy, Elton John, and three of the four Beatles on the Abbey Road cover. Nutters offers both made-to-measure suits (machine-cut from an existing pattern, adjusted to measurements) and bespoke suits (fully hand-made, pattern cut from scratch). Owner Alan Lewis is hearing customer grumblings and fears declining customer satisfaction. What could be driving it?",
+    clarifying: [
+      "Main store on Savile Row + artisan workshop on Beak Street (a few blocks away).",
+      "Customer complaints picked up in the past two months.",
+      "No recent changes to their regular manufacturing processes.",
+      "Process capacity data available later in the case."
+    ],
+    framework: [
+      "Quality — reputation (brand, exclusivity), expertise, fit & attention to detail, feel",
+      "Cost — price vs customer expectations (\"value\"), price vs competitors (\"deal\")",
+      "Speed — wait time at intake (arrival, throughput); delivery time (process + waiting + WIP)",
+      "Flexibility — accessibility (hours, location), selection, service"
+    ],
+    math: [
+      "Made-to-Measure capacity (hrs/month × FTE ÷ hrs/order):",
+      "  Measuring: 160 × 1 / 1 = 160 orders",
+      "  Sewing: 160 × 5 / 16 = 50 orders",
+      "  Finishing: 160 × 1 / 4 = 40 orders  ← bottleneck",
+      "Bespoke capacity (steps 2+3 share 5 FTEs):",
+      "  Measuring: 160 × 1 / 4 = 40 orders",
+      "  Patterning+Sewing: 160 × 5 / 32 = 25 orders  ← bottleneck",
+      "  Finishing: 160 × 2 / 8 = 40 orders",
+      "MTM demand in April/May (42, 44) exceeds 40 capacity → delay caused by MTM.",
+      "Anson adds capacity: MTM finishing → 160 × 2/4 = 80 (sewing becomes new bottleneck @ 50, so Anson = +10 orders); Bespoke P+S → 160 × 6/32 = 30 orders (+5).",
+      "Profit from Anson: MTM +10 × $350 = $3,500/mo OR Bespoke +5 × $900 = $4,500/mo."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — Orders accepted, last four months",
+        columns: ["Month", "Made-to-Measure", "Bespoke", "Total"],
+        rows: [
+          ["February", "37", "25", "62"],
+          ["March",    "39", "23", "62"],
+          ["April",    "42", "19", "61"],
+          ["May",      "44", "15", "59"]
+        ],
+        note: "Source: Internal Company Data. Total orders are DECLINING even as delays rise — mix is shifting toward MTM."
+      },
+      {
+        type: "table",
+        title: "Exhibit B — Process step times & FTEs (one FTE = 160 hrs/month)",
+        columns: ["Line", "Step", "Hrs/order", "FTEs"],
+        rows: [
+          ["Made-to-Measure", "Measuring",   "1",  "1"],
+          ["Made-to-Measure", "Sewing",      "16", "5"],
+          ["Made-to-Measure", "Finishing",   "4",  "1"],
+          ["Bespoke",         "Measuring",   "4",  "1"],
+          ["Bespoke",         "Patterning",  "14", "5 (shared w/ Sewing)"],
+          ["Bespoke",         "Sewing",      "18", "5 (shared w/ Patterning)"],
+          ["Bespoke",         "Finishing",   "8",  "2"]
+        ],
+        note: "Note: For bespoke, same 5 master tailors do both patterning AND sewing → treat as ONE combined step of (14+18)=32 hrs/order with 5 FTEs."
+      }
+    ],
+    brainstorm: "Synthesis: delay is caused by MTM orders exceeding capacity (42 & 44 vs 40 cap) in Apr/May. Spare capacity exists in MTM measuring (160 vs 40) AND all of Bespoke (bespoke demand falling below 25 cap). Remediation: move FTEs between steps (if skills allow); pool resources across MTM and Bespoke lines; use waitlist (may actually boost exclusivity perception for a brand like Nutters).",
+    recommendation: "Hire Anson for the Bespoke line at up to $4,500/month — generates $1,000/month more profit than MTM assignment ($4,500 vs $3,500). HOWEVER: if the CEO's priority is fixing customer satisfaction (not profit), put Anson on MTM finishing since that's where the delay actually lives. Risks: tradeoff between $1k/mo and brand satisfaction is material for a heritage brand. Next: flex FTEs between steps (measuring has massive spare); pool staff across lines; consider whether a waitlist enhances the exclusivity brand."
+  },
+
+  {
+    id: 22,
+    source: "tuck",
+    title: "OldSchool",
+    industry: "Government & Public Sector",
+    type: "Profitability",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time when you had to think creatively about a solution to a problem.",
+    prompt: "OldSchool is a high school founded in 1947 in Delhi, India. Once one of the most prestigious schools in the city, it has been relatively slow to modernize. Over time, OldSchool has experienced declining profitability and growing competition from newer schools. The Principal has heard about the transformative potential of Generative AI in education and is considering investing — but the upfront cost is significant. Should she move ahead?",
+    clarifying: [
+      "Upfront investment: $200,000.",
+      "Any changes will impact profitability of the current year (assume we are at the start of the year).",
+      "Current enrollment: 600 students/yr.",
+      "If asked how GenAI will be used, trigger a surprise brainstorm before framework."
+    ],
+    framework: [
+      "Revenue — tuition increase (up-to-date curriculum, better job placement); quantity increase (personalized learning, more capacity)",
+      "Cost — fixed: automated admin, resource optimization (fewer teachers, virtual learning); variable: digital materials, larger student body",
+      "Investment — NPV calc with FCF / discount rate / growth; industry multiples comparison",
+      "Risks — staff training, constant updates, implementation, teacher resistance, AI hallucinations, privacy"
+    ],
+    math: [
+      "Current profit: $80 margin × 600 students = $48,000/yr.",
+      "New margin: $80 × 1.025 = $82/student (2.5% = 1/40).",
+      "New enrollment: 600 × 1.1667 = 700 students (16.67% = 1/6).",
+      "New profit: $82 × 700 = $57,400/yr. Increase = $9,400/yr (~20%).",
+      "AI tool savings table: net annual savings range $4k - $13k. Winner = Personalized Learning Tool ($13k).",
+      "Total annual earnings improvement: $9,400 + $13,000 = $22,400.",
+      "NPV (perpetuity @ 10% discount, 0% growth): $22,400 / 10% = $224,000.",
+      "Upfront: $200,000. NPV > 0 → invest."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — GenAI cost savings by tool",
+        columns: ["AI Tool", "Sub / yr", "Savings / student", "# students", "Gross savings", "Net savings"],
+        rows: [
+          ["Research & Editing",   "$1,000", "$100", "100", "$10,000", "$9,000"],
+          ["Personalized Learning","$2,000", "$30",  "500", "$15,000", "$13,000"],
+          ["Administrative Asst",  "$3,000", "$50",  "300", "$15,000", "$12,000"],
+          ["Career Development",   "$4,000", "$80",  "100", "$8,000",  "$4,000"],
+          ["Virtual Tutor",        "$5,000", "$20",  "500", "$10,000", "$5,000"]
+        ],
+        note: "Bubble size on original = # students impacted. Personalized Learning is the clear winner on net savings — but candidate must do the math; eyeballing the bubble is misleading."
+      }
+    ],
+    brainstorm: "Surprise brainstorm (revenue side): personalized learning justifies tuition increase; 24/7 virtual tutoring as paid add-on; sell curriculum to other schools leveraging OldSchool's brand. Cost side: automate admin (grading, attendance, scheduling); resource optimization (larger classes, fewer substitute teachers); virtual/remote learning reducing physical space.",
+    recommendation: "YES, invest. NPV of $224k on $200k upfront is marginal but positive — and OldSchool specifically should pick the Personalized Learning Tool ($13k annual savings). Risks: projections may not materialize, teacher resistance (especially if strong union), AI hallucinations, privacy concerns. Next: bring in an ed-AI deployment consultant, pilot Personalized Learning with one grade before scaling."
+  },
+
+  {
+    id: 23,
+    source: "tuck",
+    title: "Pediatric Hearing Aids",
+    industry: "Healthcare",
+    type: "Profitability",
+    difficulty: "2 / 2 / 2",
+    behavioral: "What do you think will be the challenges transitioning from your previous career into consulting?",
+    prompt: "Our client, a developer of medical-grade hearing aids, is exploring the feasibility of launching a new line of hearing aids designed specifically for children. They want to understand if a target profit of $4M per year is achievable.",
+    clarifying: [
+      "Client handles the entire manufacturing process in-house.",
+      "Pediatric hearing aids: specialized devices sized for children.",
+      "Typically a child uses a hearing aid continuously until adulthood, requiring size upgrades every few years.",
+      "Client has developed three products targeting different pediatric age groups.",
+      "Market is fragmented; no single company has more than 15% share."
+    ],
+    framework: [
+      "Market — customers (parents, insurance, children); competition (# firms); alternatives (necessity, other models)",
+      "Profitability — revenue (# units × price); cost (# units × unit cost); R&D spend"
+    ],
+    math: [
+      "US population heuristic: ~4M per age year (320M / 80 yr life).",
+      "0-5 yrs: 4M × 6 × 1% = 240k market.",
+      "6-11 yrs: 4M × 6 × 1.5% = 360k market.",
+      "12-17 yrs: 4M × 6 × 2% = 480k market. Total = 1.08M children.",
+      "At 10% penetration, replacement = 1/6 × penetrated:",
+      "  Infant: ($300 − $100) × (240k × 10% × 1/6) = $200 × 4k = $800k profit",
+      "  Behind-the-ear: $300 × (360k × 10% × 1/6) = $300 × 6k = $1.8M",
+      "  In-the-ear: $450 × (480k × 10% × 1/6) = $450 × 8k = $3.6M",
+      "Total annual profit ≈ $6.2M. Target $4M → hit by ~55%."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — Market research & product offerings",
+        columns: ["Age group", "% prevalence", "Product type", "Avg price / unit", "Avg cost / unit"],
+        rows: [
+          ["0-5 years",   "1.0%",  "Infant",         "$300", "$100"],
+          ["6-11 years",  "1.5%",  "Behind-the-ear", "$500", "$200"],
+          ["12-17 years", "2.0%",  "In-the-ear",     "$700", "$250"]
+        ],
+        note: "Prevalence and margin both rise with age group; in-the-ear drives most of the profit."
+      }
+    ],
+    brainstorm: "Risks: fragmented market → many competitors → heavy sales/marketing lift needed; continual tech advancement required → R&D cost pressure; hearing aids are replaced only when children age up (every ~6 yrs) — low repeat frequency. Upside: no single competitor >15% so first-mover share opportunity exists; parent willingness-to-pay for medical devices is typically high.",
+    recommendation: "YES — hitting $4M target profit is realistic and likely conservative. Even at a conservative 10% penetration, projected profit is $6.2M — 55% above the target. Risks: tech moves quickly in hearing aids, so budget meaningful R&D spend; expect aggressive competitor marketing. Next: define go-to-market strategy, long-term R&D plan, parent/pediatrician channel strategy."
+  },
+
+  {
+    id: 24,
+    source: "tuck",
+    title: "PowerStride Sportswear",
+    industry: "Retail & CPG",
+    type: "Growth Strategy",
+    difficulty: "3 / 2 / 2",
+    behavioral: "Discuss a moment where you had to make a difficult ethical decision.",
+    prompt: "PowerStride Sportswear, a major US sport shoe manufacturer, releases 100+ new shoe models annually. Sustainability and personalization trends (surge in limited editions, fashion-forward designs) plus a generational shift in demand are forcing new levels of creativity in design. After ChatGPT's launch, GenAI usage has skyrocketed — Adidas integrated AI Archive, Nike launched the ISPA Universal Shoe. The CEO has hired us to suggest how GenAI can boost PowerStride's innovation in shoe design.",
+    clarifying: [
+      "PowerStride revenue: $3B in 2023. R&D spend: ~$20M/yr.",
+      "Product design cycle: market research → concept development → concept refinement → testing.",
+      "R&D team includes top-notch footwear designers, materials engineers, biomechanics experts, research scientists.",
+      "PowerStride already uses GenAI for marketing (personalized email offers).",
+      "GenAI tools: can analyze vast data (trends, design libraries), generate images/videos from text.",
+      "GenAI tools: can't yet assess manufacturing feasibility, aesthetics, or usability."
+    ],
+    framework: [
+      "PS's R&D — KPIs (# new models, innovation speed), awards, benchmark vs Adidas/Nike",
+      "PS's Design Cycle — market research, concept development, concept refinement stages",
+      "GenAI for R&D — available tools, capabilities, economics/pricing, IT integration requirements"
+    ],
+    math: [
+      "Current cycle: Market Research 2mo + Concept Dev 4mo + Concept Refinement 4mo = 10 months.",
+      "With GenAI savings:",
+      "  Market Research: 2mo × (1 − 50%) = 1.0mo",
+      "  Concept Development: 4mo × (1 − 70%) = 1.2mo",
+      "  Concept Refinement: 4mo × (1 − 30%) = 2.8mo",
+      "New cycle: 1.0 + 1.2 + 2.8 = 5.0 months. Savings = 5 months (~50%)."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — Current design cycle & GenAI time savings",
+        columns: ["Stage", "Current time", "GenAI savings", "New time"],
+        rows: [
+          ["Market Research",      "2 months", "50%", "1.0 month"],
+          ["Concept Development",  "4 months", "70%", "1.2 months"],
+          ["Concept Refinement",   "4 months", "30%", "2.8 months"],
+          ["Total",                "10 months", "50%", "5.0 months"]
+        ],
+        note: "Share of concepts graduated to next stage: Market Research → Concept Dev = 30%; Concept Dev → Concept Refinement = 10%."
+      }
+    ],
+    brainstorm: "Creativity boosters: (MR) trend research, competitive benchmarking, distill sales/survey data; (CD) ideate from design libraries, visualize via text-to-image, suggest materials, cost-benefit analysis; (CR) virtual simulations, concept descriptions, update from shoe performance data, quick iterations with focus groups. Limitations: hallucinations, prompt-quality dependence, reliance on old data → biases, possible copyright risk; can't assess feasibility or true innovation; too many options → choice paralysis; over-reliance stifles human creativity.",
+    recommendation: "Yes, deploy GenAI in all three stages — cuts cycle from 10 → 5 months (50% faster to market), lets PowerStride keep pace with Adidas/Nike on AI-assisted design. Weight investment toward Concept Development (biggest savings, 70%). Risks: copyright liability, hallucinations, over-reliance stifling designer creativity. Next: tool selection (build vs partner), IT integration plan, human-in-the-loop guardrails, benchmarking vs Adidas's AI Archive."
+  },
+
+  {
+    id: 25,
+    source: "tuck",
+    title: "Snow Big Deal",
+    industry: "Transportation & Logistics",
+    type: "Opportunity Assessment",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Describe a challenging situation or conflict you've faced and how you handled it.",
+    prompt: "Our client is the New Hampshire Department of Transportation (NH DOT), which rents privately-owned equipment to plow state roads. NH DOT is currently negotiating plow contracts for 2023 but is facing a shortage in equipment to rent — driving up projected response time and the number of 'beats' per truck. Help NH DOT address this issue and plan for the years ahead.",
+    clarifying: [
+      "Preliminary estimates: 300 machines available this season.",
+      "NH DOT does not currently own any plows — 100% rental model.",
+      "Plow rental fee includes labor. Rental fees negotiated each season.",
+      "Responsible for NH and NH routes into neighboring states.",
+      "Beat = unique route that needs plowing. Response time = time to plow a beat.",
+      "NH rents 3 classes of plow (assume identical for this case)."
+    ],
+    framework: [
+      "Financials — labor cost (wage), plow buy vs rent, storage/maintenance, operational cost, budget/tax pool",
+      "Market — rental rates in NH vs neighbors, plow demand/supply, skilled operator availability, vehicle market",
+      "Other factors — decade snowfall trend, labor/prioritization efficiency, buy vs rent, state policy, contract length"
+    ],
+    math: [
+      "Machines needed: (120 in × 1,000 hr/in) / 300 hr/machine = 400 machines.",
+      "Deficit: 400 − 300 = 100 machines.",
+      "Option 1 (raise rent 10%): rate $50 → $55/hr.",
+      "  Incremental on existing 300: $5 × 300 = $1,500/hr.",
+      "  Cost for new 100: $55 × 100 = $5,500/hr.",
+      "  Total incremental: $7,000/hr.",
+      "Option 2 (buy 100): depreciation $60k/5yr = $12k/yr → $12k/300hr = $40/hr.",
+      "  Fuel+labor = $12 + $8 = $20/hr. Maintenance+storage = ($2k+$4k)/300hr = $20/hr.",
+      "  Per-vehicle hourly cost: $80. Total for 100 vehicles: $8,000/hr.",
+      "Breakeven rent increase y%: $15,000y + $5,000 + $5,000y = $8,000 → $20,000y = $3,000 → y = 15%."
+    ],
+    exhibits: [
+      {
+        type: "bar",
+        title: "Exhibit A — NH annual snowfall (inches) past 10 yrs + 2023 forecast",
+        bars: [
+          { label: "2014", value: 70 },
+          { label: "2015", value: 90 },
+          { label: "2016", value: 65 },
+          { label: "2017", value: 110 },
+          { label: "2018", value: 130 },
+          { label: "2019", value: 85 },
+          { label: "2020", value: 95 },
+          { label: "2021", value: 70 },
+          { label: "2022", value: 100 },
+          { label: "2023*", value: 120 }
+        ],
+        unit: "inches",
+        note: "2023 = forecast. Top-3 year in last decade, ~70% above 2021. Each inch = 1,000 plow-hours statewide."
+      },
+      {
+        type: "table",
+        title: "Exhibit B — Rental vs Purchase economics",
+        columns: ["Line item", "Rental option", "Purchase option"],
+        rows: [
+          ["Current rental rate",              "$50 / hour",   "—"],
+          ["Proposed rental increase",         "10%",          "—"],
+          ["Purchase cost",                    "—",            "$60,000 / vehicle"],
+          ["Useful life",                      "—",            "5 years"],
+          ["Hourly fuel cost / vehicle",       "—",            "$12"],
+          ["Hourly labor cost",                "incl. in rent","$8"],
+          ["Annual maintenance cost / vehicle","—",            "$2,000"],
+          ["Annual storage cost / vehicle",    "—",            "$4,000"]
+        ],
+        note: "Vehicles are depreciated on a straight-line basis over 5 years."
+      }
+    ],
+    brainstorm: "Rent-increase costs: current rate, updated rate, incremental on existing fleet, cost of new rentals. Purchase costs: fixed cost per vehicle, variable (fuel/maintenance/storage), useful life, hours/yr, labor. Other strategic factors: supply smoothing with existing owners, aging rental fleet next year, snowfall variability, tax/budget constraints, relationships.",
+    recommendation: "Raise rental rates 10-15% to attract the 100 extra vehicles needed for the 2023 season — renting is ~$1,000/hr cheaper than buying AND preserves flexibility for future years with unknown snowfall. Risks: unanticipated costs, existing rental fleet aging into retirement, dramatic snowfall swings next year cause relationship friction. Next: formalize long-term contracts with key owners, invest in relationships, re-evaluate buy-vs-rent annually with 2-year snowfall forecast."
+  },
+
+  {
+    id: 26,
+    source: "tuck",
+    title: "SwitchDeck Motors",
+    industry: "Automotive",
+    type: "Market Entry",
+    difficulty: "3 / 3 / 2",
+    behavioral: "How would you approach a situation where you have to lead without authority?",
+    prompt: "SwitchDeck Motors, a major US-based automobile company, produces sedans, SUVs, and commercial vehicles (trucks, buses). They want to enter the luxury vehicle market in a foreign country. How should our client approach this market entry opportunity?",
+    clarifying: [
+      "Sells through traditional dealerships and direct-to-consumer.",
+      "All products must achieve annual profits greater than $100M in each market.",
+      "Client focuses on luxury consumer vehicles.",
+      "Client currently produces only left-hand-drive vehicles; no plans to expand to right-hand drive."
+    ],
+    framework: [
+      "Market — competitive landscape (structure, ease of entry, TAM), growth, consumer preferences",
+      "Company — financial (revenue, cost) + non-financial capability (brand, portfolio, distribution)",
+      "Risks — regulations (tariffs, FX, foreign laws), competitive response, brand dilution"
+    ],
+    math: [
+      "TAM: 100,000 luxury cars sold in Australia / yr.",
+      "Vehicle math (Revenue − Costs = Profit):",
+      "  Sedan: 5% × 100k = 5,000 × $30k = $150M rev; costs = $10M + 5,000 × $20k = $110M → $40M profit",
+      "  Truck: 1% × 100k = 1,000 × $55k = $55M; costs = $20M + 1,000 × $30k = $50M → $5M profit",
+      "  SUV: 5% × 100k = 5,000 × $50k = $250M; costs = $20M + 5,000 × $25k = $145M → $105M profit ✓",
+      "  Hatchback: 2% × 100k = 2,000 × $20k = $40M; costs = $10M + 2,000 × $10k = $30M → $10M profit",
+      "Only SUV clears the $100M hurdle.",
+      "Import tax risk: $50,000 × 3% × 5,000 cars = $7.5M profit reduction — still above $100M."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — Country Serviceable Addressable Market (SAM)",
+        columns: ["Country", "SAM (bubble)", "WTP", "Competitiveness (1-10)", "Drive"],
+        rows: [
+          ["UK",         "Large",  "Mid",  "9",  "Right"],
+          ["Japan",      "Large",  "Mid",  "9",  "Right"],
+          ["Singapore",  "Small",  "High", "8",  "Right"],
+          ["S. Korea",   "Mid",    "High", "7",  "Left"],
+          ["Indonesia",  "Small",  "Low",  "6",  "Left"],
+          ["Belgium",    "Small",  "Mid",  "6",  "Left"],
+          ["Australia",  "Large",  "Highest","4","Left"],
+          ["Mexico",     "Mid",    "Low",  "3",  "Left"],
+          ["India",      "Mid",    "Low",  "2",  "Right"],
+          ["Myanmar",    "Small",  "Low",  "1",  "Right"]
+        ],
+        note: "10 = most competitive, 0 = least. Bubble size = SAM. Australia has highest WTP, largest left-hand-drive SAM, lower competitiveness than S. Korea — clear winner for LHD producer."
+      },
+      {
+        type: "table",
+        title: "Exhibit B — Australian auto market by vehicle style",
+        columns: ["Vehicle", "Share of TAM", "WTP", "Import cost (fixed)", "Production cost", "Marketing cost"],
+        rows: [
+          ["Sedan",     "5%", "$30,000", "$10M", "$15,000", "$5,000"],
+          ["Truck",     "1%", "$55,000", "$20M", "$20,000", "$10,000"],
+          ["SUV",       "5%", "$50,000", "$20M", "$20,000", "$5,000"],
+          ["Hatchback", "2%", "$20,000", "$10M", "$10,000", "$0"]
+        ],
+        note: "Import costs are annual fixed; production and marketing are variable. TAM = 100,000 luxury cars/yr in Australia."
+      }
+    ],
+    brainstorm: "Main risks: (1) Australian government likely to impose 3% import tax on luxury autos next fiscal year — reduces SUV profit by ~$7.5M but still clears hurdle; (2) WTP ceiling constrains price response — can't pass through tax to consumers; (3) competitor response from entrenched EU luxury brands; (4) brand dilution from being 'yet another' SUV brand; (5) FX, foreign regulatory risk.",
+    recommendation: "Enter Australia with an SUV — highest WTP in world, large LHD SAM, lower competitiveness than S. Korea, no redesign needed. SUV profit = $105M, clears $100M target (even $97.5M after 3% import tax still tight — mitigate via lobbying). Risks: tax, competitive response. Next: engage Australian officials on local-manufacturing trade-off, build distribution partnerships, competitive war-game."
+  },
+
+  {
+    id: 27,
+    source: "tuck",
+    title: "Tuck Air II",
+    industry: "Airline",
+    type: "Opportunity Assessment",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Describe an instance where you received critical feedback, and how you responded.",
+    prompt: "Tuck Air, a large national airline, is considering installing in-flight Wi-Fi to improve customer experience. Tuck Air operates 250 Boeing 737-500 aircraft in an economy-only, no-frills, low-cost configuration — serving a mix of business and leisure passengers. The client has tasked us to help determine network specifications and financial viability.",
+    clarifying: [
+      "Tuck Air operates exclusively domestic routes, hub-and-spoke out of Boston Logan.",
+      "A recent customer survey showed Tuck Air lagged peers on passenger experience — Wi-Fi flagged as a top improvement, especially among business passengers.",
+      "In-flight Wi-Fi uses onboard satellite or ground-based networks; Ku-Band and Ka-Band frequencies transmit to/from aircraft.",
+      "Client policy: CAPEX projects must break even within 3 years."
+    ],
+    framework: [
+      "Customer — speed reqs (streaming, video calls, browsing), duration (whole flight vs few hours), segments (business vs leisure WTP)",
+      "Financial — up-front CapEx, revenue (flat fee / pro-rated / subscription × connections/flight), ongoing costs (service fee, maintenance)",
+      "Risks — customer backlash on paying, reliability, implementation (planes in hangars)"
+    ],
+    math: [
+      "Aircraft occupancy: 125 seats × 80% load = 100 passengers.",
+      "Business pax connecting: 100 × 33% × 90% ≈ 30 pax × 200 MB/hr = 6 GB/hr.",
+      "Leisure pax connecting: 100 × 67% × 30% ≈ 20 pax × 800 MB/hr = 16 GB/hr.",
+      "Ku-Band (14 GB/hr): serves business only (6 GB/hr fits).",
+      "Ka-Band (32 GB/hr): serves all pax (6 + 16 = 22 GB/hr fits).",
+      "Revenue Ku ($10, business only): $10 × 30 × 1,000 flights = $300k/plane/yr.",
+      "Revenue Ka ($4, all): $4 × 50 × 1,000 = $200k/plane/yr.",
+      "Contribution margin Ku: $300k − $220k = $80k/plane/yr.",
+      "Contribution margin Ka: $200k − $140k = $60k/plane/yr.",
+      "Breakeven Ku: $200k / $80k = 2.5 yrs ✓ (< 3 yrs).",
+      "Breakeven Ka: $300k / $60k = 5.0 yrs ✗."
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit A — Passenger survey results",
+        columns: ["Segment", "% passengers", "Likely to connect", "Data usage", "WTP"],
+        rows: [
+          ["Business", "33%", "90%", "200 MB / hour", "$10 / flight"],
+          ["Leisure",  "67%", "30%", "800 MB / hour", "$4 / flight"]
+        ],
+        note: "33% of passengers are business, 90% of them connect, at 200 MB/hr. Leisure has more users at lower attach — bigger data footprint per active user."
+      },
+      {
+        type: "table",
+        title: "Exhibit A (cont.) — Wi-Fi receiver specifications",
+        columns: ["Spec", "Ku-Band", "Ka-Band"],
+        rows: [
+          ["Shared data capacity", "14 GB / hour",         "32 GB / hour"],
+          ["Installation cost",    "$200,000 / aircraft",  "$300,000 / aircraft"],
+          ["Annual costs",         "$220,000 / aircraft",  "$140,000 / aircraft"]
+        ],
+        note: "Boeing 737-500: 125-seat capacity, 80% avg load factor, ~1,000 flights per aircraft per year."
+      },
+      {
+        type: "bar",
+        title: "Exhibit B — Breakeven years by receiver choice",
+        bars: [
+          { label: "Ku (business only)", value: 2.5 },
+          { label: "Ka (all pax)",       value: 5.0 }
+        ],
+        unit: "years",
+        note: "Ku breaks even inside the 3-year CapEx policy; Ka does not."
+      }
+    ],
+    brainstorm: "Pricing models: flat fee (free/pay-per-flight/pay-per-day/subscription), rated (by time, by data), two-part (high/low speed tiers, loyalty-free), bundling (streaming, partner brands like Starbucks/Amex). Given Tuck Air's no-frills positioning, a flat fee or per-hour model or single partner aligns best. Risks: product (tech upgrade risk, speed congestion, reliability), security (hackers + data), implementation (in-air payments, roll-out delays grounding aircraft).",
+    recommendation: "Install Ku-Band across the fleet, charge $10 flat fee. Supports business pax (higher WTP) at 2.5-yr breakeven — inside 3-yr CapEx policy — while Ka-Band stretches to 5 yrs and misses policy. Risks: roll-out delays (planes in hangars), future tech upgrade (mobile data in the air), network congestion if actual attach > forecast. Next: implementation plan with aircraft-rotation scheduling, sensitivity on business-pax attach rate, progressive roll-out starting with top business-traffic hubs."
+  },
+
+  /* =========================================================
      PRACTICE PACK — 15 supplemental cases
      Not from the Darden casebook. Original cases written in the same
      style, covering industries and types complementary to the Darden
@@ -669,7 +1406,7 @@ const CASES = [
      ========================================================= */
 
   {
-    id: 16,
+    id: 28,
     source: "practice",
     title: "Prairie Power",
     industry: "Energy",
@@ -717,7 +1454,7 @@ const CASES = [
   },
 
   {
-    id: 17,
+    id: 29,
     source: "practice",
     title: "Cold Chain Crunch",
     industry: "Logistics / Grocery",
@@ -765,7 +1502,7 @@ const CASES = [
   },
 
   {
-    id: 18,
+    id: 30,
     source: "practice",
     title: "Medicare Match",
     industry: "Pharmaceuticals",
@@ -812,7 +1549,7 @@ const CASES = [
   },
 
   {
-    id: 19,
+    id: 31,
     source: "practice",
     title: "Runway 15",
     industry: "Transportation / Airlines",
@@ -859,7 +1596,7 @@ const CASES = [
   },
 
   {
-    id: 20,
+    id: 32,
     source: "practice",
     title: "Mainframe Migration",
     industry: "Financial Services / Insurance",
@@ -904,7 +1641,7 @@ const CASES = [
   },
 
   {
-    id: 21,
+    id: 33,
     source: "practice",
     title: "Campus Cliff",
     industry: "Education",
@@ -956,7 +1693,7 @@ const CASES = [
   },
 
   {
-    id: 22,
+    id: 34,
     source: "practice",
     title: "The Listen-Along",
     industry: "Technology / Media",
@@ -989,7 +1726,7 @@ const CASES = [
   },
 
   {
-    id: 23,
+    id: 35,
     source: "practice",
     title: "Ghost Kitchen Standoff",
     industry: "Technology / Food Delivery",
@@ -1036,7 +1773,7 @@ const CASES = [
   },
 
   {
-    id: 24,
+    id: 36,
     source: "practice",
     title: "Offshore or Out",
     industry: "Energy / Renewables",
@@ -1087,7 +1824,7 @@ const CASES = [
   },
 
   {
-    id: 25,
+    id: 37,
     source: "practice",
     title: "Breach Aftermath",
     industry: "Financial Services / Fintech",
@@ -1135,7 +1872,7 @@ const CASES = [
   },
 
   {
-    id: 26,
+    id: 38,
     source: "practice",
     title: "Night Shift Latte",
     industry: "Food & Beverage",
@@ -1167,7 +1904,7 @@ const CASES = [
   },
 
   {
-    id: 27,
+    id: 39,
     source: "practice",
     title: "Freemium Fence",
     industry: "Technology / Consumer Software",
@@ -1212,7 +1949,7 @@ const CASES = [
   },
 
   {
-    id: 28,
+    id: 40,
     source: "practice",
     title: "Stadium Stalling",
     industry: "Sports & Entertainment",
@@ -1265,7 +2002,7 @@ const CASES = [
   },
 
   {
-    id: 29,
+    id: 41,
     source: "practice",
     title: "Drone Harvest",
     industry: "Manufacturing / Agriculture",
@@ -1312,7 +2049,7 @@ const CASES = [
   },
 
   {
-    id: 30,
+    id: 42,
     source: "practice",
     title: "Yellow Bus, Blue Plug",
     industry: "Transportation / Public Sector",
