@@ -765,7 +765,7 @@ function ensureCaseState(c){
   return caseRevealState.get(c.id);
 }
 
-function renderCaseBody(c, body){
+function renderCaseBody(c, body, opts){
   const state = ensureCaseState(c);
   body.innerHTML = "";
 
@@ -816,8 +816,9 @@ function renderCaseBody(c, body){
       });
     });
   } else {
-    // All revealed — mark completed + offer to reset for another pass.
-    markCompleted(c.id);
+    // All revealed — mark completed (unless we got here via bulk "reveal all cases",
+    // which is exam-review mode, not actual completion) + offer to reset for another pass.
+    if (!opts || !opts.bulk) markCompleted(c.id);
     const reset = document.createElement("button");
     reset.type = "button";
     reset.className = "mini-btn case-reset";
@@ -847,15 +848,23 @@ const CASE_TYPES = ["Profitability", "Market Entry", "M&A", "Growth", "Pricing",
 
 /* ---------- Case progress: localStorage ---------- */
 const CASE_PROGRESS_KEY = "darden.lab.v1.cases";
+const CASE_PROGRESS_SCRUB_FLAG = "darden.lab.cases.scrub1";
 function loadCaseProgress(){
   try {
     const raw = localStorage.getItem(CASE_PROGRESS_KEY);
     if (!raw) return { opened: [], completed: [], starred: [] };
     const p = JSON.parse(raw) || {};
+    let completed = Array.isArray(p.completed) ? p.completed.map(Number) : [];
+    // One-shot scrub: earlier versions auto-marked every case "completed" when the
+    // user hit reveal-all-cases (exam review). Wipe those bogus completions once.
+    if (!localStorage.getItem(CASE_PROGRESS_SCRUB_FLAG)){
+      completed = [];
+      try { localStorage.setItem(CASE_PROGRESS_SCRUB_FLAG, "1"); } catch {}
+    }
     return {
-      opened:    Array.isArray(p.opened)    ? p.opened.map(Number)    : [],
-      completed: Array.isArray(p.completed) ? p.completed.map(Number) : [],
-      starred:   Array.isArray(p.starred)   ? p.starred.map(Number)   : [],
+      opened:    Array.isArray(p.opened)  ? p.opened.map(Number)  : [],
+      completed,
+      starred:   Array.isArray(p.starred) ? p.starred.map(Number) : [],
     };
   } catch { return { opened: [], completed: [], starred: [] }; }
 }
@@ -863,6 +872,7 @@ function saveCaseProgress(){
   try { localStorage.setItem(CASE_PROGRESS_KEY, JSON.stringify(caseProgress)); } catch {}
 }
 let caseProgress = loadCaseProgress();
+saveCaseProgress();
 const inList = (arr, id) => arr.includes(Number(id));
 function markOpened(id){
   id = Number(id);
@@ -1174,7 +1184,7 @@ function renderCases(){
       const body = item.querySelector(".case-body");
       body.classList.add("open");
       item.querySelector(".case-toggle").textContent = "hide ▴";
-      renderCaseBody(c, body);
+      renderCaseBody(c, body, { bulk: true });
     });
   });
   resetAll.addEventListener("click", () => {
@@ -1185,7 +1195,7 @@ function renderCases(){
       const state = ensureCaseState(c);
       state.revealed = getInitialRevealed(state.stages);
       const body = item.querySelector(".case-body");
-      if (body.classList.contains("open")) renderCaseBody(c, body);
+      if (body.classList.contains("open")) renderCaseBody(c, body, { bulk: true });
     });
   });
   collapseAll.addEventListener("click", () => {
