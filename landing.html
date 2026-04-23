@@ -204,19 +204,20 @@
 
   /* ── hero notebook preview ─────────────────────────────── */
   .notebook-preview{
+    align-self: start;      /* don't stretch to match hero-copy height */
+    justify-self: center;
     position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin-top: 28px;
     background: var(--paper-soft);
     border: 2px solid var(--ink);
     box-shadow: 8px 8px 0 var(--ink);
-    padding: 22px 20px 18px;
-    transform: rotate(1.2deg);
+    padding: 26px 22px 22px;
+    transform: rotate(1deg);
   }
-  .notebook-preview::before{
-    content: "";
-    position: absolute;
-    left: 0; right: 0; top: 38px;
-    height: 1px;
-    border-top: 1px dashed var(--rule-blue);
+  @media (max-width: 880px){
+    .notebook-preview{ margin-top: 8px; transform: none; }
   }
   .notebook-preview .sticker{
     position: absolute;
@@ -231,52 +232,57 @@
     padding: 6px 12px;
     border: 2px solid var(--ink);
     transform: rotate(-3deg);
+    z-index: 2;
   }
   .notebook-preview .page-title{
     font-family:'Architects Daughter', cursive;
     font-size: 22px;
-    margin: 0 0 18px;
+    margin: 0 0 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--rule-blue);
   }
   .notebook-preview .scribble-list{
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0 0 14px;
     font-family:'Spectral', serif;
     font-size: 15px;
-    line-height: 1.65;
+    line-height: 1.5;
   }
   .notebook-preview .scribble-list li{
-    padding: 5px 0 5px 22px;
+    padding: 8px 0 8px 22px;
     position: relative;
     border-bottom: 1px dashed rgba(90,86,76,0.35);
   }
-  .notebook-preview .scribble-list li:last-child{ border-bottom: none; }
+  .notebook-preview .scribble-list li:last-child{ border-bottom: none; padding-bottom: 4px; }
   .notebook-preview .scribble-list li::before{
     content: "✓";
     color: var(--red);
     position: absolute;
-    left: 4px;
+    left: 2px;
     font-family:'Caveat', cursive;
     font-weight: 700;
-    font-size: 19px;
-    top: 3px;
+    font-size: 20px;
+    top: 6px;
+    line-height: 1;
   }
   .notebook-preview .scribble-list li .meta{
     display: block;
     font-family:'IBM Plex Mono', monospace;
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--pencil);
     letter-spacing: 1px;
     text-transform: uppercase;
-    margin-top: 2px;
+    margin-top: 3px;
   }
   .notebook-preview .caveat{
-    position: absolute;
-    bottom: -26px; left: 24px;
+    display: block;
+    margin: 6px 0 0;
     font-family:'Caveat', cursive;
-    font-size: 22px;
+    font-size: 20px;
     color: var(--red);
-    transform: rotate(-3deg);
+    transform: rotate(-1deg);
+    transform-origin: left center;
   }
 
   /* ── stats ─────────────────────────────────────────────── */
