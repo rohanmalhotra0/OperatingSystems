@@ -12,7 +12,7 @@
   const MOCK_KEY  = "rohan.lab.mock.history";
 
   const TABS = [
-    { id: "consulting", label: "Casen",   course: "Consulting casebook",   weightKey: "darden.card.weights",   masteredKey: "darden.card.mastered",   href: "/Consulting/" },
+    { id: "consulting", label: "consulting",   course: "Consulting casebook",   weightKey: "darden.card.weights",   masteredKey: "darden.card.mastered",   href: "/Consulting/" },
   ];
 
   let range = 7; // "7" | "30" | "all"

@@ -14,8 +14,8 @@
   // hasCases flags which tabs have CASES (needed by mock). Home has neither —
   // it's a landing surface for general chat only.
   const TABS = {
-    "":           { id: "home",       label: "Casen",           scope: "case-interview prep",          hasCases: false, hasContent: false },
-    "consulting": { id: "consulting", label: "Casen",           scope: "consulting / case interviews", hasCases: true,  hasContent: true  },
+    "":           { id: "home",       label: "home",            scope: "case-interview prep",          hasCases: false, hasContent: false },
+    "consulting": { id: "consulting", label: "consulting",      scope: "consulting / case interviews", hasCases: true,  hasContent: true  },
   };
 
   function detectTab(){
