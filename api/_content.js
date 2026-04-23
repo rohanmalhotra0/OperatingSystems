@@ -9,10 +9,6 @@ const vm = require("vm");
 
 const TAB_FILES = {
   consulting: "Consulting/content.js",
-  politics:   "Politics/content.js",
-  oracle:     "Oracle/content.js",
-  german:     "German/content.js",
-  studytool:  "StudyTool/content.js",
   // root home page has no content pack — AI falls back to a general persona
 };
 

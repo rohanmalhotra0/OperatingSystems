@@ -1,6 +1,5 @@
 .claude/worktrees/
 .DS_Store
-german copy/
 
 # secrets
 .env

@@ -1,5 +1,5 @@
 /* =========================================================
-   rohan.lab — metrics page
+   Casen — metrics page
    Reads localStorage logs (flash.results, quiz.results, mock.history)
    + per-tab weight/mastered keys, fetches content packs for totals,
    renders KPIs, daily calendar, per-tab mastery, weakest terms, mocks.
@@ -12,11 +12,7 @@
   const MOCK_KEY  = "rohan.lab.mock.history";
 
   const TABS = [
-    { id: "consulting", label: "darden.lab",   course: "UVA Darden casebook",       weightKey: "darden.card.weights",   masteredKey: "darden.card.mastered",   href: "/Consulting/" },
-    { id: "politics",   label: "pol500.lab",   course: "POL-UA 500 · Exam #2",      weightKey: "pol500.card.weights",   masteredKey: "pol500.card.mastered",   href: "/Politics/" },
-    { id: "oracle",     label: "epm1080.lab",  course: "Oracle 1Z0-1080-25 EPM",    weightKey: "epm1080.card.weights",  masteredKey: "epm1080.card.mastered",  href: "/Oracle/" },
-    { id: "german",     label: "deutsch.lab",  course: "German II · K5–K8",          weightKey: "deutsch.card.weights",  masteredKey: "deutsch.card.mastered",  href: "/German/" },
-    { id: "studytool",  label: "cs202.lab",    course: "CS202 · Operating Systems",  weightKey: "cs202.card.weights",    masteredKey: "cs202.card.mastered",    href: "/StudyTool/" },
+    { id: "consulting", label: "Casen",   course: "Consulting casebook",   weightKey: "darden.card.weights",   masteredKey: "darden.card.mastered",   href: "/Consulting/" },
   ];
 
   let range = 7; // "7" | "30" | "all"

@@ -1,5 +1,5 @@
 /* =========================================================
-   darden.lab — consulting / case-interview study data
+   Casen — consulting / case-interview study data
    CARDS  (vocab + concepts, MC-friendly)
    FORMULAS  (quick reference)
    FRAMEWORKS  (case-type → buckets, accordion)

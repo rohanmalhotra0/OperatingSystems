@@ -1,5 +1,5 @@
 /* =========================================================
-   darden.lab — app.js
+   Casen — app.js
    flashcards · learn (MC) · match (timed) · frameworks · cases · formulas
    ========================================================= */
 
@@ -512,7 +512,7 @@ document.getElementById("match-new").addEventListener("click", startMatch);
 startMatch();
 
 /* =========================================================
-   VOCAB — flat grid, filter + search (matches German pattern)
+   VOCAB — flat grid, filter + search
    ========================================================= */
 const vocabGrid   = document.getElementById("vocab-grid");
 const vocabSearch = document.getElementById("vocab-search");

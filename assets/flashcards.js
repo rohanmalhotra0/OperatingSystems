@@ -1,5 +1,5 @@
 /* =========================================================
-   rohan.lab — shared flashcards module (session model)
+   Casen — shared flashcards module (session model)
    Every tab's app.js delegates to this instead of re-implementing
    the same queue + K/D/U/H/undo logic with slightly different bugs.
 

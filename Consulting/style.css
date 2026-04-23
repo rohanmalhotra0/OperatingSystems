@@ -1,5 +1,5 @@
 /* ==========================================================
-   cs202.lab — handmade notebook aesthetic
+   Casen — handmade notebook aesthetic
    paper + pencil + red-ink + typewriter monospace
    ========================================================== */
 
@@ -687,7 +687,7 @@ h2.pencil::after{
   transform-origin: left top;
 }
 
-/* ============== German-specific additions ============== */
+/* ============== Grammar-block helper (reused across sheets) ============== */
 .gr-block{
   background: var(--paper);
   border: 1.5px solid var(--ink);
@@ -931,7 +931,7 @@ h2.pencil::after{
   text-align: center;
 }
 
-/* ============== Politics-specific additions ============== */
+/* ============== Match-mode grid ============== */
 
 /* match mode grid */
 .match-bar{
@@ -1753,7 +1753,7 @@ h2.pencil::after{
   margin-top: 14px;
 }
 
-/* ---------- Vocab empty state (reuses German-style .vocab-grid / .vocab-card / .search) ---------- */
+/* ---------- Vocab empty state ---------- */
 .vocab-empty{
   font-family:'IBM Plex Mono', monospace;
   font-size: 13px;

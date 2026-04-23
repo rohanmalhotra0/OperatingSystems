@@ -1,4 +1,4 @@
-# Deploying rohan.lab to Vercel
+# Deploying Casen to Vercel
 
 Static site + one serverless function (`/api/chat`). The OpenAI key lives **only** in Vercel env vars — never in the browser, never in git.
 

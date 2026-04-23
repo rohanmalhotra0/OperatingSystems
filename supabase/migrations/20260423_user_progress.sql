@@ -1,6 +1,6 @@
 -- Per-user progress sync.
 -- One row per (user, key) — `key` is a localStorage key like
--- "darden.card.weights" or "rohan.lab.flash.results", `value` is whatever
+-- e.g. "darden.card.weights" or "rohan.lab.flash.results"; `value` is whatever
 -- JSON was previously stored under that key.
 --
 -- Security model: Row-Level Security. A user can only read/write their own

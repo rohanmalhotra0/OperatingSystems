@@ -12,24 +12,8 @@ const DEFAULT_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
 const TAB_PERSONA = {
   consulting: {
-    label: "Darden Casebook (consulting / case interviews)",
-    subject: "UVA Darden 2024-25 casebook: profitability, market entry, growth, M&A, operations, pricing, cost cutting, and non-profit cases. Plus formulas, accounting, industry vocab, and 8 named frameworks.",
-  },
-  politics: {
-    label: "POL-UA 500 Exam #2",
-    subject: "political science — voting & participation, ethnicity & identity, parties & systems. 30 terms, 10 essay prompts.",
-  },
-  oracle: {
-    label: "Oracle 1Z0-1080-25 EPM Planning Cert",
-    subject: "Oracle Planning 2025 Implementation Professional: dimensions, rules, modules, IPM, approvals.",
-  },
-  german: {
-    label: "German II (K5–K8)",
-    subject: "German grammar & vocab — Dativ, two-way prepositions, Perfekt/Präteritum, Relativpronomen, Konjunktiv II, Passiv.",
-  },
-  studytool: {
-    label: "CS202 Operating Systems",
-    subject: "x86-64 paging, fork/exec/pipe, mutexes, WeensyOS, file systems, crash recovery.",
+    label: "Casen — Consulting Casebook (case interviews)",
+    subject: "Consulting case-interview prep: profitability, market entry, growth, M&A, operations, pricing, cost cutting, and non-profit cases. Plus formulas, accounting, industry vocab, and 8 named frameworks.",
   },
 };
 
@@ -111,7 +95,7 @@ function buildSystemPrompt({ tab, mode, focus, mockCase, mockBlock }) {
   const detail = focus ? lookupDetail(tab, focus) : null;
 
   const parts = [
-    `You are the in-notebook AI tutor for "${persona.label}" (rohan.lab study site).`,
+    `You are the in-notebook AI tutor for "${persona.label}" (Casen study site).`,
     `Subject: ${persona.subject}`,
     ``,
     `OPERATING RULES`,

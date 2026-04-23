@@ -1,5 +1,5 @@
 /* =========================================================
-   rohan.lab — Mock Case Interview module
+   Casen — Mock Case Interview module
    Exposes: window.ChatLab.mock = { mount, unmount }
    Picker → stepper + chat → grade card. The same instance is used by the
    widget (stacked layout) and /chat.html (two-column on wide screens).

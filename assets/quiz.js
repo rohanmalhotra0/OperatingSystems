@@ -1,17 +1,13 @@
 /* =========================================================
-   rohan.lab — Structured Quiz (client-generated MC from CARDS)
+   Casen — Structured Quiz (client-generated MC from CARDS)
    Exposes: window.ChatLab.quiz = { mount, unmount }
    ========================================================= */
 (function(){
   "use strict";
 
-  const RESULTS_KEY = "rohan.lab.quiz.results"; // shared across tabs
+  const RESULTS_KEY = "rohan.lab.quiz.results"; // localStorage key — kept stable across rebrands
   const WEIGHT_KEYS = {
     consulting: "darden.card.weights",
-    politics:   "pol500.card.weights",
-    oracle:     "epm1080.card.weights",
-    german:     "deutsch.card.weights",
-    studytool:  "cs202.card.weights",
   };
 
   /* ---------- instance factory ---------- */

@@ -1,5 +1,5 @@
 /* =========================================================
-   rohan.lab — /chat.html full-page controller
+   Casen — /chat.html full-page controller
    Reuses window.ChatLab.store + .client from chat-widget.js.
    URL params: ?tab=<id>&s=<sessionId>
    ========================================================= */

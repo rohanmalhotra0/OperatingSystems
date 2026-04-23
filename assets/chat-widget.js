@@ -1,5 +1,5 @@
 /* =========================================================
-   rohan.lab — in-notebook AI chat widget + shared store + API client
+   Casen — in-notebook AI chat widget + shared store + API client
    Exposes window.ChatLab = { store, client, TABS } so the full-page
    /chat.html can reuse the same session state.
    ========================================================= */
@@ -11,21 +11,13 @@
   // (→ show the "mock" pill in the chat widget). Only Consulting currently
   // does; if you add cases to another tab, flip the flag here.
   const TABS = {
-    "":           { id: "home",       label: "rohan.lab",       scope: "cross-course help",           hasCases: false },
-    "consulting": { id: "consulting", label: "darden.lab",      scope: "consulting / case interviews", hasCases: true  },
-    "politics":   { id: "politics",   label: "pol500.lab",      scope: "pol-ua 500 exam #2",          hasCases: false },
-    "oracle":     { id: "oracle",     label: "epm1080.lab",     scope: "oracle planning cert",        hasCases: false },
-    "german":     { id: "german",     label: "deutsch.lab",     scope: "german II k5–k8",             hasCases: false },
-    "studytool":  { id: "studytool",  label: "cs202.lab",       scope: "operating systems",           hasCases: false },
+    "":           { id: "home",       label: "Casen",           scope: "case-interview prep",          hasCases: false },
+    "consulting": { id: "consulting", label: "Casen",           scope: "consulting / case interviews", hasCases: true  },
   };
 
   function detectTab(){
     const p = window.location.pathname.toLowerCase();
     if (p.includes("/consulting")) return TABS.consulting;
-    if (p.includes("/politics"))   return TABS.politics;
-    if (p.includes("/oracle"))     return TABS.oracle;
-    if (p.includes("/german"))     return TABS.german;
-    if (p.includes("/studytool"))  return TABS.studytool;
     return TABS[""];
   }
 
@@ -40,24 +32,8 @@
       chat:    ["What's the difference between a profitability and growth case?", "Walk me through the 5 building blocks of a case.", "When do I use perpetuity vs simple payback?"],
       explain: ["Explain the M&A framework.", "Explain NPV of a perpetuity.", "Explain the Ansoff growth matrix."],
     },
-    politics: {
-      chat:    ["Why do people bother to vote at all?", "What's the difference between ethnic fractionalization and polarization?", "Running tally vs partisan identity — how do they differ?"],
-      explain: ["Explain Duverger's Law.", "Explain cross-cutting vs reinforcing cleavages.", "Explain the collective action problem."],
-    },
-    oracle: {
-      chat:    ["What's the difference between dimensions and members?", "When should I use a calculation rule vs a business rule?"],
-      explain: ["Explain approvals workflow.", "Explain data map vs smart push."],
-    },
-    german: {
-      chat:    ["When do I use Dativ vs Akkusativ with two-way prepositions?", "Perfekt vs Präteritum — when is each used?"],
-      explain: ["Explain Relativpronomen case rules.", "Explain Passiv vs Aktiv."],
-    },
-    studytool: {
-      chat:    ["Walk me through fork/exec/pipe.", "How does x86-64 paging work?"],
-      explain: ["Explain crash recovery.", "Explain TLB misses."],
-    },
     home: {
-      chat:    ["What's on rohan.lab?", "Which course should I study first today?"],
+      chat:    ["What's on Casen?", "Which tab should I study first today?"],
       explain: ["Explain how this site is organized."],
     },
   };

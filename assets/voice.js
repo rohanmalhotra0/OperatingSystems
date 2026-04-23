@@ -1,5 +1,5 @@
 /* =========================================================
-   rohan.lab — voice module
+   Casen — voice module
    Exposes: window.ChatLab.voice = {
      VOICES, DEFAULT_VOICE,
      Recorder,           // class — wraps MediaRecorder + silence detection
