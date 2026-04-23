@@ -35,11 +35,10 @@ tabs.forEach(t => {
 function activateFromHash(){
   const id = (location.hash || "").replace(/^#/, "");
   if (!id) return;
-  const match = Array.from(tabs).find(t => t.dataset.target === id);
-  if (match) {
-    activateTab(id);
-    document.querySelector(".file-tabs")?.scrollIntoView({ block: "start", behavior: "auto" });
-  }
+  const sheet = document.getElementById(id);
+  if (!sheet || !sheet.classList.contains("sheet")) return;
+  activateTab(id);
+  document.querySelector(".file-tabs")?.scrollIntoView({ block: "start", behavior: "auto" });
 }
 window.addEventListener("hashchange", activateFromHash);
 activateFromHash();
