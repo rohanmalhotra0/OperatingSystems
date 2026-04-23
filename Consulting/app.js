@@ -2424,6 +2424,22 @@ function newsEsc(s){
   }[c]));
 }
 
+// Google News RSS stuffs <a>…</a> and publisher markup into the description.
+// Strip tags + decode common entities so we render a plain-text blurb (or
+// nothing if the feed gave us nothing substantive beyond the headline).
+function newsCleanSnippet(s){
+  if (!s) return "";
+  const noTags = String(s).replace(/<[^>]*>/g, " ");
+  const decoded = noTags
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+  return decoded.replace(/\s+/g, " ").trim();
+}
+
 function newsFmtPosted(iso){
   if (!iso) return "";
   const then = new Date(iso).getTime();
@@ -2479,8 +2495,11 @@ function renderNews(payload){
     const when = n.published
       ? `<span class="news-when">${newsEsc(newsFmtPosted(n.published))}</span>`
       : "";
-    const snip = n.snippet
-      ? `<div class="news-snip">${newsEsc(n.snippet)}</div>`
+    const snipText = newsCleanSnippet(n.snippet);
+    // Google News usually leaves a snippet that's just the title again — skip
+    // those so the card doesn't show redundant text.
+    const snip = snipText && snipText !== (n.title || "").trim()
+      ? `<div class="news-snip">${newsEsc(snipText)}</div>`
       : "";
     return `
       <a class="news-card" href="${newsEsc(n.link)}" target="_blank" rel="noopener">
