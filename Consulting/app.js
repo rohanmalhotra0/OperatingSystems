@@ -23,6 +23,9 @@ function activateTab(name){
     t.classList.toggle("tab--active", t.dataset.target === name);
   });
   sheets.forEach(s => s.classList.toggle("sheet--active", s.id === name));
+  // jobs / news / behaviorals are reached through the top nav, not the
+  // notebook file-tabs — flag the body so CSS can hide the tab strip there.
+  document.body.dataset.activeSheet = name || "";
 }
 tabs.forEach(t => {
   if (t.dataset.target === "home") return;

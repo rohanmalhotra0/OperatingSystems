@@ -110,6 +110,14 @@ html,body{
   margin-bottom: 0;
   flex-wrap: wrap;
 }
+/* jobs / news / behaviorals live on this page but are reached through the
+ * top nav, not the notebook tab strip — hide the tabs so they don't imply
+ * the section is part of the 9-chapter study flow. */
+body[data-active-sheet="jobs"] .file-tabs,
+body[data-active-sheet="news"] .file-tabs,
+body[data-active-sheet="behaviorals"] .file-tabs {
+  display: none;
+}
 .tab{
   all: unset;
   cursor: pointer;
