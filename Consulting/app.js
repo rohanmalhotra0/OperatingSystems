@@ -607,7 +607,7 @@ function renderCaseBody(c, body){
       window.ChatLab.askAI({
         mode: "explain",
         focus: `${c.title} – ${nextStage.label}`,
-        prompt: `For Darden case "${c.title}" (#${c.id}), give me a small nudge on the ${nextStage.label.toLowerCase()} block. Don't reveal the answer — just one guiding question or prompt that would help me think through it.`,
+        prompt: `For ${sourceFullName(sourceOf(c))} case "${c.title}" (#${c.id}), give me a small nudge on the ${nextStage.label.toLowerCase()} block. Don't reveal the answer — just one guiding question or prompt that would help me think through it.`,
       });
     });
   } else {
@@ -625,7 +625,21 @@ function renderCaseBody(c, body){
   }
 }
 
-function sourceOf(c){ return c.source === "practice" ? "practice" : "darden"; }
+function sourceOf(c){
+  if (c.source === "practice") return "practice";
+  if (c.source === "tuck") return "tuck";
+  return "darden";
+}
+function sourceLabel(src){
+  if (src === "practice") return "practice pack";
+  if (src === "tuck") return "tuck";
+  return "darden";
+}
+function sourceFullName(src){
+  if (src === "practice") return "Practice Pack";
+  if (src === "tuck") return "Tuck";
+  return "Darden";
+}
 
 function buildCaseItem(c){
   const src = sourceOf(c);
@@ -642,7 +656,7 @@ function buildCaseItem(c){
       <span class="case-name">${escapeHTML(c.title)}</span>
       <span class="case-meta">${escapeHTML(c.industry || "")} · ${escapeHTML(c.type || "")} · ${escapeHTML(c.difficulty || "")}</span>
     </span>
-    <span class="case-source-badge case-source-badge--${src}">${src === "practice" ? "practice pack" : "darden"}</span>
+    <span class="case-source-badge case-source-badge--${src}">${sourceLabel(src)}</span>
     <span class="ask-ai-btn" data-ask-mock="${escapeHTML(String(c.id))}" title="run this case as a mock interview" role="button" tabindex="0">mock this ↗</span>
     <span class="case-toggle">show ▾</span>
   `;
@@ -685,8 +699,9 @@ function renderCases(){
   toolbar.appendChild(resetAll);
   toolbar.appendChild(collapseAll);
 
-  // Split into Darden + Practice Pack
+  // Split into Darden + Tuck + Practice Pack
   const darden   = CASES.filter(c => sourceOf(c) === "darden");
+  const tuck     = CASES.filter(c => sourceOf(c) === "tuck");
   const practice = CASES.filter(c => sourceOf(c) === "practice");
 
   const renderSection = (label, sublabel, items, sourceKey) => {
@@ -706,6 +721,12 @@ function renderCases(){
     "UVA Darden School of Business · 15 cases",
     darden,
     "darden"
+  );
+  renderSection(
+    "Tuck Consulting Club 2024",
+    "Tuck School of Business at Dartmouth · 12 cases · exhibits included",
+    tuck,
+    "tuck"
   );
   renderSection(
     "Practice Pack",
