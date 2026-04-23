@@ -36,6 +36,10 @@
   //   4. fall back to first tab with an empty state
   // This makes "open /chat.html from the top nav" land the user on the same
   // conversation they were having in the floating popup.
+  //
+  // Also honors ?mode=<id>. When given without ?s=, we pick (or create) a
+  // recent session on the target tab whose mode matches, so the top-nav
+  // "mock interview" link always lands inside a mock session.
   let activeSession = qs.get("s") ? store.getSession(qs.get("s")) : null;
   let activeTab = null;
   if (activeSession){
@@ -52,6 +56,22 @@
     }
   }
   if (!activeTab) activeTab = TAB_LIST[0];
+
+  const requestedMode = qs.get("mode");
+  if (requestedMode && !qs.get("s")){
+    const modeOkForTab =
+      !(requestedMode === "mock" && !activeTab.hasCases) &&
+      !(requestedMode === "quiz" && !activeTab.hasContent);
+    if (modeOkForTab){
+      const match = store.sessionsForTab(activeTab.id).find(s => s.mode === requestedMode);
+      if (match){
+        activeSession = match;
+      } else {
+        activeSession = store.createSession(activeTab.id, requestedMode);
+      }
+      store.setCurrentSessionId(activeTab.id, activeSession.id);
+    }
+  }
 
   let streaming = false;
   let streamCtrl = null;

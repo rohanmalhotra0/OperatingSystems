@@ -12,6 +12,7 @@ const HTML = `
     <a href="/Consulting/" data-nav="prep">prep</a>
     <a href="/Consulting/#jobs" data-nav="jobs">jobs</a>
     <a href="/Consulting/#behaviorals" data-nav="behaviorals">behaviorals</a>
+    <a href="/chat.html?tab=consulting&amp;mode=mock" data-nav="mock">mock interview</a>
     <a href="/chat.html" data-nav="chat">AI chat</a>
     <a href="/metrics.html" data-nav="metrics">metrics</a>
   </div>
@@ -24,12 +25,17 @@ const HTML = `
 function activeKey() {
   const path = location.pathname || "/";
   const hash = location.hash || "";
+  const search = location.search || "";
   if (path.startsWith("/Consulting")) {
     if (hash === "#jobs")         return "jobs";
     if (hash === "#behaviorals")  return "behaviorals";
     return "prep";
   }
-  if (path.includes("chat"))    return "chat";
+  if (path.includes("chat")) {
+    // mock interview shares /chat.html but gets its own nav highlight
+    if (/[?&]mode=mock\b/.test(search)) return "mock";
+    return "chat";
+  }
   if (path.includes("metrics")) return "metrics";
   if (path.includes("auth"))    return null; // auth page — no tab highlighted
   return "home";
