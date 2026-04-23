@@ -547,8 +547,10 @@ function renderFrameworks(){
     head.innerHTML = `
       <span class="fw-num">${String(i+1).padStart(2,"0")}</span>
       <span class="fw-name">${escapeHTML(f.name)}</span>
-      <span class="ask-ai-btn ask-ai-btn--small" data-ask-framework="${escapeHTML(f.name)}" title="ask AI to walk through this framework" role="button" tabindex="0">ask AI ↗</span>
-      <span class="fw-toggle">show buckets ▾</span>
+      <span class="fw-actions">
+        <span class="ask-ai-btn ask-ai-btn--small" data-ask-framework="${escapeHTML(f.name)}" title="ask AI to walk through this framework" role="button" tabindex="0">ask AI ↗</span>
+        <span class="fw-toggle">show buckets ▾</span>
+      </span>
     `;
     const body = document.createElement("div");
     body.className = "fw-body";
