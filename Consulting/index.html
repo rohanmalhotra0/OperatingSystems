@@ -100,12 +100,13 @@
 <section class="sheet" id="learn">
   <div class="sheet-margin">
     <h2 class="pencil">Learn</h2>
-    <p class="kicker">Three modes: <strong>vocab MC</strong> drills terms and concepts. <strong>math drills</strong> is timed single-problem case math (sizing, breakeven, CAGR, margin). <strong>mental math</strong> is rapid-fire arithmetic — the raw speed you need so the math isn't what trips you up mid-case.</p>
+    <p class="kicker">Four modes: <strong>vocab MC</strong> drills terms and concepts. <strong>math drills</strong> is timed single-problem case math (sizing, breakeven, CAGR, margin). <strong>mental math</strong> is rapid-fire arithmetic — the raw speed you need so the math isn't what trips you up mid-case. <strong>brain teasers</strong> is market-sizing and Fermi estimation — build the reflex of structuring an answer from scratch.</p>
 
     <div class="learn-mode-switch">
       <button class="mode-btn mode-btn--on" data-lmode="mc">vocab MC</button>
       <button class="mode-btn" data-lmode="math">math drills</button>
       <button class="mode-btn" data-lmode="mm">mental math</button>
+      <button class="mode-btn" data-lmode="bt">brain teasers</button>
     </div>
 
     <!-- ============ MODE: VOCAB MC ============ -->
@@ -240,6 +241,81 @@
           <div class="fc-done-actions">
             <button class="mini-btn mini-btn--ok" id="mm-again">run it again</button>
             <button class="mini-btn" id="mm-back">back to picker</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ MODE: BRAIN TEASERS ============ -->
+    <div id="learn-bt-mode" style="display:none">
+      <div id="bt-picker">
+        <div class="mm-picker-row">
+          <div class="mm-picker-h">category</div>
+          <div class="deck-bar" id="bt-cat-bar"></div>
+        </div>
+        <div class="mm-picker-row">
+          <div class="mm-picker-h">round length</div>
+          <div class="deck-bar" id="bt-len-bar"></div>
+        </div>
+        <button class="mini-btn" id="bt-start-btn" style="margin-top:6px">start round &rarr;</button>
+        <p class="mm-picker-lede">Market-sizing and Fermi estimation. Type a numeric estimate — within ±tolerance (generous, usually 30–40%) counts as correct. The point is the <em>structure</em>: after each answer a step-by-step walkthrough reveals the reasoning so you can compare it to your own.</p>
+      </div>
+
+      <div id="bt-session" style="display:none">
+        <div class="md-head mm-head">
+          <span class="md-type-badge" id="bt-cat-badge"></span>
+          <span class="mm-score">
+            <span class="mm-score-ok" id="bt-score-ok">0</span>
+            <span class="mm-score-sep">/</span>
+            <span class="mm-score-total" id="bt-score-total">0</span>
+            <span class="mm-score-q" id="bt-score-q">Q 1 / 5</span>
+          </span>
+          <span class="md-timer" id="bt-timer">0.0s</span>
+        </div>
+
+        <div class="check-box md-box">
+          <p class="md-prompt bt-prompt" id="bt-prompt"></p>
+
+          <div class="md-answer-row">
+            <input type="number" step="any" class="md-input" id="bt-input" placeholder="your estimate" autocomplete="off" inputmode="decimal">
+            <span class="md-unit" id="bt-unit"></span>
+          </div>
+
+          <div class="md-actions">
+            <button class="mini-btn" id="bt-submit">submit</button>
+            <button class="mini-btn md-ghost" id="bt-reveal">show walkthrough</button>
+            <button class="mini-btn md-ghost" id="bt-end">end round</button>
+          </div>
+
+          <div class="md-feedback mm-feedback" id="bt-feedback"></div>
+
+          <div class="bt-walk" id="bt-walk" style="display:none">
+            <h5>walkthrough</h5>
+            <ol class="bt-walk-steps" id="bt-walk-steps"></ol>
+            <p class="bt-anchor" id="bt-anchor"></p>
+            <div class="bt-rate">
+              <span class="bt-rate-h">rate your attempt:</span>
+              <button class="mini-btn md-ghost" data-btrate="got">got the answer</button>
+              <button class="mini-btn md-ghost" data-btrate="approach">approach right, number off</button>
+              <button class="mini-btn md-ghost" data-btrate="missed">missed it</button>
+            </div>
+          </div>
+
+          <div class="md-nav">
+            <button class="mini-btn" id="bt-next" style="display:none">next teaser &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="bt-done" style="display:none">
+        <div class="fc-done">
+          <div class="fc-done-icon">✓</div>
+          <div class="fc-done-title">round complete</div>
+          <div class="fc-done-stats" id="bt-done-stats"></div>
+          <div class="mm-breakdown" id="bt-breakdown"></div>
+          <div class="fc-done-actions">
+            <button class="mini-btn mini-btn--ok" id="bt-again">run it again</button>
+            <button class="mini-btn" id="bt-back">back to picker</button>
           </div>
         </div>
       </div>

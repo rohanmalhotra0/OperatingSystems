@@ -40,7 +40,7 @@ function loadTab(tabId) {
   // bindings that are NOT properties of globalThis (the sandbox). Append a
   // footer that copies the ones we care about onto a known global property
   // — the footer runs in the same script's lexical scope, so it can see them.
-  const KEYS = ["CARDS","CASES","FORMULAS","FRAMEWORKS","ESSAYS","DECKS","MODULES","QUIZZES","SCENARIOS","WORKED_EXAMPLES"];
+  const KEYS = ["CARDS","CASES","FORMULAS","FRAMEWORKS","ESSAYS","DECKS","MODULES","QUIZZES","SCENARIOS","WORKED_EXAMPLES","BRAIN_TEASERS"];
   const footer = `
 ;try {
   const __out = {};
@@ -102,6 +102,10 @@ function summarizeForPrompt(tabId) {
   if (pack.WORKED_EXAMPLES?.length) {
     const lines = pack.WORKED_EXAMPLES.map(w => `  [${w.type}] ${w.title}`);
     parts.push(`WORKED EXAMPLES (${pack.WORKED_EXAMPLES.length}):\n${lines.join("\n")}`);
+  }
+  if (pack.BRAIN_TEASERS?.length) {
+    const lines = pack.BRAIN_TEASERS.map(b => `  [${b.cat}] ${b.prompt} → ~${b.answer}${b.unit ? " " + b.unit : ""}`);
+    parts.push(`BRAIN TEASERS (${pack.BRAIN_TEASERS.length}):\n${lines.join("\n")}`);
   }
   return parts.join("\n\n");
 }

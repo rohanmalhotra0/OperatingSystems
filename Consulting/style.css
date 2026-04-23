@@ -3249,3 +3249,72 @@ h2.pencil::after{
   }
   .beh-star-grid label:nth-child(3){ grid-column: 1 / -1; }
 }
+
+/* ============== brain teasers (Learn mode 4) ============== */
+.bt-prompt{
+  font-family:'Spectral', serif;
+  font-size: 19px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 2px 0 18px;
+  max-width: 640px;
+}
+
+.bt-walk{
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--pencil);
+}
+.bt-walk h5{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pencil);
+  margin: 0 0 8px;
+}
+.bt-walk-steps{
+  margin: 0 0 10px;
+  padding-left: 22px;
+  font-family:'Spectral', serif;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.bt-walk-steps li{
+  margin: 4px 0;
+  padding-left: 4px;
+}
+.bt-walk-steps li::marker{
+  color: var(--red);
+  font-family:'IBM Plex Mono', monospace;
+  font-weight: 700;
+}
+.bt-anchor{
+  font-style: italic;
+  font-size: 14.5px;
+  color: var(--pencil);
+  margin: 10px 0 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--mustard);
+  line-height: 1.5;
+}
+
+.bt-rate{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0,0,0,0.15);
+}
+.bt-rate-h{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pencil);
+  margin-right: 4px;
+}

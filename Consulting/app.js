@@ -380,14 +380,17 @@ function setLearnMode(mode){
   const mc   = document.getElementById("learn-mc-mode");
   const math = document.getElementById("learn-math-mode");
   const mm   = document.getElementById("learn-mm-mode");
+  const bt   = document.getElementById("learn-bt-mode");
   document.querySelectorAll(".learn-mode-switch .mode-btn").forEach(b => {
     b.classList.toggle("mode-btn--on", b.dataset.lmode === mode);
   });
   mc.style.display   = mode === "mc"   ? "block" : "none";
   math.style.display = mode === "math" ? "block" : "none";
   if (mm) mm.style.display = mode === "mm" ? "block" : "none";
+  if (bt) bt.style.display = mode === "bt" ? "block" : "none";
   if (mode !== "math" && mdTimer){ clearInterval(mdTimer); mdTimer = null; }
   if (mode !== "mm" && typeof stopMmTimer === "function") stopMmTimer();
+  if (mode !== "bt" && typeof stopBtTimer === "function") stopBtTimer();
 }
 
 buildMdTypeBar();
@@ -828,6 +831,347 @@ document.getElementById("mm-input")?.addEventListener("keydown", e => {
     e.preventDefault();
     if (!mmLocked) submitMm();
   }
+});
+
+/* =========================================================
+   BRAIN TEASERS — market-sizing & Fermi estimation (Learn mode 4)
+   Uses the BRAIN_TEASERS array from content.js. Numeric answer with
+   generous tolerance (per-question); reveal shows a step-by-step
+   walkthrough. The user can self-rate their attempt so "approach right,
+   number off" still counts when the interviewer would credit the
+   structure. Round stats + per-category breakdown on completion.
+   ========================================================= */
+const BT_BANK = (typeof BRAIN_TEASERS !== "undefined" && Array.isArray(BRAIN_TEASERS)) ? BRAIN_TEASERS : [];
+const BT_CAT_LABELS = {
+  mix:    "Mixed",
+  market: "Market Sizing",
+  fermi:  "Fermi / Guesstimate",
+};
+const BT_LENGTHS = [3, 5, 8];
+
+function btCatChipsAvailable(){
+  const cats = Array.from(new Set(BT_BANK.map(b => b.cat))).filter(Boolean);
+  const out = [{ id: "mix", label: BT_CAT_LABELS.mix }];
+  cats.forEach(c => {
+    if (BT_CAT_LABELS[c]) out.push({ id: c, label: BT_CAT_LABELS[c] });
+    else out.push({ id: c, label: c });
+  });
+  return out;
+}
+
+let btCat = "mix";
+let btLen = 5;
+let btQueue = [];
+let btIdx = 0;
+let btOk = 0;
+let btStartTime = 0;
+let btQStartTime = 0;
+let btTimerRaf = null;
+let btTimes = [];
+let btBreakdown = {};
+let btLocked = false;
+let btSession = 0;
+
+function btShuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function btPool(cat){
+  return cat === "mix" ? BT_BANK.slice() : BT_BANK.filter(b => b.cat === cat);
+}
+
+function buildBtPickers(){
+  const catBar = document.getElementById("bt-cat-bar");
+  const lenBar = document.getElementById("bt-len-bar");
+  if (!catBar || !lenBar) return;
+  catBar.innerHTML = "";
+  btCatChipsAvailable().forEach(c => {
+    const lbl = document.createElement("label");
+    lbl.className = "deck-chip";
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "btcat"; inp.value = c.id;
+    if (c.id === btCat) inp.checked = true;
+    inp.addEventListener("change", () => { btCat = c.id; });
+    lbl.appendChild(inp);
+    lbl.appendChild(document.createTextNode(c.label));
+    catBar.appendChild(lbl);
+  });
+  lenBar.innerHTML = "";
+  BT_LENGTHS.forEach(n => {
+    const lbl = document.createElement("label");
+    lbl.className = "deck-chip";
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "btlen"; inp.value = String(n);
+    if (n === btLen) inp.checked = true;
+    inp.addEventListener("change", () => { btLen = n; });
+    lbl.appendChild(inp);
+    lbl.appendChild(document.createTextNode(`${n} teasers`));
+    lenBar.appendChild(lbl);
+  });
+}
+
+function startBt(){
+  const pool = btPool(btCat);
+  if (!pool.length){
+    alert("No brain teasers available for that category yet.");
+    return;
+  }
+  btSession += 1;
+  const draw = btShuffle(pool);
+  btQueue = [];
+  // pad queue to requested length (repeat with shuffle if pool < len)
+  while (btQueue.length < btLen){
+    btQueue = btQueue.concat(draw.length ? btShuffle(pool) : []);
+    if (!draw.length) break;
+  }
+  btQueue = btQueue.slice(0, btLen);
+
+  btIdx = 0;
+  btOk = 0;
+  btTimes = [];
+  btBreakdown = {};
+  btLocked = false;
+  btStartTime = performance.now();
+
+  document.getElementById("bt-picker").style.display = "none";
+  document.getElementById("bt-done").style.display = "none";
+  document.getElementById("bt-session").style.display = "block";
+
+  document.getElementById("bt-score-ok").textContent = "0";
+  document.getElementById("bt-score-total").textContent = String(btLen);
+
+  startBtTimer();
+  serveBt();
+}
+
+function startBtTimer(){
+  cancelAnimationFrame(btTimerRaf);
+  const el = document.getElementById("bt-timer");
+  if (!el) return;
+  const tick = () => {
+    const t = (performance.now() - btStartTime) / 1000;
+    el.textContent = t < 60 ? `${t.toFixed(1)}s` : `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,"0")}`;
+    btTimerRaf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+function stopBtTimer(){
+  if (btTimerRaf){ cancelAnimationFrame(btTimerRaf); btTimerRaf = null; }
+}
+
+function serveBt(){
+  const q = btQueue[btIdx];
+  btLocked = false;
+  btQStartTime = performance.now();
+
+  const catLabel = BT_CAT_LABELS[q.cat] || q.cat;
+  document.getElementById("bt-cat-badge").textContent = catLabel.toLowerCase();
+  document.getElementById("bt-prompt").textContent = q.prompt;
+  document.getElementById("bt-unit").textContent = q.unit || "";
+  document.getElementById("bt-score-q").textContent = `Q ${btIdx + 1} / ${btLen}`;
+
+  const input = document.getElementById("bt-input");
+  input.value = "";
+  input.disabled = false;
+
+  const fb = document.getElementById("bt-feedback");
+  fb.textContent = "";
+  fb.className = "md-feedback mm-feedback";
+
+  document.getElementById("bt-walk").style.display = "none";
+  document.getElementById("bt-next").style.display = "none";
+
+  setTimeout(() => input.focus(), 30);
+}
+
+function btRecord(cat, ok, ms){
+  if (!btBreakdown[cat]) btBreakdown[cat] = { ok: 0, total: 0, ms: [] };
+  btBreakdown[cat].total += 1;
+  btBreakdown[cat].ms.push(ms);
+  if (ok) btBreakdown[cat].ok += 1;
+}
+
+function revealBtWalkthrough(q){
+  const walk = document.getElementById("bt-walk");
+  const steps = document.getElementById("bt-walk-steps");
+  const anchor = document.getElementById("bt-anchor");
+  steps.innerHTML = "";
+  (q.walkthrough || []).forEach(s => {
+    const li = document.createElement("li");
+    li.textContent = s;
+    steps.appendChild(li);
+  });
+  anchor.textContent = q.anchor ? `Reality check: ${q.anchor}` : "";
+  walk.style.display = "block";
+  document.getElementById("bt-next").style.display = "inline-block";
+}
+
+function submitBt(){
+  if (btLocked) return;
+  const q = btQueue[btIdx];
+  const raw = document.getElementById("bt-input").value.trim();
+  const val = parseFloat(raw);
+  const fb = document.getElementById("bt-feedback");
+
+  if (raw === "" || Number.isNaN(val)){
+    fb.textContent = "type an estimate first — or hit show walkthrough.";
+    fb.className = "md-feedback mm-feedback warn";
+    return;
+  }
+
+  const ms = performance.now() - btQStartTime;
+  btTimes.push(ms);
+
+  const tolPct = q.tolPct || 30;
+  const tol = Math.max(Math.abs(q.answer) * tolPct / 100, 0.01);
+  const ok = Math.abs(val - q.answer) <= tol;
+
+  btRecord(q.cat, ok, ms);
+  btLocked = true;
+
+  if (ok){
+    btOk += 1;
+    fb.textContent = `✓ within ±${tolPct}% of ${q.answer}${q.unit ? " " + q.unit : ""}.`;
+    fb.className = "md-feedback mm-feedback ok";
+  } else {
+    const diffPct = Math.round(100 * (val - q.answer) / q.answer);
+    fb.textContent = `✗ answer ~${q.answer}${q.unit ? " " + q.unit : ""} · you were ${diffPct > 0 ? "+" : ""}${diffPct}%.`;
+    fb.className = "md-feedback mm-feedback bad";
+  }
+  document.getElementById("bt-score-ok").textContent = String(btOk);
+  document.getElementById("bt-input").disabled = true;
+
+  revealBtWalkthrough(q);
+}
+
+function revealBt(){
+  if (btLocked) {
+    revealBtWalkthrough(btQueue[btIdx]);
+    return;
+  }
+  const q = btQueue[btIdx];
+  const ms = performance.now() - btQStartTime;
+  btTimes.push(ms);
+  btRecord(q.cat, false, ms);
+  btLocked = true;
+
+  const fb = document.getElementById("bt-feedback");
+  fb.textContent = `answer: ~${q.answer}${q.unit ? " " + q.unit : ""}.`;
+  fb.className = "md-feedback mm-feedback warn";
+  document.getElementById("bt-input").disabled = true;
+
+  revealBtWalkthrough(q);
+}
+
+function btSelfRate(level){
+  // "approach" credits the attempt even if the number was off — bump score
+  // without counting it as a wrong answer in the breakdown.
+  if (level === "got" || level === "approach"){
+    const q = btQueue[btIdx];
+    if (btBreakdown[q.cat] && !btBreakdown[q.cat]._bumped){
+      // only bump once per question, and only if we originally marked it wrong
+      const wasWrong = Math.abs(parseFloat(document.getElementById("bt-input").value || "NaN") - q.answer) > Math.max(Math.abs(q.answer) * (q.tolPct || 30) / 100, 0.01);
+      if (wasWrong){
+        btOk += 1;
+        btBreakdown[q.cat].ok += 1;
+        btBreakdown[q.cat]._bumped = true;
+        document.getElementById("bt-score-ok").textContent = String(btOk);
+      }
+    }
+  }
+  // always advance after self-rate for faster flow
+  advanceBt();
+}
+
+function advanceBt(){
+  btIdx += 1;
+  if (btIdx >= btQueue.length){ finishBt(); return; }
+  serveBt();
+}
+
+function btFmtMs(ms){
+  const s = ms / 1000;
+  if (s < 10) return s.toFixed(1) + "s";
+  if (s < 90) return Math.round(s) + "s";
+  return `${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,"0")}`;
+}
+
+function finishBt(){
+  stopBtTimer();
+  const total = btTimes.length;
+  const elapsed = (performance.now() - btStartTime) / 1000;
+  const avg = total ? btTimes.reduce((a, b) => a + b, 0) / total : 0;
+  const acc = total ? Math.round(100 * btOk / total) : 0;
+
+  document.getElementById("bt-session").style.display = "none";
+  document.getElementById("bt-done").style.display = "block";
+
+  const stats = document.getElementById("bt-done-stats");
+  stats.innerHTML = total
+    ? `<strong>${btOk}/${total}</strong> within tolerance · ${acc}% accuracy · avg ${btFmtMs(avg)}/teaser · ${btFmtMs(elapsed * 1000)} total`
+    : "round ended with no teasers answered.";
+
+  const bd = document.getElementById("bt-breakdown");
+  bd.innerHTML = "";
+  const rows = Object.entries(btBreakdown);
+  if (rows.length <= 1){
+    bd.style.display = "none";
+  } else {
+    bd.style.display = "";
+    const head = document.createElement("div");
+    head.className = "mm-bd-head";
+    head.textContent = "by category";
+    bd.appendChild(head);
+    rows.forEach(([cat, r]) => {
+      const label = BT_CAT_LABELS[cat] || cat;
+      const rowAcc = Math.round(100 * r.ok / r.total);
+      const rowAvg = r.ms.reduce((a, b) => a + b, 0) / r.ms.length;
+      const row = document.createElement("div");
+      row.className = "mm-bd-row";
+      row.innerHTML =
+        `<span class="mm-bd-cat">${label}</span>` +
+        `<span class="mm-bd-val">${r.ok}/${r.total} · ${rowAcc}%</span>` +
+        `<span class="mm-bd-val">${btFmtMs(rowAvg)}/q</span>`;
+      bd.appendChild(row);
+    });
+  }
+}
+
+function backToBtPicker(){
+  btSession += 1;
+  stopBtTimer();
+  document.getElementById("bt-session").style.display = "none";
+  document.getElementById("bt-done").style.display = "none";
+  document.getElementById("bt-picker").style.display = "block";
+}
+
+buildBtPickers();
+document.getElementById("bt-start-btn")?.addEventListener("click", startBt);
+document.getElementById("bt-submit")?.addEventListener("click", submitBt);
+document.getElementById("bt-reveal")?.addEventListener("click", revealBt);
+document.getElementById("bt-end")?.addEventListener("click", () => {
+  btSession += 1;
+  stopBtTimer();
+  finishBt();
+});
+document.getElementById("bt-next")?.addEventListener("click", advanceBt);
+document.getElementById("bt-again")?.addEventListener("click", startBt);
+document.getElementById("bt-back")?.addEventListener("click", backToBtPicker);
+document.getElementById("bt-input")?.addEventListener("keydown", e => {
+  if (e.key === "Enter"){
+    e.preventDefault();
+    if (!btLocked) submitBt();
+    else advanceBt();
+  }
+});
+document.querySelectorAll('[data-btrate]').forEach(btn => {
+  btn.addEventListener("click", () => btSelfRate(btn.dataset.btrate));
 });
 
 /* =========================================================

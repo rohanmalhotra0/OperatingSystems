@@ -2507,3 +2507,252 @@ const WORKED_EXAMPLES = [
     formulasUsed: []
   }
 ];
+
+/* =========================================================
+   BRAIN TEASERS — market-sizing and Fermi estimation drills
+   Numeric answer + generous tolerance; the real value is the
+   reasoning walkthrough. Used by Learn mode 4 ("brain teasers")
+   and exposed to the AI tutor via /api/content.
+   ========================================================= */
+const BRAIN_TEASERS = [
+  {
+    id: "bt-m1",
+    cat: "market",
+    prompt: "Estimate the annual US retail coffee-shop market ($B).",
+    unit: "$B",
+    answer: 47,
+    tolPct: 35,
+    walkthrough: [
+      "US population ≈ 330M; adults ≈ 260M.",
+      "~65% of adults drink coffee → ~170M coffee drinkers.",
+      "Of those, ~45% regularly buy coffee out → ~75M shop buyers.",
+      "Frequency: 4 cups/week × 50 weeks × avg $3.50 ≈ $700/yr.",
+      "Total: 75M × $700 ≈ $52B → round to ~$50B."
+    ],
+    anchor: "Industry estimates put 2023 US coffee-shop revenue at ~$47B."
+  },
+  {
+    id: "bt-m2",
+    cat: "market",
+    prompt: "How many new passenger vehicles are sold in the US per year (millions)?",
+    unit: "M vehicles",
+    answer: 15,
+    tolPct: 30,
+    walkthrough: [
+      "US population ≈ 330M; households ≈ 125M.",
+      "Avg cars/household ≈ 1.9 → ~235M cars on the road.",
+      "Avg vehicle lifespan ≈ 12–15 years → replacement rate ≈ 1/13.",
+      "New sales ≈ 235M / 13 ≈ 18M. Adjust ~15% down for used-only replacements.",
+      "Estimate: ~15M new passenger vehicles sold per year."
+    ],
+    anchor: "Actual 2023 US new light-vehicle sales: ~15.5M."
+  },
+  {
+    id: "bt-m3",
+    cat: "market",
+    prompt: "Size the US pet-food market ($B).",
+    unit: "$B",
+    answer: 55,
+    tolPct: 30,
+    walkthrough: [
+      "US households ≈ 125M; ~65% own a pet → ~80M pet households.",
+      "Avg pets/household ≈ 1.5 → ~120M pets (roughly half dogs, half cats).",
+      "Annual food spend: ~$400/dog, ~$250/cat → blended ~$325/pet.",
+      "Core food: 120M × $325 ≈ $39B.",
+      "Add ~30% for premium, treats and specialty → ~$55B."
+    ],
+    anchor: "APPA 2023 US pet-food market: ~$58B."
+  },
+  {
+    id: "bt-m4",
+    cat: "market",
+    prompt: "Annual revenue of an average US McDonald's location ($M)?",
+    unit: "$M",
+    answer: 3.6,
+    tolPct: 30,
+    walkthrough: [
+      "Avg customers/day ≈ 1,500–2,000.",
+      "Avg ticket: ~$9 (incl. drinks, combos).",
+      "Daily revenue: 1,750 × $9 ≈ $15,750.",
+      "Annualize: $15,750 × 365 ≈ $5.7M — too high for an average.",
+      "Cut for slower days + rural locations → blended ~$3.5M average-unit volume."
+    ],
+    anchor: "McDonald's US AUV ≈ $3.5M (2022)."
+  },
+  {
+    id: "bt-m5",
+    cat: "market",
+    prompt: "Size the US streaming-video market — consumer spend ($B).",
+    unit: "$B",
+    answer: 40,
+    tolPct: 35,
+    walkthrough: [
+      "US households ≈ 125M.",
+      "~85% subscribe to at least one streaming service → ~106M subscribing HHs.",
+      "Avg services/HH ≈ 3.5 × avg price $10/mo ≈ $35/mo → $420/yr.",
+      "Subtotal: 106M × $420 ≈ $44B.",
+      "Haircut ~10% for free ad-tier mix → ~$40B."
+    ],
+    anchor: "2023 US SVOD+AVOD consumer revenue ≈ $40B."
+  },
+  {
+    id: "bt-m6",
+    cat: "market",
+    prompt: "Size the US gym / fitness-membership market ($B).",
+    unit: "$B",
+    answer: 33,
+    tolPct: 30,
+    walkthrough: [
+      "US adults ≈ 260M.",
+      "~20% hold a gym membership → ~52M members.",
+      "Avg monthly dues: ~$30 → $360/yr.",
+      "Subscription revenue: 52M × $360 ≈ $18.7B.",
+      "Add boutique/studio classes (~25% uplift) → ~$23B.",
+      "Add personal training + ancillary (~$10B) → ~$33B."
+    ],
+    anchor: "IHRSA 2023 US health-club industry: ~$32B."
+  },
+  {
+    id: "bt-m7",
+    cat: "market",
+    prompt: "How many cups of coffee does Starbucks sell in the US per day (millions)?",
+    unit: "M cups",
+    answer: 9,
+    tolPct: 35,
+    walkthrough: [
+      "US Starbucks locations: ~16,000.",
+      "Avg daily transactions/store: ~500.",
+      "Cups per transaction: ~1.1 (some orders double-up).",
+      "Daily cups: 16,000 × 500 × 1.1 ≈ 8.8M → ~9M."
+    ],
+    anchor: "Publicly disclosed ~9M US transactions/day — roughly cup parity."
+  },
+  {
+    id: "bt-m8",
+    cat: "market",
+    prompt: "Annual US haircut spend — salons + barbers ($B).",
+    unit: "$B",
+    answer: 65,
+    tolPct: 30,
+    walkthrough: [
+      "US adults ≈ 260M (≈ 130M men, 130M women).",
+      "Women: 6 salon visits/yr × $65 avg (incl. color) = $390/yr × 130M ≈ $50.7B.",
+      "Men: 9 barber visits/yr × $25 = $225/yr × 130M ≈ $29.3B.",
+      "Kids (≈72M under 18): 4 cuts/yr × $20 = $80/yr × 72M ≈ $5.8B.",
+      "Subtotal ~$85B — 20% haircut for at-home cuts → ~$65B."
+    ],
+    anchor: "IBISWorld US hair services ≈ $60B (2023)."
+  },
+  {
+    id: "bt-m9",
+    cat: "market",
+    prompt: "Revenue of a single transatlantic 777 flight ($K)?",
+    unit: "$K",
+    answer: 280,
+    tolPct: 35,
+    walkthrough: [
+      "777 capacity ≈ 300 seats; typical load factor 82% → 245 pax.",
+      "Mix: 10 first @ $5,000 = $50K; 30 business @ $3,500 = $105K; 205 economy @ $700 = $143K.",
+      "Passenger revenue ≈ $298K.",
+      "Add cargo ($20–50K) → gross ~$330K.",
+      "Net of taxes/fees → booked revenue ~$280K."
+    ],
+    anchor: "Rule of thumb: long-haul widebody grosses $250–400K per sector."
+  },
+  {
+    id: "bt-g1",
+    cat: "fermi",
+    prompt: "How many piano tuners work in Chicago?",
+    unit: "tuners",
+    answer: 125,
+    tolPct: 60,
+    walkthrough: [
+      "Chicago population ≈ 2.7M; households ≈ 1M.",
+      "~1 in 50 households owns a piano → ~20,000 pianos.",
+      "Add ~10% for schools, churches, venues → ~22,000 pianos.",
+      "Avg piano tuned once a year.",
+      "Tuner capacity: 4 tunings/day × 200 working days = 800 tunings/yr.",
+      "Minimum: 22,000 / 800 ≈ 28 full-time tuners.",
+      "Realistic with part-timers & overlap → ~100–150 active tuners."
+    ],
+    anchor: "Canonical Fermi answer: ~125 tuners (directory listings)."
+  },
+  {
+    id: "bt-g2",
+    cat: "fermi",
+    prompt: "How many ping-pong balls fit inside a Boeing 747 (millions)?",
+    unit: "M balls",
+    answer: 22,
+    tolPct: 45,
+    walkthrough: [
+      "747 cabin volume ≈ 31,000 ft³ ≈ 875 m³.",
+      "Ping-pong ball volume (as cube, for packing): 40mm³ → 6.4×10⁻⁵ m³.",
+      "Loose fill: 875 / 6.4e-5 ≈ 14M balls.",
+      "Hexagonal packing adds ~40% density → ~20M.",
+      "Add cargo hold (~5,000 ft³ → ~2M more) → ~22M total."
+    ],
+    anchor: "Canonical answer: ~22M ping-pong balls."
+  },
+  {
+    id: "bt-g3",
+    cat: "fermi",
+    prompt: "How many barbershops operate in New York City?",
+    unit: "shops",
+    answer: 1800,
+    tolPct: 40,
+    walkthrough: [
+      "NYC population ≈ 8.4M; ~50% male → 4.2M men.",
+      "Men visit barbershop every 6 weeks → ~9 visits/yr → ~38M cuts/yr.",
+      "Avg barber: 6 cuts/day × 250 working days ≈ 1,500 cuts/yr.",
+      "Barbers needed: 38M / 1,500 ≈ 25,000.",
+      "Avg shop: ~10 barbers → 2,500 shops.",
+      "Discount ~30% (some cuts at salons/home) → ~1,800 barbershops."
+    ],
+    anchor: "NYC Census-of-Business: ~1,800 barbershops."
+  },
+  {
+    id: "bt-g4",
+    cat: "fermi",
+    prompt: "Weight of a fully-loaded 72-passenger school bus (tons)?",
+    unit: "tons",
+    answer: 15,
+    tolPct: 30,
+    walkthrough: [
+      "Empty Type-C school bus: ~12,000 lbs (6 tons).",
+      "72 students × ~100 lbs avg (K–12 blend) = 7,200 lbs (3.6 tons).",
+      "Driver + fuel + luggage: ~500 lbs (0.25 tons).",
+      "Loaded: 6 + 3.6 + 0.25 ≈ 10 tons.",
+      "Heavier Type-C/D buses reach ~15 tons fully loaded."
+    ],
+    anchor: "Type-C 72-pax loaded: ~30,000 lbs ≈ 15 tons."
+  },
+  {
+    id: "bt-g5",
+    cat: "fermi",
+    prompt: "Annual US fluid-milk consumption (billion gallons)?",
+    unit: "B gallons",
+    answer: 5,
+    tolPct: 30,
+    walkthrough: [
+      "US population ≈ 330M.",
+      "Per-capita fluid milk ≈ 16 gallons/yr (declining trend).",
+      "Total: 330M × 16 ≈ 5.3B gallons.",
+      "(Add cheese/yogurt/butter in milk-weight equivalent → +35%, but excluded here.)"
+    ],
+    anchor: "USDA 2022 fluid milk: ~5.0B gallons."
+  },
+  {
+    id: "bt-g6",
+    cat: "fermi",
+    prompt: "How many windows are on the Empire State Building?",
+    unit: "windows",
+    answer: 6500,
+    tolPct: 30,
+    walkthrough: [
+      "102 floors; footprint ≈ 200 × 400 ft.",
+      "Average ~60–65 windows/floor (fewer on setback upper floors).",
+      "102 × 64 ≈ 6,500 windows."
+    ],
+    anchor: "Architectural spec: 6,514 windows."
+  }
+];
