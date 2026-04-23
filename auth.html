@@ -335,6 +335,21 @@
 
   let mode = "signin"; // "signin" | "signup"
 
+  // If the gate bounced the user here, it appended ?next=<original url>.
+  // Only honor same-origin absolute paths (must start with "/") to prevent
+  // an open-redirect vector.
+  function getNextUrl(){
+    try {
+      const n = new URLSearchParams(location.search).get("next");
+      if (n && n.charAt(0) === "/" && !n.startsWith("//")) return n;
+    } catch (_) {}
+    return null;
+  }
+  function redirectAfterAuth(fallback){
+    const target = getNextUrl() || fallback || "/";
+    window.location.href = target;
+  }
+
   function setMode(next){
     mode = next;
     toggleBtns.forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
@@ -382,7 +397,7 @@
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         showMsg("signed in. redirecting…", "ok");
-        setTimeout(() => { window.location.href = "/"; }, 600);
+        setTimeout(() => redirectAfterAuth("/"), 600);
       } else {
         const { data, error } = await supabase.auth.signUp({
           email, password,
@@ -393,7 +408,7 @@
           showMsg("account created — check your email to confirm, then sign in.", "ok");
         } else {
           showMsg("account created. redirecting…", "ok");
-          setTimeout(() => { window.location.href = "/"; }, 600);
+          setTimeout(() => redirectAfterAuth("/"), 600);
         }
       }
     } catch (err) {
@@ -431,6 +446,9 @@
 
   function render(user){
     if (user) {
+      // If the gate sent the user here, send them back through.
+      const next = getNextUrl();
+      if (next) { window.location.replace(next); return; }
       sessionEmail.textContent = user.email || "(no email)";
       sessionBox.classList.add("show");
       card.style.display = "none";
