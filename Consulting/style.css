@@ -2308,3 +2308,363 @@ h2.pencil::after{
   padding-top: 10px;
   border-top: 1px dashed var(--pencil);
 }
+
+/* =========================================================
+   WORKED EXAMPLES — accordion of worked walkthroughs
+   Visual style: paper card w/ a torn-edge header; "why"
+   annotations rendered as red-pencil side notes; steps laid
+   out like napkin math with numbered circles.
+   ========================================================= */
+.wx-list{
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 14px;
+}
+.wx-card{
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.wx-head{
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  padding: 14px 20px;
+  background: var(--paper-soft);
+  box-sizing: border-box;
+  width: 100%;
+}
+.wx-head:hover{ background: var(--tab-1); }
+.wx-head--open{
+  background: var(--tab-3);
+  border-bottom: 2px solid var(--ink);
+}
+.wx-num{
+  font-family:'Architects Daughter', cursive;
+  font-size: 22px;
+  color: var(--red);
+  flex-shrink: 0;
+}
+.wx-type{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--pencil);
+  padding: 3px 8px;
+  border: 1px solid var(--pencil);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.wx-title{
+  font-family:'Caveat', cursive;
+  font-size: 26px;
+  flex: 1 1 200px;
+  min-width: 0;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.wx-actions{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.wx-toggle{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
+  padding: 2px 8px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--pencil);
+  text-transform: uppercase;
+}
+.wx-body{
+  display: none;
+  padding: 18px 26px 22px;
+}
+.wx-body.open{ display: block; }
+
+.wx-lede{
+  font-family:'Spectral', serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.4);
+  border-left: 3px solid var(--pencil);
+}
+
+.wx-section{
+  margin: 18px 0;
+}
+.wx-h4{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--pencil);
+  margin: 0 0 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--pencil);
+}
+.wx-hint{
+  font-family:'Spectral', serif;
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  text-transform: none;
+  color: var(--pencil);
+  margin-left: 6px;
+}
+
+/* "why" annotations — red-pencil side notes */
+.wx-why{
+  font-family:'Spectral', serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 6px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--red);
+}
+.wx-why-tag{
+  font-family:'Caveat', cursive;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--red);
+  margin-right: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* Framework pick block */
+.wx-framework{
+  background: rgba(199,217,184,0.35);
+  border: 1px solid var(--ink);
+  padding: 14px 16px;
+}
+.wx-fw-row{ margin-bottom: 4px; }
+.wx-fw-pick{
+  font-family:'Caveat', cursive;
+  font-size: 24px;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+/* Assumptions list */
+.wx-assumptions{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wx-assumption{
+  padding: 10px 14px;
+  background: var(--paper-soft);
+  border: 1px dashed var(--pencil);
+}
+.wx-claim{
+  display: block;
+  font-family:'Spectral', serif;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.45;
+}
+.wx-assumption .wx-why{
+  margin-top: 6px;
+  font-size: 13.5px;
+}
+
+/* Steps — numbered napkin-math list */
+.wx-steps{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  counter-reset: wxstep;
+}
+.wx-step{
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.wx-step-n{
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border: 2px solid var(--red);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family:'Architects Daughter', cursive;
+  font-size: 18px;
+  color: var(--red);
+  background: var(--paper);
+}
+.wx-step-body{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.wx-step-label{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--pencil);
+  margin-bottom: 4px;
+}
+.wx-step-math{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 15.5px;
+  color: var(--ink);
+  padding: 8px 12px;
+  background: #fffbe9;
+  border: 1px solid var(--ink);
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
+  line-height: 1.45;
+}
+.wx-step .wx-why{
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+/* Answer panel — stamped-looking highlight */
+.wx-answer{
+  margin: 22px 0 18px;
+  padding: 14px 18px;
+  border: 2px solid var(--red);
+  background: rgba(181,45,45,0.06);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 14px;
+}
+.wx-ans-label{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--red);
+}
+.wx-ans-text{
+  font-family:'Caveat', cursive;
+  font-size: 26px;
+  color: var(--ink);
+  line-height: 1.15;
+  flex: 1 1 260px;
+}
+
+/* Sanity check — sticky-note */
+.wx-sanity{
+  background: var(--tab-3);
+  border-left: 4px solid var(--pencil);
+  padding: 12px 16px;
+}
+.wx-sanity .wx-h4{ border-bottom: none; padding-bottom: 0; margin-bottom: 6px; }
+.wx-sanity p{
+  font-family:'Spectral', serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Traps list */
+.wx-traps ul{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.wx-traps li{
+  font-family:'Spectral', serif;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  padding: 6px 0 6px 24px;
+  position: relative;
+}
+.wx-traps li::before{
+  content: "⚠";
+  position: absolute;
+  left: 0; top: 6px;
+  color: var(--red);
+  font-size: 14px;
+}
+
+/* Variations list */
+.wx-variations{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wx-variation{
+  padding: 8px 12px;
+  border: 1px dashed var(--pencil);
+  background: var(--paper-soft);
+}
+.wx-var-q{
+  display: block;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12.5px;
+  color: var(--pencil);
+  margin-bottom: 4px;
+}
+.wx-var-a{
+  display: block;
+  font-family:'Spectral', serif;
+  font-size: 14.5px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+/* Tag row */
+.wx-tags{
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--pencil);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: center;
+}
+.wx-tags-label{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--pencil);
+  margin-right: 2px;
+}
+.wx-tags-sep{
+  color: var(--pencil);
+  margin: 0 4px;
+}
+.wx-tag{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 2px 7px;
+  border: 1px solid var(--pencil);
+  background: var(--paper);
+  color: var(--ink);
+}
+.wx-tag--f{
+  border-color: var(--red);
+  color: var(--red);
+}

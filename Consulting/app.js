@@ -26,8 +26,23 @@ function activateTab(name){
 }
 tabs.forEach(t => {
   if (t.dataset.target === "home") return;
-  t.addEventListener("click", () => activateTab(t.dataset.target));
+  t.addEventListener("click", () => {
+    activateTab(t.dataset.target);
+    if (history.replaceState) history.replaceState(null, "", "#" + t.dataset.target);
+  });
 });
+
+function activateFromHash(){
+  const id = (location.hash || "").replace(/^#/, "");
+  if (!id) return;
+  const match = Array.from(tabs).find(t => t.dataset.target === id);
+  if (match) {
+    activateTab(id);
+    document.querySelector(".file-tabs")?.scrollIntoView({ block: "start", behavior: "auto" });
+  }
+}
+window.addEventListener("hashchange", activateFromHash);
+activateFromHash();
 
 function cycleTab(dir){
   const order = Array.from(tabs).filter(t => t.dataset.target !== "home").map(t => t.dataset.target);
@@ -579,6 +594,199 @@ function renderFrameworks(){
   });
 }
 renderFrameworks();
+
+/* =========================================================
+   WORKED EXAMPLES — "learn by doing" walkthroughs
+   Each example is a case-math post-mortem: framework pick, assumptions,
+   steps with their reasoning, answer, sanity check, and traps.
+   The accordion model keeps the Examples tab scannable.
+   ========================================================= */
+const WX_TYPES = ["All", ...Array.from(new Set((typeof WORKED_EXAMPLES !== "undefined" ? WORKED_EXAMPLES : []).map(w => w.type)))];
+let wxTypeFilter = "All";
+
+function buildWxFilterBar(){
+  const bar = document.getElementById("wx-filter-bar");
+  if (!bar || typeof WORKED_EXAMPLES === "undefined") return;
+  bar.innerHTML = "";
+  WX_TYPES.forEach(t => {
+    const count = t === "All"
+      ? WORKED_EXAMPLES.length
+      : WORKED_EXAMPLES.filter(w => w.type === t).length;
+    const lbl = document.createElement("label");
+    lbl.className = "deck-chip";
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "wxtype"; inp.value = t;
+    if (t === wxTypeFilter) inp.checked = true;
+    inp.addEventListener("change", () => {
+      wxTypeFilter = t;
+      renderWorkedExamples();
+    });
+    lbl.appendChild(inp);
+    lbl.appendChild(document.createTextNode(`${t === "All" ? "All" : t.toLowerCase()} (${count})`));
+    bar.appendChild(lbl);
+  });
+}
+
+function renderWorkedExamples(){
+  const list = document.getElementById("wx-list");
+  if (!list || typeof WORKED_EXAMPLES === "undefined") return;
+  list.innerHTML = "";
+  const pool = wxTypeFilter === "All"
+    ? WORKED_EXAMPLES
+    : WORKED_EXAMPLES.filter(w => w.type === wxTypeFilter);
+
+  pool.forEach((w, i) => {
+    const item = document.createElement("article");
+    item.className = "wx-card";
+
+    const head = document.createElement("button");
+    head.className = "wx-head";
+    head.type = "button";
+    head.innerHTML = `
+      <span class="wx-num">${String(i+1).padStart(2,"0")}</span>
+      <span class="wx-type">${escapeHTML(w.type)}</span>
+      <span class="wx-title">${escapeHTML(w.title)}</span>
+      <span class="wx-actions">
+        <span class="ask-ai-btn ask-ai-btn--small" data-ask-example="${escapeHTML(w.id)}" title="ask AI to re-walk this example" role="button" tabindex="0">ask AI ↗</span>
+        <span class="wx-toggle">open ▾</span>
+      </span>
+    `;
+
+    const body = document.createElement("div");
+    body.className = "wx-body";
+
+    const sections = [];
+
+    // Lede (the "here's what's being tested" intro)
+    if (w.lede) sections.push(`<p class="wx-lede">${escapeHTML(w.lede)}</p>`);
+
+    // Framework pick + why
+    if (w.framework) {
+      sections.push(`
+        <section class="wx-section wx-framework">
+          <h4 class="wx-h4">Framework picked</h4>
+          <div class="wx-fw-row">
+            <span class="wx-fw-pick">${escapeHTML(w.framework.picked)}</span>
+          </div>
+          <p class="wx-why"><span class="wx-why-tag">why</span> ${escapeHTML(w.framework.why)}</p>
+        </section>
+      `);
+    }
+
+    // Assumptions
+    if (w.assumptions?.length) {
+      const items = w.assumptions.map(a => `
+        <li class="wx-assumption">
+          <span class="wx-claim">${escapeHTML(a.claim)}</span>
+          <span class="wx-why"><span class="wx-why-tag">why</span> ${escapeHTML(a.why)}</span>
+        </li>
+      `).join("");
+      sections.push(`
+        <section class="wx-section">
+          <h4 class="wx-h4">Assumptions <span class="wx-hint">(call each one out loud)</span></h4>
+          <ul class="wx-assumptions">${items}</ul>
+        </section>
+      `);
+    }
+
+    // Steps (the heart of it)
+    if (w.steps?.length) {
+      const items = w.steps.map((s, idx) => `
+        <li class="wx-step">
+          <div class="wx-step-n">${idx + 1}</div>
+          <div class="wx-step-body">
+            <div class="wx-step-label">${escapeHTML(s.label)}</div>
+            <div class="wx-step-math">${escapeHTML(s.math)}</div>
+            ${s.why ? `<div class="wx-why"><span class="wx-why-tag">why</span> ${escapeHTML(s.why)}</div>` : ""}
+          </div>
+        </li>
+      `).join("");
+      sections.push(`
+        <section class="wx-section">
+          <h4 class="wx-h4">Step-by-step artifact</h4>
+          <ol class="wx-steps">${items}</ol>
+        </section>
+      `);
+    }
+
+    // Answer
+    if (w.answer) {
+      sections.push(`
+        <div class="wx-answer">
+          <span class="wx-ans-label">answer</span>
+          <span class="wx-ans-text">${escapeHTML(w.answer)}</span>
+        </div>
+      `);
+    }
+
+    // Sanity check
+    if (w.sanityCheck) {
+      sections.push(`
+        <section class="wx-section wx-sanity">
+          <h4 class="wx-h4">Sanity check</h4>
+          <p>${escapeHTML(w.sanityCheck)}</p>
+        </section>
+      `);
+    }
+
+    // Common traps
+    if (w.traps?.length) {
+      const items = w.traps.map(t => `<li>${escapeHTML(t)}</li>`).join("");
+      sections.push(`
+        <section class="wx-section wx-traps">
+          <h4 class="wx-h4">Common traps</h4>
+          <ul>${items}</ul>
+        </section>
+      `);
+    }
+
+    // Variations
+    if (w.variations?.length) {
+      const items = w.variations.map(v => `
+        <li class="wx-variation">
+          <span class="wx-var-q">${escapeHTML(v.q)}</span>
+          <span class="wx-var-a">${escapeHTML(v.a)}</span>
+        </li>
+      `).join("");
+      sections.push(`
+        <section class="wx-section">
+          <h4 class="wx-h4">Variations <span class="wx-hint">(same shape, different numbers)</span></h4>
+          <ul class="wx-variations">${items}</ul>
+        </section>
+      `);
+    }
+
+    // Tags: vocab + formula + ask-AI
+    const tagBits = [];
+    if (w.vocabUsed?.length) {
+      tagBits.push(`<span class="wx-tags-label">vocab</span>` +
+        w.vocabUsed.map(v => `<span class="wx-tag">${escapeHTML(v)}</span>`).join(""));
+    }
+    if (w.formulasUsed?.length) {
+      tagBits.push(`<span class="wx-tags-label">formulas</span>` +
+        w.formulasUsed.map(v => `<span class="wx-tag wx-tag--f">${escapeHTML(v)}</span>`).join(""));
+    }
+    if (tagBits.length) {
+      sections.push(`<div class="wx-tags">${tagBits.join(`<span class="wx-tags-sep">·</span>`)}</div>`);
+    }
+
+    body.innerHTML = sections.join("");
+
+    head.addEventListener("click", (e) => {
+      if (e.target.closest(".ask-ai-btn")) return;
+      const open = body.classList.toggle("open");
+      head.querySelector(".wx-toggle").textContent = open ? "close ▴" : "open ▾";
+      head.classList.toggle("wx-head--open", open);
+    });
+
+    item.appendChild(head);
+    item.appendChild(body);
+    list.appendChild(item);
+  });
+}
+
+buildWxFilterBar();
+renderWorkedExamples();
 
 /* =========================================================
    CASES — progressive reveal
@@ -1245,7 +1453,7 @@ renderFormulas();
    everything rendered above (vocab cards, frameworks, cases, formulas).
    ========================================================= */
 document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-ask-explain], [data-ask-framework], [data-ask-mock]");
+  const btn = e.target.closest("[data-ask-explain], [data-ask-framework], [data-ask-mock], [data-ask-example]");
   if (!btn) return;
   if (!window.ChatLab?.askAI) return;
   e.preventDefault();
@@ -1268,6 +1476,15 @@ document.addEventListener("click", (e) => {
   } else if (btn.hasAttribute("data-ask-mock")){
     const caseId = btn.getAttribute("data-ask-mock");
     window.ChatLab.askAI({ mode: "mock", caseId });
+  } else if (btn.hasAttribute("data-ask-example")){
+    const exId = btn.getAttribute("data-ask-example");
+    const ex = (typeof WORKED_EXAMPLES !== "undefined" ? WORKED_EXAMPLES : []).find(w => w.id === exId);
+    const title = ex?.title || exId;
+    window.ChatLab.askAI({
+      mode: "explain",
+      focus: title,
+      prompt: `Re-walk the worked example "${title}" from scratch in your own words. Use a DIFFERENT set of assumption numbers than the canned version so I can practice the logic without memorizing the arithmetic. Then ask me one follow-up variation to solve.`,
+    });
   }
 });
 

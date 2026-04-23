@@ -32,7 +32,8 @@
   <button class="tab" data-target="frameworks">05 · Frameworks</button>
   <button class="tab" data-target="vocab">06 · Vocab</button>
   <button class="tab" data-target="formulas">07 · Formulas</button>
-  <button class="tab" data-target="resources">08 · Resources</button>
+  <button class="tab" data-target="examples">08 · Examples</button>
+  <button class="tab" data-target="resources">09 · Resources</button>
   <button class="tab" data-target="home" onclick="location.href='../index.html';return false">↩ home</button>
 </nav>
 
@@ -42,10 +43,10 @@
 <section class="sheet sheet--active" id="cards">
   <div class="sheet-margin">
     <h2 class="pencil">Flashcards</h2>
-    <p class="kicker">Space = flip · [K] = got it (retires card) · [D] = missed (requeues) · [H] = reveal hint · [U] = undo. Each filter is a finite session — you're done when every card is mastered.</p>
+    <p class="kicker">Space = flip · [→] = skip · [←] / [U] = undo · [K] = got it (retires) · [D] = missed (requeues) · [H] = reveal hint. Each filter is a finite session — you're done when every card is mastered.</p>
     <div class="deck-bar" id="card-filter-bar">
       <!-- filter chips injected by app.js -->
-      <button id="shuffle" class="mini-btn" title="restart this session">↻ reset</button>
+      <button id="shuffle" class="mini-btn" title="shuffle the remaining queue">↻ shuffle</button>
     </div>
 
     <!-- progress -->
@@ -239,6 +240,22 @@
     <h2 class="pencil">Formulas — case-math cheat sheet</h2>
     <p class="kicker">Quick-glance reference. Each formula has a short note on when to reach for it. Memorize the income statement stack cold.</p>
     <div class="formula-list" id="formula-list"></div>
+  </div>
+</section>
+
+<!-- ================= EXAMPLES (worked walkthroughs) ================= -->
+<section class="sheet" id="examples">
+  <div class="sheet-margin">
+    <h2 class="pencil">Examples — learn by worked walkthroughs</h2>
+    <p class="kicker">The missing layer between vocab and a live case. Each walkthrough shows you <em>how</em> to pick a framework, state assumptions, do the math, and sanity-check — not just what the right answer is. Read these cold before running full cases; the structure here is what the interviewer is grading you on.</p>
+
+    <div class="deck-bar" id="wx-filter-bar">
+      <!-- filter chips injected by app.js -->
+    </div>
+
+    <div class="wx-list" id="wx-list">
+      <!-- example cards injected by app.js -->
+    </div>
   </div>
 </section>
 

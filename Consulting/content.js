@@ -2276,3 +2276,234 @@ const MATH_DRILLS = [
     solution: "Before: 10,000 × ($100 − $60) = $400K. After: 9,200 × ($110 − $60) = 9,200 × $50 = $460K. Change = +$60K/yr. Price increase MORE than compensates for volume drop because higher margin per unit."
   }
 ];
+
+/* =========================================================
+   WORKED EXAMPLES — "learn by doing" walkthroughs
+   Each example teaches how to pick a framework, state assumptions,
+   and do the math out loud. The structure mirrors how an interviewer
+   wants you to think: frame → assume → compute → sanity-check.
+   ========================================================= */
+const WORKED_EXAMPLES = [
+  // ---------- 01. Market sizing: the user-requested population question ----------
+  {
+    id: "wx-kids-2-14",
+    type: "Market Sizing",
+    title: "How many US kids age 2–14?",
+    lede: "A classic 60-second opener. The interviewer wants to see you build a tree, state assumptions crisply, and sanity-check the answer. They don't care about the exact number — they care about the structure.",
+    framework: {
+      picked: "Top-down from total population",
+      why: "Demographic questions anchor on US population (~335M), which is a number you should know cold. Top-down lets you get an estimate in 4 lines of math. Bottom-up (summing birth-year cohorts) gives the same answer but costs 2× the time."
+    },
+    assumptions: [
+      { claim: "US population ≈ 335M", why: "Round-number anchor. Actual is ~333M (2024). Close enough for a 2-minute answer; being off by 2M is noise." },
+      { claim: "Roughly even age distribution across 0–80", why: "A simplification. Real US pyramid dips in the baby-bust years and tapers after 70. Call out the assumption and move on — the interviewer isn't grading the nuance, they're grading that you **know** you simplified." },
+      { claim: "Age range 2–14 is inclusive → 13 single-year cohorts", why: "Ages are 2, 3, 4, … 14 — that's 13 numbers, not 12. This is the #1 off-by-one error in kids' market-sizing questions." }
+    ],
+    steps: [
+      { label: "Anchor on total US pop", math: "335M", why: "Must-know number. State it out loud so the interviewer can correct you if they want a different baseline." },
+      { label: "Divide into single-year cohorts", math: "335M ÷ 80 yrs ≈ 4.2M per year", why: "Treats population as a uniform rectangle over an 80-year lifespan. Not literally true but close enough." },
+      { label: "Width of the age bucket", math: "14 − 2 + 1 = 13 yrs", why: "Inclusive endpoints. Double-check by listing: 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 = 13." },
+      { label: "Multiply cohorts × years", math: "4.2M × 13 ≈ 55M", why: "Cohort size × number of cohorts. Round to tidy numbers when you say it out loud — 54M or 55M, whatever lets you finish confidently." }
+    ],
+    answer: "≈ 55 million US kids aged 2–14",
+    sanityCheck: "Gut-check: that's ~16% of the US population. Real census figure is ~52M (15.6%) — our estimate is within 5%. Anything you deliver in the 45–60M range is defensible as long as your tree is clean.",
+    traps: [
+      "Using 14 − 2 = 12 years (off-by-one). Always write out the list when inclusive.",
+      "Assuming a 100-year lifespan → cohort becomes 3.35M, pushing the answer to ~44M. Use 80 as the working-life span for US market sizing.",
+      "Quoting 330M as 3.3B. Unit errors eat candidates alive — say the units out loud."
+    ],
+    variations: [
+      { q: "US kids 0–17?",      a: "18 cohorts × 4.2M = ~75M. Actual: 73M." },
+      { q: "US adults 25–54?",   a: "30 cohorts × 4.2M = ~126M. Actual: 130M." },
+      { q: "US seniors 65+?",    a: "Don't use the uniform assumption here — real distribution falls off. Ballpark: ~17% of pop = ~57M. Actual: 56M." }
+    ],
+    vocabUsed: ["market sizing", "top-down estimation"],
+    formulasUsed: []
+  },
+
+  // ---------- 02. CAGR: the user-requested "why CAGR" question ----------
+  {
+    id: "wx-cagr-vs-avg",
+    type: "CAGR",
+    title: "Revenue went from $50M → $80M over 3 years. What's the growth rate?",
+    lede: "The interviewer is testing whether you know the difference between a simple average and a compound growth rate. If you answer '20%/yr' without thinking, you've failed the question.",
+    framework: {
+      picked: "CAGR (compound annual growth rate)",
+      why: "CAGR is the constant yearly rate that would take $50M → $80M in 3 years **if** growth compounded smoothly. Any time the question gives you a start value, an end value, and a number of periods — and asks for \"the growth rate\" — that's CAGR. A simple average over-states the rate because it ignores that year 2's base is bigger than year 1's."
+    },
+    assumptions: [
+      { claim: "Growth compounded (not simple)", why: "Almost always true for revenue, users, subscribers. Real businesses grow off last year's base, not the starting base." },
+      { claim: "\"3 years\" means 3 periods of growth", why: "Start-of-year-1 → end-of-year-3 is 3 compounding periods. If the question said \"from 2020 to 2023\" you'd count the same way: 3 step-ups." },
+      { claim: "No inter-year volatility matters", why: "CAGR smooths over bumpy years. Interviewer doesn't care about the actual year-1 or year-2 values — just the endpoints." }
+    ],
+    steps: [
+      { label: "State the CAGR formula", math: "CAGR = (End / Start)^(1/n) − 1", why: "Memorize this cold. n = number of compounding periods." },
+      { label: "Plug in", math: "($80M / $50M)^(1/3) − 1 = 1.6^(0.333) − 1", why: "Ratio is 1.6, so we need the cube root of 1.6." },
+      { label: "Estimate the cube root", math: "1.6^(1/3) ≈ 1.17  (because 1.17³ ≈ 1.60)", why: "Memorize a few anchors: 1.1³ ≈ 1.33, 1.2³ ≈ 1.73, 1.5³ ≈ 3.4. 1.6 sits just above 1.17³." },
+      { label: "Subtract 1 and convert", math: "1.17 − 1 = 0.17 → **17%/yr**", why: "The growth rate itself is the amount above 1." }
+    ],
+    answer: "CAGR ≈ 17% / year",
+    sanityCheck: "Verify by forward-compounding: $50M × 1.17³ = $50M × 1.60 = $80M. ✓ If you had used the wrong formula (simple average), you'd say ($80M − $50M) / ($50M × 3) = 20%/yr — which is 3 points too high. For a CEO forecasting future revenue, that 3-point error compounds into a huge overshoot.",
+    traps: [
+      "Saying \"($80 − $50) / $50 / 3 = 20%\". That's the simple-average approximation — it ignores compounding and always over-states the true rate.",
+      "Using n = 4 (count of year-end values) instead of n = 3 (number of step-ups). Always count the **intervals**, not the **years labeled**.",
+      "Forgetting the −1 at the end. (End/Start)^(1/n) is the **growth factor**, not the rate."
+    ],
+    variations: [
+      { q: "$50M → $80M over 5 years?",     a: "1.6^(1/5) − 1. 1.6^(0.2) ≈ 1.098 → ~10%/yr." },
+      { q: "$100M → $200M over 4 years?",   a: "2^(1/4) − 1 = 1.189 − 1 = ~19%/yr. (Rule of 72: doubling in 4 yrs → 72/4 = 18%, so 19% checks out.)" },
+      { q: "When would you NOT use CAGR?",  a: "If the interviewer wants you to discuss volatility, year-by-year, or early decline → report the growth year by year instead. CAGR hides bumpy trajectories." }
+    ],
+    vocabUsed: ["CAGR", "compound growth"],
+    formulasUsed: ["CAGR"]
+  },
+
+  // ---------- 03. Breakeven: coffee-shop expansion ----------
+  {
+    id: "wx-breakeven-coffee",
+    type: "Breakeven",
+    title: "Should the coffee shop expand?",
+    lede: "A coffee shop owner asks: \"If I open a second location with $12K/mo fixed costs, drinks at $5 with $1.50 variable cost, how many drinks per day do I need to break even?\" The interviewer is watching whether you convert monthly → daily and whether you nail contribution margin.",
+    framework: {
+      picked: "Breakeven on contribution margin",
+      why: "Breakeven = Fixed Costs ÷ Contribution Margin per unit. This is the single formula that tells you when revenue covers all costs. \"Price × volume = total cost\" works too but takes more algebra; CM is one line."
+    },
+    assumptions: [
+      { claim: "$1.50 variable cost captures everything that scales per drink", why: "Cups, lids, milk, beans, a slice of barista labor. If the interviewer gave you a labor-is-fixed setup, you'd lump it into the $12K." },
+      { claim: "$5 price is net of discounts", why: "If 10% of customers use a loyalty punch-card, realized price is lower. Ask. In this frame, we treat $5 as realized." },
+      { claim: "30 days / month", why: "Keeps the monthly→daily conversion clean. 30 is the consulting-math default unless told otherwise." }
+    ],
+    steps: [
+      { label: "Contribution margin per drink", math: "$5 − $1.50 = **$3.50**", why: "CM is what each incremental drink contributes toward fixed costs and profit. Do NOT confuse this with gross margin percent." },
+      { label: "Monthly breakeven in drinks", math: "$12,000 ÷ $3.50 ≈ **3,429** drinks/mo", why: "Fixed costs ÷ CM. Round up — you can't break even on a fractional drink." },
+      { label: "Convert to daily", math: "3,429 ÷ 30 ≈ **115 drinks/day**", why: "This is the number the owner will actually feel. 115 drinks in a 12-hour day = ~10/hour = ~1 every 6 min. Sanity-checkable." },
+      { label: "What about profit?", math: "For each +100 drinks/day above breakeven: 100 × $3.50 × 30 = $10,500/mo profit", why: "Contribution margin scales linearly above breakeven. Shows the interviewer you understand operating leverage." }
+    ],
+    answer: "3,429 drinks/mo (~115/day) to break even; every +100/day = +$10.5K/mo profit.",
+    sanityCheck: "Is 115 drinks/day realistic? A decent shop does 200–400 drinks/day. So this shop clears breakeven in a normal week and drops real money above that — worth expanding, unless the $12K fixed-cost number is light (it might be — real shops budget $18–25K/mo with rent in a primary market).",
+    traps: [
+      "Using gross margin % (70%) instead of CM dollars ($3.50). $12K / 0.70 = $17,143 in **revenue**, not drinks — that's a different answer to a different question.",
+      "Forgetting to round up. 3,428.57 drinks/mo → 3,429, not 3,428.",
+      "Assuming 365/12 = 30.4 days/mo and over-precising the daily number. Keep it at 30."
+    ],
+    variations: [
+      { q: "Drinks raised to $6, VC unchanged?",  a: "CM = $4.50 → 12K/4.50 = 2,667/mo (~89/day). Price raises cut breakeven fast." },
+      { q: "Fixed rent jumps to $18K/mo?",        a: "18K / 3.50 = 5,143/mo (~172/day). Now you need a busier shop." },
+      { q: "Add $1K/mo marketing that lifts volume 20%?", a: "New fixed = $13K. Breakeven = 13K / 3.50 = 3,714/mo. Compare to prior 3,429 × 1.20 = 4,115. Marketing works." }
+    ],
+    vocabUsed: ["breakeven", "contribution margin", "fixed costs", "variable cost"],
+    formulasUsed: ["Breakeven volume", "Contribution margin"]
+  },
+
+  // ---------- 04. Margin vs Markup: the classic trap ----------
+  {
+    id: "wx-margin-vs-markup",
+    type: "Margin / Markup",
+    title: "Margin vs markup — the trap",
+    lede: "\"We buy at $60 and sell at $100. What's our margin?\" Half of candidates say 67%. That's markup, not margin. The interviewer will pounce — this is a favorite ding question.",
+    framework: {
+      picked: "Definitional — memorize both formulas",
+      why: "There's no framework here, it's pure vocab. The fix is knowing the two definitions cold and checking which denominator the question wants."
+    },
+    assumptions: [
+      { claim: "Cost = $60, Price = $100", why: "Given. Note the **profit per unit** is $40 in both formulas — only the denominator changes." },
+      { claim: "No discounts, no channel fees", why: "If the question mentions \"retailer sells to distributor at a 20% cut\", that's a separate layer you'd net out first." }
+    ],
+    steps: [
+      { label: "Gross margin (GM%)", math: "(Price − Cost) / **Price** = $40 / $100 = **40%**", why: "Margin asks: what fraction of the **price** is profit? Denominator is what the customer pays." },
+      { label: "Markup", math: "(Price − Cost) / **Cost** = $40 / $60 = **66.7%**", why: "Markup asks: what fraction of the **cost** did we add on? Denominator is what you paid." },
+      { label: "Why they're different", math: "Same numerator ($40), different denominator (price vs cost).", why: "Price > Cost, so margin (bigger denominator) < markup (smaller denominator). Always." },
+      { label: "Convert between them", math: "Margin = Markup / (1 + Markup) · Markup = Margin / (1 − Margin)", why: "Handy when the interviewer gives you one and asks for the other. E.g., 50% markup → 50/(150) = 33.3% margin." }
+    ],
+    answer: "Gross margin = **40%**. Markup = **66.7%**. The $40 profit is the same — the denominator is different.",
+    sanityCheck: "Markup is always bigger than margin for the same sale. If your markup answer is smaller than your margin, you've swapped the formulas.",
+    traps: [
+      "Saying \"margin is 67%\" because you divided by cost. This is the most common error in case interviews — it will ding you.",
+      "Mixing the two mid-case: interviewer says \"50% markup\"; you compute as if it's a 50% margin. You'll misprice the product by 50%.",
+      "Forgetting that retail uses margin, wholesale/import uses markup. Different industries talk about the same thing with different denominators."
+    ],
+    variations: [
+      { q: "Cost $40, price $50. Margin? Markup?", a: "Margin = $10/$50 = 20%. Markup = $10/$40 = 25%." },
+      { q: "30% margin, cost $70. Price?", a: "Price = Cost / (1 − margin) = $70 / 0.7 = $100. Verify: ($100 − $70)/$100 = 30%. ✓" },
+      { q: "40% markup, price $140. Cost?", a: "Cost = Price / (1 + markup) = $140 / 1.40 = $100. Markup = $40/$100 = 40%. ✓" }
+    ],
+    vocabUsed: ["gross margin", "markup"],
+    formulasUsed: ["Gross margin", "Markup"]
+  },
+
+  // ---------- 05. Profitability tree: why did profits fall? ----------
+  {
+    id: "wx-profit-decline",
+    type: "Profit Decomposition",
+    title: "Profits are down 20%. Why?",
+    lede: "A CEO walks in: \"My profits are down 20% year over year. Figure out why.\" The interviewer wants you to **not panic and not guess**. They want a structured decomposition.",
+    framework: {
+      picked: "Profit = Revenue − Cost, decomposed into P × Q and F + V",
+      why: "Profit tree is the most-used framework in profitability cases. It forces you to walk revenue (price × volume) and costs (fixed + variable) separately, so you find **where** the leak is before you diagnose **why**."
+    },
+    assumptions: [
+      { claim: "Nothing else changed (tax rate, capital structure)", why: "Profit declines rarely come from tax unless there was a regime change. Confirm and set aside." },
+      { claim: "Prior year is a clean base (no one-time gains)", why: "If last year had a one-time asset sale, this year's \"decline\" might be an illusion. Always ask." },
+      { claim: "Market is the business's existing market (not new geos)", why: "New-market expansion is its own decomp; this one assumes like-for-like." }
+    ],
+    steps: [
+      { label: "Write the tree", math: "Profit = (Price × Volume) − (Fixed + Variable/unit × Volume)", why: "Four levers: price, volume, fixed costs, variable cost per unit. Isolate which moved." },
+      { label: "Ask: revenue side or cost side?", math: "Δ Revenue  vs  Δ Total Cost", why: "Narrow to one branch before going deeper. If revenue fell and costs held, you're looking at a pricing or demand issue." },
+      { label: "Within revenue: price or volume?", math: "Δ (P × Q) = (P₁ × Q₁) − (P₀ × Q₀)", why: "Were units sold lower (customer loss, market shrink, competitor)? Or were realized prices lower (discounting, mix shift)?" },
+      { label: "Within cost: fixed or variable?", math: "Δ Total Cost = Δ F + (V₁ × Q₁ − V₀ × Q₀)", why: "Fixed cost jumped? New lease, new HQ, scaled-up headcount? Variable cost per unit up? Input inflation, supply-chain cost, FX?" },
+      { label: "Diagnose the root cause in the winning branch", math: "→ External (market, competitor, input prices) vs Internal (ops, pricing, mix)", why: "Once you've located the leak, the **why** is one of four categories: market, competitor, customer, company. This is the 4 C's — use them as your checklist." }
+    ],
+    answer: "You don't answer a profitability case with a single number — you answer it with the leak: e.g., \"Profit is down because volume fell 15% while fixed costs held flat. Volume fell because a new competitor entered with a 10% lower price, and we didn't match. Recommendation: targeted price match in overlap markets.\"",
+    sanityCheck: "At each branch, quantify: if the CEO says \"revenue fell 10% and variable costs are stable as a %,\" that tells you the leak is on the top line. Force numbers out of the interviewer — \"What's the price change? The volume change?\" — and build the waterfall from there.",
+    traps: [
+      "Brainstorming causes before decomposing. If you jump to \"maybe a competitor entered\" before walking the tree, you'll miss the volume branch entirely.",
+      "Combining price and volume into \"revenue fell\" without splitting — you can't fix what you haven't isolated.",
+      "Ignoring fixed costs. A one-time ERP rollout or office expansion can crater profit even when revenue is flat."
+    ],
+    variations: [
+      { q: "Revenue is flat but profit is down 20%.", a: "Must be a cost story. Split fixed vs variable. Fixed up → new investment; variable up → input inflation or mix shift to lower-margin products." },
+      { q: "Profit is down but EBITDA is up.", a: "D&A or interest jumped. Ask about new capex (→ more depreciation) or new debt (→ more interest)." },
+      { q: "Profit is down in one segment only.", a: "Decomp that segment with the same tree. Often mix shift or segment-specific competitor." }
+    ],
+    vocabUsed: ["profitability", "contribution margin", "fixed costs", "variable cost", "4 C's"],
+    formulasUsed: ["Profit", "Gross margin"]
+  },
+
+  // ---------- 06. Framework application: market entry ----------
+  {
+    id: "wx-market-entry",
+    type: "Framework Application",
+    title: "Should our US retailer enter Canada?",
+    lede: "A US-based specialty retailer is considering opening stores in Canada. The interviewer wants a structured framework, not a gut answer. This is the canonical market-entry case — it's tested 5+ times across major firms' casebooks.",
+    framework: {
+      picked: "Market attractiveness + company fit + entry mode",
+      why: "Any entry case walks three legs: is the market worth entering (size, growth, competition)? can we win (capabilities, brand, cost structure)? and how should we enter (organic, JV, acquire, license)? Miss any leg and the interviewer drills there."
+    },
+    assumptions: [
+      { claim: "\"Enter\" means physical stores (not e-commerce alone)", why: "Specialty retail is typically omnichannel — but the question is about footprint. Confirm with the interviewer before assuming the answer." },
+      { claim: "Canadian consumer preferences ≈ US for this category", why: "Plausible for most specialty retail (apparel, housewares). Not true for food (palate differences) or finance. Flag and confirm." },
+      { claim: "FX, tariffs, regulation are manageable, not blockers", why: "Set aside to focus on strategy first. If the interviewer later asks about margin erosion from FX, come back to this." }
+    ],
+    steps: [
+      { label: "Sizing: is the market worth it?", math: "Canadian pop ≈ 40M · spend/capita × penetration × capture", why: "Rough math: if US spend/capita in this category is $200 and Canada's similar, that's $8B. Capture 3% over 5 yrs = $240M. Enough to matter for a $2B retailer. Not enough for a $20B retailer." },
+      { label: "Competition: who's there?", math: "Porter 5 forces: incumbents, buyer power, supplier power, substitutes, new entrants", why: "If Canada already has a strong domestic player (think Canadian Tire for hardware, Tim Hortons for coffee), the game is a head-on fight. If it's fragmented mom-and-pops, you can roll them up." },
+      { label: "Fit: do we have the right to win?", math: "Brand recognition · operating model · supply chain proximity · CAD/USD margin math", why: "Key question: does the US brand travel? Lululemon did. JCPenney didn't. Check Canadian search volume, store-location distance from existing supply-chain hubs, margin dilution at CAD pricing." },
+      { label: "Entry mode: how do we go in?", math: "Greenfield · JV · Acquire existing player · Franchise · E-com first", why: "Greenfield: slow, costly, full control. Acquire: fastest, brings local knowledge but integration risk. JV: de-risks but dilutes. E-com first: cheapest test — prove demand before building stores." },
+      { label: "Risks & mitigations", math: "FX hedging · Tariff exposure · Labor law (Quebec French-language requirements)", why: "A Canadian entry has 2 curveballs Americans miss: Quebec's language rules (Bill 96) and NAFTA/USMCA tariff lines. Naming either by name signals you've done your homework." }
+    ],
+    answer: "Recommendation depends on the numbers, but the structure is: **yes if** (a) market is $Xb+ and fragmented, (b) brand translates (proof: Canadian search volume, US border-shopper data), (c) we enter via e-com first to test demand before committing $50–200M to store footprint. **No if** a strong Canadian incumbent owns the category and our brand doesn't register north of the border.",
+    sanityCheck: "Pressure-test your recommendation: would you stake your own money on it? If the answer is \"I dunno, depends on the data,\" force the interviewer to give you numbers and pick a side. Consultants don't hedge.",
+    traps: [
+      "Jumping to entry mode before sizing the market. If the market is $500M, entry mode doesn't matter.",
+      "Ignoring the 'why now'. Canada was the right call in 2010 for many retailers; in 2024, e-com changes the calculus. Ask about timing.",
+      "Forgetting cannibalization: Canadian stores near the border may cannibalize US border-crossers who currently drive south. Net it out."
+    ],
+    variations: [
+      { q: "What if it's a Canadian firm entering the US?", a: "Flip the framework. US market is 9× bigger but 10× more competitive. Entry mode usually: e-com first or acquire a small US regional." },
+      { q: "What if it's a food brand, not specialty retail?", a: "Palate/regulation differ more. Add: FDA vs Health Canada labeling, unit-economics per SKU, potential Quebec-specific SKUs." },
+      { q: "Interviewer says market is $2B and growing 8%. Go.", a: "Attractive market. Pivot to fit + entry mode. Recommend acquire-small or JV to get to market in < 2 yrs; greenfield if brand is already strong in border markets." }
+    ],
+    vocabUsed: ["market entry", "Porter's 5 forces", "4 C's", "go / no-go"],
+    formulasUsed: []
+  }
+];

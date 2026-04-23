@@ -17,7 +17,12 @@
     --tab-1:       #e7c7a1;
     --tab-2:       #c9d4a8;
     --tab-3:       #e9d9a8;
+    --tab-4:       #d8c4e0;
+    --tab-5:       #a8c9d4;
+    --tab-6:       #e0b4a8;
+    --tab-7:       #c0c9b0;
     --tab-8:       #e8bda8;
+    --tab-9:       #d4c0a0;
     --rule-blue:   #7c9cbf;
   }
   *{box-sizing:border-box;}
@@ -34,15 +39,15 @@
   }
   ::selection{ background: var(--red); color: var(--paper); }
   .wrap{
-    max-width: 780px;
+    max-width: 1040px;
     margin: 0 auto;
-    padding: 70px 28px 48px;
+    padding: 64px 28px 48px;
   }
   .masthead{
     position: relative;
-    padding: 30px 20px 26px;
+    padding: 28px 20px 22px;
     border-bottom: 2px solid var(--ink);
-    margin-bottom: 56px;
+    margin-bottom: 40px;
   }
   .tape{
     position:absolute; top:-10px;
@@ -70,108 +75,220 @@
     text-transform: lowercase;
   }
 
-  .hero{
+  .lede{
+    max-width: 640px;
+    margin: 0 0 36px;
+    font-family:'Spectral',serif;
+    font-size: 17.5px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .lede em{
+    font-style: italic;
+    color: var(--red);
+  }
+  .lede .scribble{
+    font-family:'Caveat',cursive;
+    font-size: 22px;
+    color: var(--pencil);
+    display:block;
+    margin-top: 10px;
+  }
+
+  /* Featured "start here" card */
+  .featured{
     position: relative;
+    display: block;
     background: var(--paper-soft);
     border: 2px solid var(--ink);
     box-shadow: 8px 8px 0 var(--ink);
-    padding: 40px 44px 44px;
+    padding: 30px 34px 32px;
+    margin-bottom: 56px;
     text-decoration: none;
     color: inherit;
-    display: block;
     transition: transform 0.1s, box-shadow 0.1s;
   }
-  .hero:hover{ transform: translate(-3px,-3px); box-shadow: 11px 11px 0 var(--ink); }
-  .hero:active{ transform: translate(2px,2px); box-shadow: 3px 3px 0 var(--ink); }
-  .hero .tab-strip{
+  .featured:hover{ transform: translate(-3px,-3px); box-shadow: 11px 11px 0 var(--ink); }
+  .featured:active{ transform: translate(2px,2px); box-shadow: 3px 3px 0 var(--ink); }
+  .featured .badge{
     position: absolute;
-    top: -24px; left: 32px;
+    top: -16px; left: 28px;
+    background: var(--red);
+    color: var(--paper);
     font-family:'IBM Plex Mono',monospace;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
-    padding: 8px 22px 12px;
-    background: var(--tab-1);
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border: 2px solid var(--ink);
+    text-transform: uppercase;
+    transform: rotate(-2deg);
+  }
+  .featured .ribbon-tab{
+    position: absolute;
+    top: -22px; right: 32px;
+    padding: 8px 20px 12px;
+    background: var(--tab-3);
     border: 2px solid var(--ink);
     border-bottom: none;
     border-radius: 14px 16px 0 0 / 26px 24px 0 0;
-  }
-  .hero .course{
     font-family:'IBM Plex Mono',monospace;
-    font-size: 11px;
-    color: var(--pencil);
-    letter-spacing: 2.2px;
-    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
   }
-  .hero h2{
+  .featured h2{
     font-family:'Architects Daughter',cursive;
-    font-size: 64px;
-    margin: 8px 0 14px;
-    color: var(--ink);
+    font-size: 42px;
+    margin: 8px 0 10px;
     line-height: 1;
   }
-  .hero h2 .dot{ color: var(--red); }
-  .hero .desc{
-    font-family:'Spectral',serif;
-    font-size: 17px;
+  .featured h2 .dot{ color: var(--red); }
+  .featured .featured-desc{
+    font-size: 16px;
     line-height: 1.5;
-    color: var(--ink);
-    margin-bottom: 18px;
+    max-width: 620px;
+    margin: 0 0 18px;
   }
-  .hero ul{
-    list-style: none;
-    padding: 0;
-    margin: 0 0 24px;
-    font-family:'IBM Plex Mono',monospace;
-    font-size: 13px;
-    color: var(--pencil);
-    columns: 2;
-    column-gap: 22px;
-  }
-  @media (max-width: 560px){ .hero ul{ columns: 1; } }
-  .hero ul li{ padding: 3px 0; break-inside: avoid; }
-  .hero ul li::before{ content: "›  "; color: var(--red); font-weight: 700; }
-  .hero .open{
+  .featured .open{
     display: inline-flex;
     align-items: baseline;
     gap: 10px;
     font-family:'Caveat',cursive;
-    font-size: 32px;
+    font-size: 28px;
     color: var(--red);
     border-bottom: 2px solid var(--red);
     padding-bottom: 2px;
     line-height: 1;
   }
-  .hero .open .arr{ transition: transform 0.15s; }
-  .hero:hover .open .arr{ transform: translateX(4px); }
+  .featured .open .arr{ transition: transform 0.15s; }
+  .featured:hover .open .arr{ transform: translateX(4px); }
 
-  .stamp{
-    position: absolute;
-    right: 32px; top: 38px;
-    width: 110px; height: 110px;
-    display: grid; place-items:center;
-    transform: rotate(-11deg);
-    opacity: 0.72;
-    pointer-events:none;
+  /* Table of contents section */
+  .toc-heading{
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin: 0 0 22px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--pencil);
   }
-  .stamp-ring{
-    width: 100%; height: 100%;
-    border: 3px double var(--red);
-    border-radius: 50%;
-    display:flex; flex-direction:column;
-    justify-content:center; align-items:center;
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 9px;
+  .toc-heading h3{
+    font-family:'Architects Daughter',cursive;
+    font-size: 28px;
+    margin: 0;
+  }
+  .toc-heading .aside{
+    font-family:'Caveat',cursive;
+    font-size: 20px;
     color: var(--red);
-    text-align:center;
-    line-height: 1.4;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    background: radial-gradient(transparent 40%, rgba(181,45,45,0.08) 70%);
   }
-  .stamp-ring span:nth-child(2){ font-size: 11px; font-weight: 700; letter-spacing: 2px; margin: 2px 0; }
+
+  .toc-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 820px){ .toc-grid{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px){ .toc-grid{ grid-template-columns: 1fr; } }
+
+  .toc-card{
+    position: relative;
+    display: block;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    box-shadow: 5px 5px 0 var(--ink);
+    padding: 24px 22px 22px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.1s, box-shadow 0.1s;
+    min-height: 160px;
+  }
+  .toc-card:hover{ transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--ink); }
+  .toc-card:active{ transform: translate(1px,1px); box-shadow: 3px 3px 0 var(--ink); }
+  .toc-card .chip{
+    position: absolute;
+    top: -11px; left: 16px;
+    padding: 3px 10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    border: 2px solid var(--ink);
+    background: var(--tab-1);
+    text-transform: uppercase;
+  }
+  .toc-card[data-tint="1"] .chip{ background: var(--tab-1); }
+  .toc-card[data-tint="2"] .chip{ background: var(--tab-2); }
+  .toc-card[data-tint="3"] .chip{ background: var(--tab-3); }
+  .toc-card[data-tint="4"] .chip{ background: var(--tab-4); }
+  .toc-card[data-tint="5"] .chip{ background: var(--tab-5); }
+  .toc-card[data-tint="6"] .chip{ background: var(--tab-6); }
+  .toc-card[data-tint="7"] .chip{ background: var(--tab-7); }
+  .toc-card[data-tint="8"] .chip{ background: var(--tab-8); }
+  .toc-card[data-tint="9"] .chip{ background: var(--tab-9); }
+  .toc-card h4{
+    font-family:'Architects Daughter',cursive;
+    font-size: 28px;
+    margin: 6px 0 8px;
+    line-height: 1;
+  }
+  .toc-card p{
+    margin: 0 0 12px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .toc-card .count{
+    font-family:'Caveat',cursive;
+    font-size: 18px;
+    color: var(--red);
+  }
+  .toc-card.is-new::after{
+    content: "NEW";
+    position: absolute;
+    top: 10px; right: 12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--red);
+    border: 1.5px solid var(--red);
+    padding: 2px 6px;
+    transform: rotate(8deg);
+    letter-spacing: 1.5px;
+  }
+
+  .stats-strip{
+    margin: 48px 0 0;
+    padding: 18px 22px;
+    background: var(--paper-soft);
+    border: 1.5px dashed var(--pencil);
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    text-align: center;
+  }
+  @media (max-width: 820px){ .stats-strip{ grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 420px){ .stats-strip{ grid-template-columns: repeat(2, 1fr); } }
+  .stat .n{
+    font-family:'Caveat',cursive;
+    font-size: 32px;
+    color: var(--red);
+    line-height: 1;
+    display: block;
+  }
+  .stat .l{
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 10.5px;
+    color: var(--pencil);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
 
   .footer{
-    margin-top: 52px;
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--pencil);
     text-align: center;
     font-family:'IBM Plex Mono', monospace;
     font-size: 11.5px;
@@ -190,26 +307,99 @@
     <p class="sub">consulting casebook prep · frameworks · cases · drills</p>
   </header>
 
-  <a class="hero" href="./Consulting/">
-    <span class="tab-strip">casebook</span>
-    <div class="stamp" aria-hidden="true">
-      <div class="stamp-ring">
-        <span>uva</span><span>darden</span><span>2024-25</span>
-      </div>
-    </div>
-    <div class="course">UVA Darden 2024-25 · MBA consulting prep</div>
-    <h2>darden<span class="dot">.</span>lab</h2>
-    <p class="desc">Full casebook, repackaged as a single-page study tool. Walk a case stage-by-stage in interview mode, drill the frameworks by type, practice timed market-sizing and margin math, or run a voice-driven mock with the AI tutor.</p>
-    <ul>
-      <li>42 cases · Darden + Tuck + practice</li>
-      <li>8 frameworks · case-type bucket sets</li>
-      <li>~80 vocab cards · 4-option MC</li>
-      <li>17 math drills · timed, range-graded</li>
-      <li>Formula cheat sheet · PDF download</li>
-      <li>Voice mocks · AI tutor + analytics</li>
-    </ul>
-    <span class="open">open the lab <span class="arr">→</span></span>
+  <p class="lede">
+    Full UVA Darden casebook, repackaged as a single-page study tool — <em>42 cases, 8 frameworks, ~80 vocab cards, worked examples with every assumption spelled out.</em> Walk a case interview-style, drill market-sizing math against a timer, or run a voice mock with the AI tutor.
+    <span class="scribble">↓ new? start with the worked examples.</span>
+  </p>
+
+  <a class="featured" href="./Consulting/#examples">
+    <span class="badge">start here</span>
+    <span class="ribbon-tab">08 · examples</span>
+    <h2>learn by example<span class="dot">.</span></h2>
+    <p class="featured-desc">
+      Six fully worked walkthroughs showing how the vocab and formulas actually compose on a live case — how to estimate the 2-14-year-old population, why CAGR instead of a simple average, how to decompose a profit decline. Every step has a <em style="color:var(--red);font-style:normal">why</em>.
+    </p>
+    <span class="open">open worked examples <span class="arr">→</span></span>
   </a>
+
+  <div class="toc-heading">
+    <h3>table of contents</h3>
+    <span class="aside">nine tabs, one notebook</span>
+  </div>
+
+  <div class="toc-grid">
+    <a class="toc-card" data-tint="1" href="./Consulting/#cards">
+      <span class="chip">01</span>
+      <h4>flashcards</h4>
+      <p>Spaced-review queue for vocab + concepts. Hint, skip, undo, shuffle.</p>
+      <span class="count">~80 cards · K/D/U/H</span>
+    </a>
+
+    <a class="toc-card" data-tint="2" href="./Consulting/#learn">
+      <span class="chip">02</span>
+      <h4>learn</h4>
+      <p>Read-through of the vocab in definition form, grouped by chapter.</p>
+      <span class="count">MC quiz mode</span>
+    </a>
+
+    <a class="toc-card" data-tint="3" href="./Consulting/#match">
+      <span class="chip">03</span>
+      <h4>match</h4>
+      <p>Term-to-definition speed drill. Pattern-lock the high-frequency ones.</p>
+      <span class="count">timed · scored</span>
+    </a>
+
+    <a class="toc-card" data-tint="4" href="./Consulting/#cases">
+      <span class="chip">04</span>
+      <h4>cases</h4>
+      <p>Full-length cases walked stage-by-stage: prompt → clarifying → structure → math → recommend.</p>
+      <span class="count">42 cases · Darden + Tuck</span>
+    </a>
+
+    <a class="toc-card" data-tint="5" href="./Consulting/#frameworks">
+      <span class="chip">05</span>
+      <h4>frameworks</h4>
+      <p>The eight bucket-sets by case type. When to pick each, what to force yourself to consider.</p>
+      <span class="count">8 frameworks</span>
+    </a>
+
+    <a class="toc-card" data-tint="6" href="./Consulting/#vocab">
+      <span class="chip">06</span>
+      <h4>vocab</h4>
+      <p>The full glossary with definitions, hints, and cross-links to cases that use each term.</p>
+      <span class="count">searchable · chaptered</span>
+    </a>
+
+    <a class="toc-card" data-tint="7" href="./Consulting/#formulas">
+      <span class="chip">07</span>
+      <h4>formulas</h4>
+      <p>CAGR, NPV, breakeven, margin vs markup — with when-to-use notes and a PDF download.</p>
+      <span class="count">cheat sheet</span>
+    </a>
+
+    <a class="toc-card is-new" data-tint="8" href="./Consulting/#examples">
+      <span class="chip">08</span>
+      <h4>examples</h4>
+      <p>Worked walkthroughs: framework pick → assumptions → steps → answer → sanity check → traps. Every step annotated.</p>
+      <span class="count">6 examples · fully annotated</span>
+    </a>
+
+    <a class="toc-card" data-tint="9" href="./Consulting/#resources">
+      <span class="chip">09</span>
+      <h4>resources</h4>
+      <p>Voice mock interviews, AI tutor chat, analytics, PDF exports, source casebooks.</p>
+      <span class="count">tools + references</span>
+    </a>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat"><span class="n">42</span><span class="l">cases</span></div>
+    <div class="stat"><span class="n">80+</span><span class="l">vocab</span></div>
+    <div class="stat"><span class="n">8</span><span class="l">frameworks</span></div>
+    <div class="stat"><span class="n">17</span><span class="l">math drills</span></div>
+    <div class="stat"><span class="n">6</span><span class="l">worked ex.</span></div>
+    <div class="stat"><span class="n">AI</span><span class="l">voice tutor</span></div>
+  </div>
 
   <div class="footer">
     <a href="https://github.com/rohanmalhotra0/lab">github repo</a>

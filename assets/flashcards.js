@@ -254,7 +254,7 @@
       if (undoBtn)    undoBtn.addEventListener("click",    (e) => { e.stopPropagation(); this.actUndo(); });
       if (knewBtn)    knewBtn.addEventListener("click",    (e) => { e.stopPropagation(); this.actKnew(); });
       if (missedBtn)  missedBtn.addEventListener("click",  (e) => { e.stopPropagation(); this.actMissed(); });
-      if (shuffleBtn) shuffleBtn.addEventListener("click", () => this.startRun());
+      if (shuffleBtn) shuffleBtn.addEventListener("click", () => this.actShuffleQueue());
       if (retryBtn)   retryBtn.addEventListener("click",   () => this.retryMissed());
       if (newRunBtn)  newRunBtn.addEventListener("click",  () => this.startRun());
       if (hintToggle) hintToggle.addEventListener("click", (e) => { e.stopPropagation(); this.toggleHint(); });
@@ -278,6 +278,8 @@
         if (e.target.matches("input, textarea")) return;
         if (this.active?.phase === "done") return;
         if (e.code === "Space") { e.preventDefault(); this.flip(); }
+        else if (e.key === "ArrowRight") { e.preventDefault(); this.actSkip(); }
+        else if (e.key === "ArrowLeft")  { e.preventDefault(); this.actUndo(); }
         else if (e.key === "k" || e.key === "K") this.actKnew();
         else if (e.key === "d" || e.key === "D") this.actMissed();
         else if (e.key === "u" || e.key === "U") this.actUndo();
@@ -407,9 +409,41 @@
       this.render();
     }
 
+    actSkip(){
+      const s = this.active; if (!s || s.phase === "done") return;
+      if (s.queue.length < 2) return;
+      const card = s.queue.shift();
+      const insertAt = Math.min(s.queue.length, 3 + Math.floor(Math.random() * 3));
+      s.queue.splice(insertAt, 0, card);
+      s.history.push({ card, action: "skipped", insertAt });
+      s.hintShown = false;
+      this.render();
+    }
+
+    actShuffleQueue(){
+      const s = this.active; if (!s) return;
+      if (s.phase === "done") { this.startRun(); return; }
+      for (let i = s.queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [s.queue[i], s.queue[j]] = [s.queue[j], s.queue[i]];
+      }
+      s.hintShown = false;
+      this.render();
+    }
+
     actUndo(){
       const s = this.active; if (!s) return;
       const last = s.history.pop(); if (!last) return;
+      if (last.action === "skipped") {
+        const insertedAt = last.insertAt ?? 0;
+        const idx = s.queue.findIndex((c, i) => c === last.card && i >= Math.max(0, insertedAt - 1));
+        if (idx >= 0) s.queue.splice(idx, 1);
+        s.queue.unshift(last.card);
+        s.phase = "active";
+        s.hintShown = false;
+        this.render();
+        return;
+      }
       const key = this.wkey(last.card);
       if (last.action === "knew") {
         s.queue.unshift(last.card);

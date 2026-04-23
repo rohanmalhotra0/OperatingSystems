@@ -44,7 +44,7 @@ function loadTab(tabId) {
   // bindings that are NOT properties of globalThis (the sandbox). Append a
   // footer that copies the ones we care about onto a known global property
   // — the footer runs in the same script's lexical scope, so it can see them.
-  const KEYS = ["CARDS","CASES","FORMULAS","FRAMEWORKS","ESSAYS","DECKS","MODULES","QUIZZES","SCENARIOS"];
+  const KEYS = ["CARDS","CASES","FORMULAS","FRAMEWORKS","ESSAYS","DECKS","MODULES","QUIZZES","SCENARIOS","WORKED_EXAMPLES"];
   const footer = `
 ;try {
   const __out = {};
@@ -103,6 +103,10 @@ function summarizeForPrompt(tabId) {
   if (pack.ESSAYS?.length) {
     parts.push(`ESSAY PROMPTS (${pack.ESSAYS.length}): ${pack.ESSAYS.map(e => (e.q || "").slice(0, 60)).join(" | ")}`);
   }
+  if (pack.WORKED_EXAMPLES?.length) {
+    const lines = pack.WORKED_EXAMPLES.map(w => `  [${w.type}] ${w.title}`);
+    parts.push(`WORKED EXAMPLES (${pack.WORKED_EXAMPLES.length}):\n${lines.join("\n")}`);
+  }
   return parts.join("\n\n");
 }
 
@@ -146,7 +150,33 @@ function lookupDetail(tabId, query) {
       }
     });
   }
+  if (pack.WORKED_EXAMPLES) {
+    pack.WORKED_EXAMPLES.forEach(w => {
+      const title = (w.title || "").toLowerCase();
+      if (title.includes(q) || String(w.id) === q) {
+        chunks.push(formatWorkedExample(w));
+      }
+    });
+  }
   return chunks.length ? chunks.join("\n\n") : null;
+}
+
+function formatWorkedExample(w) {
+  const lines = [`WORKED EXAMPLE [${w.type}] ${w.title}`];
+  if (w.lede) lines.push(`  Lede: ${w.lede}`);
+  if (w.framework) lines.push(`  Framework picked: ${w.framework.picked} — WHY: ${w.framework.why}`);
+  if (w.assumptions?.length) {
+    lines.push(`  Assumptions:`);
+    w.assumptions.forEach(a => lines.push(`    · ${a.claim}  (why: ${a.why})`));
+  }
+  if (w.steps?.length) {
+    lines.push(`  Steps:`);
+    w.steps.forEach((s, i) => lines.push(`    ${i+1}. ${s.label}: ${s.math}${s.why ? `  — why: ${s.why}` : ""}`));
+  }
+  if (w.answer) lines.push(`  Answer: ${w.answer}`);
+  if (w.sanityCheck) lines.push(`  Sanity check: ${w.sanityCheck}`);
+  if (w.traps?.length) lines.push(`  Traps: ${w.traps.join(" | ")}`);
+  return lines.join("\n");
 }
 
 function formatCase(c) {
@@ -164,4 +194,4 @@ function formatCase(c) {
   return lines.join("\n");
 }
 
-module.exports = { loadTab, summarizeForPrompt, lookupDetail, formatCase };
+module.exports = { loadTab, summarizeForPrompt, lookupDetail, formatCase, formatWorkedExample };
