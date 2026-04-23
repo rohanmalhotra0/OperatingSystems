@@ -1207,9 +1207,13 @@ h2.pencil::after{
 .fw-head{
   all: unset;
   cursor: pointer;
-  display: flex; gap: 12px; align-items: center;
-  padding: 14px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  padding: 12px 18px;
   width: 100%;
+  box-sizing: border-box;
 }
 .fw-num{
   font-family:'Architects Daughter', cursive;
@@ -1219,8 +1223,18 @@ h2.pencil::after{
 .fw-name{
   font-family:'Caveat', cursive;
   font-size: 26px;
-  flex: 1;
+  flex: 1 1 160px;
+  min-width: 0;
   line-height: 1.1;
+}
+.fw-actions{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .fw-toggle{
   font-family:'IBM Plex Mono', monospace;
