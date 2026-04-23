@@ -69,6 +69,7 @@ function renderAuth(user) {
       e.preventDefault();
       e.stopPropagation();
       await signOut();
+      location.replace("/");
     });
     chip.append(avatar, out);
   } else {
