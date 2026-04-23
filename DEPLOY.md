@@ -42,6 +42,9 @@ Visit <http://localhost:3000/Consulting/> — the floating **AI** button appears
 4. **Environment Variables** — add these for Production, Preview, and Development:
    - `OPENAI_KEY` = your new key
    - `OPENAI_MODEL` = `gpt-4o-mini` *(optional, defaults to this)*
+   - `RAPIDAPI_KEY` = key for the JSearch feed (Jobs tab) — see §5 below
+   - `SUPABASE_URL` = your Supabase project URL (also used by the browser client)
+   - `SUPABASE_SERVICE_ROLE_KEY` = server-only key; bypasses RLS so `/api/jobs` can write its cache row
 5. Click **Deploy**.
 
 ### Option B — Vercel CLI
@@ -106,3 +109,27 @@ Switch modes via the pill bar in either the widget or the full page.
 **AI answers feel generic in a tab** — the server can only ground the answer if `Consulting/content.js` (or equivalent) is bundled. `vercel.json` already lists the files; if you add a new tab, add its path to `functions["api/chat.js"].includeFiles`.
 
 **Sessions disappeared** — `localStorage` is per-origin. Opening the site on a different domain or in incognito gives you a fresh store.
+
+---
+
+## 7. Jobs tab (live consulting postings)
+
+The `Consulting/` subsite has a Jobs tab that pulls recent consulting postings from the JSearch feed on RapidAPI (aggregates LinkedIn, Indeed, Google Jobs, ZipRecruiter). The endpoint `/api/jobs` refreshes at most once every 12 hours — the first request after the window triggers the refresh, everyone else is served from a Supabase cache row.
+
+### Setup
+
+1. **Get a RapidAPI key.** Sign up at <https://rapidapi.com/>, subscribe to **JSearch** (Letscrape): <https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch>. Free tier = 150 requests/month (plenty — we use ~60/mo at a 12h cadence plus a daily cron).
+2. **Add the key to Vercel env:** `RAPIDAPI_KEY`.
+3. **Supabase env** (used by the server function to cache the payload):
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY` — this is a **server-only** key, never expose it to the browser.
+4. **Apply the cache migration:**
+   ```bash
+   supabase db push           # if using the Supabase CLI, or
+   psql $SUPABASE_DB_URL -f supabase/migrations/20260423_jobs_cache.sql
+   ```
+5. **Cron** — `vercel.json` registers a daily 06:00 UTC ping to `/api/jobs` so users don't wait on the cold refresh. Vercel Hobby plans cap crons at 1/day; the lazy-refresh in the endpoint covers the other refresh window.
+
+### Fallback behavior
+
+If JSearch is rate-limited or errors out, the endpoint serves the last cached snapshot with a `stale: true` flag, and the UI shows a small "cached snapshot" note. If `RAPIDAPI_KEY` is missing entirely, the endpoint returns `501` with a clear error that renders in the tab.

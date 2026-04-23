@@ -34,6 +34,7 @@
   <button class="tab" data-target="formulas">07 · Formulas</button>
   <button class="tab" data-target="examples">08 · Examples</button>
   <button class="tab" data-target="resources">09 · Resources</button>
+  <button class="tab" data-target="jobs">10 · Jobs</button>
   <button class="tab" data-target="home" onclick="location.href='../index.html';return false">↩ home</button>
 </nav>
 
@@ -100,11 +101,12 @@
 <section class="sheet" id="learn">
   <div class="sheet-margin">
     <h2 class="pencil">Learn</h2>
-    <p class="kicker">Two modes: <strong>vocab MC</strong> drills terms, formulas, and concepts. <strong>math drills</strong> gives you a timed single-problem practice (market sizing, breakeven, CAGR, margin, profit) — exactly what an interviewer hands you mid-case.</p>
+    <p class="kicker">Three modes: <strong>vocab MC</strong> drills terms and concepts. <strong>math drills</strong> is timed single-problem case math (sizing, breakeven, CAGR, margin). <strong>mental math</strong> is rapid-fire arithmetic — the raw speed you need so the math isn't what trips you up mid-case.</p>
 
     <div class="learn-mode-switch">
       <button class="mode-btn mode-btn--on" data-lmode="mc">vocab MC</button>
       <button class="mode-btn" data-lmode="math">math drills</button>
+      <button class="mode-btn" data-lmode="mm">mental math</button>
     </div>
 
     <!-- ============ MODE: VOCAB MC ============ -->
@@ -180,6 +182,65 @@
           <div class="md-nav">
             <button class="mini-btn" id="md-next" style="display:none">next drill &rarr;</button>
             <button class="mini-btn md-ghost" id="md-back">back to picker</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ MODE: MENTAL MATH ============ -->
+    <div id="learn-mm-mode" style="display:none">
+      <div id="mm-picker">
+        <div class="mm-picker-row">
+          <div class="mm-picker-h">category</div>
+          <div class="deck-bar" id="mm-cat-bar"></div>
+        </div>
+        <div class="mm-picker-row">
+          <div class="mm-picker-h">round length</div>
+          <div class="deck-bar" id="mm-len-bar"></div>
+        </div>
+        <button class="mini-btn" id="mm-start-btn" style="margin-top:6px">start round &rarr;</button>
+        <p class="mm-picker-lede">Rapid-fire arithmetic — type the answer and hit <kbd>Enter</kbd>. Problems auto-advance on correct; wrong answers flash the solution for a beat and move on. Aim for &lt; 5s/problem — that's the speed you need when an interviewer is watching.</p>
+      </div>
+
+      <div id="mm-session" style="display:none">
+        <div class="md-head mm-head">
+          <span class="md-type-badge" id="mm-cat-badge"></span>
+          <span class="mm-score">
+            <span class="mm-score-ok" id="mm-score-ok">0</span>
+            <span class="mm-score-sep">/</span>
+            <span class="mm-score-total" id="mm-score-total">0</span>
+            <span class="mm-score-q" id="mm-score-q">Q 1 / 10</span>
+          </span>
+          <span class="md-timer" id="mm-timer">0.0s</span>
+        </div>
+
+        <div class="check-box md-box">
+          <p class="md-prompt mm-prompt" id="mm-prompt"></p>
+
+          <div class="md-answer-row">
+            <input type="number" step="any" class="md-input" id="mm-input" placeholder="your answer" autocomplete="off" inputmode="decimal">
+            <span class="md-unit" id="mm-unit"></span>
+          </div>
+
+          <div class="md-actions">
+            <button class="mini-btn" id="mm-submit">submit</button>
+            <button class="mini-btn md-ghost" id="mm-skip">skip</button>
+            <button class="mini-btn md-ghost" id="mm-end">end round</button>
+          </div>
+
+          <div class="md-feedback mm-feedback" id="mm-feedback"></div>
+        </div>
+      </div>
+
+      <div id="mm-done" style="display:none">
+        <div class="fc-done">
+          <div class="fc-done-icon">✓</div>
+          <div class="fc-done-title">round complete</div>
+          <div class="fc-done-stats" id="mm-done-stats"></div>
+          <div class="mm-breakdown" id="mm-breakdown"></div>
+          <div class="fc-done-actions">
+            <button class="mini-btn mini-btn--ok" id="mm-again">run it again</button>
+            <button class="mini-btn" id="mm-back">back to picker</button>
           </div>
         </div>
       </div>
@@ -630,6 +691,23 @@
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- ================= JOBS ================= -->
+<section class="sheet" id="jobs">
+  <div class="sheet-margin">
+    <h2 class="pencil">Jobs — live consulting postings</h2>
+    <p class="kicker">Aggregated from LinkedIn, Indeed, Google Jobs, and ZipRecruiter via the JSearch API. Feed auto-refreshes every 12 hours — the first visitor after the window triggers the refresh, everyone else gets the cached snapshot. Click a card to open the original posting on the source site.</p>
+
+    <div class="jobs-toolbar" id="jobs-toolbar">
+      <span class="jobs-meta" id="jobs-meta">loading latest postings…</span>
+      <button class="mini-btn" id="jobs-refresh" type="button" title="reload the feed">↻ reload</button>
+    </div>
+
+    <div class="jobs-list" id="jobs-list">
+      <div class="jobs-empty">fetching latest postings…</div>
+    </div>
   </div>
 </section>
 

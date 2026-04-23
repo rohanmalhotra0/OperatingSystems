@@ -2309,6 +2309,117 @@ h2.pencil::after{
   border-top: 1px dashed var(--pencil);
 }
 
+/* ============== mental math (Learn mode 3) ============== */
+.mm-picker-row{
+  margin-bottom: 12px;
+}
+.mm-picker-h{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pencil);
+  margin-bottom: 4px;
+}
+.mm-picker-lede{
+  font-family:'Spectral', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--pencil);
+  line-height: 1.55;
+  margin: 14px 0 0;
+  max-width: 640px;
+}
+.mm-picker-lede kbd{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  font-style: normal;
+  background: var(--paper-dark);
+  border: 1px solid var(--pencil);
+  border-radius: 3px;
+  padding: 1px 6px;
+  color: var(--ink);
+}
+
+.mm-head{
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mm-prompt{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  padding: 18px 6px 10px;
+  color: var(--ink);
+}
+
+.mm-score{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--pencil);
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.mm-score-ok{
+  color: var(--olive);
+  font-weight: 700;
+  font-size: 17px;
+}
+.mm-score-sep{ color: var(--pencil); }
+.mm-score-total{
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 17px;
+}
+.mm-score-q{
+  margin-left: 10px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.mm-feedback{
+  min-height: 28px;
+  font-size: 19px;
+}
+
+.mm-breakdown{
+  margin: 18px auto 4px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--pencil);
+  max-width: 460px;
+  text-align: left;
+}
+.mm-bd-head{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pencil);
+  margin-bottom: 6px;
+}
+.mm-bd-row{
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 10px;
+  padding: 5px 0;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12.5px;
+  border-bottom: 1px dashed rgba(0,0,0,0.12);
+}
+.mm-bd-row:last-child{ border-bottom: none; }
+.mm-bd-cat{
+  font-weight: 600;
+  color: var(--ink);
+}
+.mm-bd-val{
+  color: var(--pencil);
+  text-align: right;
+}
+
 /* =========================================================
    WORKED EXAMPLES — accordion of worked walkthroughs
    Visual style: paper card w/ a torn-edge header; "why"
@@ -2667,4 +2778,120 @@ h2.pencil::after{
 .wx-tag--f{
   border-color: var(--red);
   color: var(--red);
+}
+
+/* =========================================================
+   JOBS — live consulting-postings grid
+   ========================================================= */
+.jobs-toolbar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 2px 12px;
+  border-bottom: 1px dashed var(--pencil);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.jobs-meta{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12.5px;
+  color: var(--pencil);
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+.jobs-meta strong{ color: var(--ink); }
+.jobs-stale{
+  color: var(--red);
+  font-style: italic;
+}
+.jobs-fetched{ opacity: 0.75; }
+
+.jobs-list{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+.jobs-empty{
+  grid-column: 1 / -1;
+  font-family:'Spectral', serif;
+  font-style: italic;
+  color: var(--pencil);
+  text-align: center;
+  padding: 42px 14px;
+  border: 1.5px dashed var(--pencil);
+  background: var(--paper-dark);
+}
+.jobs-error{ color: var(--red); font-style: normal; }
+
+.job-card{
+  display: block;
+  padding: 14px 14px 12px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+}
+.job-card:hover,
+.job-card:focus-visible{
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--paper-dark);
+  outline: none;
+}
+.job-title{
+  font-family:'Spectral', serif;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.job-firm{
+  font-family:'Caveat', cursive;
+  font-size: 20px;
+  color: var(--red);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.job-meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  color: var(--pencil);
+  margin-bottom: 6px;
+}
+.job-where{ font-weight: 500; }
+.jobs-badge{
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--pencil);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--paper-dark);
+  color: var(--pencil);
+}
+.jobs-badge--remote{
+  background: var(--tab-3);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.job-posted{
+  font-style: italic;
+  opacity: 0.85;
+}
+.jobs-pub{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pencil);
+  opacity: 0.75;
+  margin-top: 4px;
 }

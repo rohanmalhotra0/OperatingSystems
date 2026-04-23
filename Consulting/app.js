@@ -378,19 +378,17 @@ function backToDrillPicker(){
 }
 
 function setLearnMode(mode){
-  const mc = document.getElementById("learn-mc-mode");
+  const mc   = document.getElementById("learn-mc-mode");
   const math = document.getElementById("learn-math-mode");
+  const mm   = document.getElementById("learn-mm-mode");
   document.querySelectorAll(".learn-mode-switch .mode-btn").forEach(b => {
     b.classList.toggle("mode-btn--on", b.dataset.lmode === mode);
   });
-  if (mode === "mc"){
-    mc.style.display  = "block";
-    math.style.display = "none";
-    if (mdTimer){ clearInterval(mdTimer); mdTimer = null; }
-  } else {
-    mc.style.display  = "none";
-    math.style.display = "block";
-  }
+  mc.style.display   = mode === "mc"   ? "block" : "none";
+  math.style.display = mode === "math" ? "block" : "none";
+  if (mm) mm.style.display = mode === "mm" ? "block" : "none";
+  if (mode !== "math" && mdTimer){ clearInterval(mdTimer); mdTimer = null; }
+  if (mode !== "mm" && typeof stopMmTimer === "function") stopMmTimer();
 }
 
 buildMdTypeBar();
@@ -407,6 +405,429 @@ document.getElementById("md-input").addEventListener("keydown", e => {
   if (e.key === "Enter" && !document.getElementById("md-check").disabled){
     e.preventDefault();
     checkDrill();
+  }
+});
+
+/* =========================================================
+   MENTAL MATH — rapid-fire arithmetic round (Learn mode 3)
+   Generators for multiplication, division, percentages,
+   fractions↔%, and scale/unit conversions. Auto-advancing
+   round with per-question timing and end-of-round breakdown.
+   ========================================================= */
+const MM_CATS = [
+  { id: "mix",   label: "Mixed" },
+  { id: "mult",  label: "Multiplication" },
+  { id: "div",   label: "Division" },
+  { id: "pct",   label: "Percentages" },
+  { id: "frac",  label: "Fractions ↔ %" },
+  { id: "scale", label: "Scale / Units" },
+];
+const MM_LENGTHS = [10, 20, 30];
+
+let mmCat = "mix";
+let mmLen = 10;
+let mmQueue = [];
+let mmIdx = 0;
+let mmOk = 0;
+let mmStartTime = 0;
+let mmQStartTime = 0;
+let mmTimerRaf = null;
+let mmTimes = [];
+let mmBreakdown = {};
+let mmLocked = false;
+let mmSession = 0;
+
+function mmRnd(lo, hi){ return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+function mmPick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+function mmGenMult(){
+  const mode = mmPick(["2x2", "3x1", "roundx2"]);
+  let a, b;
+  if (mode === "2x2"){
+    a = mmRnd(12, 29); b = mmRnd(12, 29);
+  } else if (mode === "3x1"){
+    a = mmRnd(110, 899); b = mmRnd(3, 9);
+  } else {
+    a = mmPick([20, 25, 40, 50, 75, 80, 120, 150, 250]);
+    b = mmRnd(12, 48);
+  }
+  return {
+    prompt: `${a} × ${b}`, unit: "",
+    answer: a * b, tolPct: 0, cat: "mult",
+    explain: `${a} × ${b} = ${a * b}`
+  };
+}
+
+function mmGenDiv(){
+  const q = mmRnd(11, 89);
+  const k = mmPick([4, 5, 6, 7, 8, 9, 11, 12, 15, 16, 20, 25]);
+  const N = k * q;
+  return {
+    prompt: `${N} ÷ ${k}`, unit: "",
+    answer: q, tolPct: 0, cat: "div",
+    explain: `${N} ÷ ${k} = ${q}`
+  };
+}
+
+function mmGenPct(){
+  const kind = mmPick(["ofY", "whatPct", "growth"]);
+  if (kind === "ofY"){
+    const pct = mmPick([5, 10, 15, 20, 25, 30, 40, 50, 60, 75]);
+    const y = mmPick([200, 400, 500, 800, 1000, 1200, 2000, 2400, 5000]);
+    const ans = (pct * y) / 100;
+    return {
+      prompt: `${pct}% of ${y}`, unit: "",
+      answer: ans, tolPct: 0, cat: "pct",
+      explain: `${pct}% × ${y} = ${ans}`
+    };
+  }
+  if (kind === "whatPct"){
+    const denom = mmPick([100, 200, 400, 500, 800, 1000]);
+    const factor = mmPick([0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.60, 0.75]);
+    const num = Math.round(denom * factor);
+    const ans = +((100 * num / denom).toFixed(2));
+    return {
+      prompt: `${num} is what % of ${denom}?`, unit: "%",
+      answer: ans, tolPct: 0.5, cat: "pct",
+      explain: `${num} / ${denom} = ${ans}%`
+    };
+  }
+  const pct = mmPick([10, 15, 20, 25, 30, 40, 50]);
+  const y = mmPick([40, 80, 120, 200, 400, 800]);
+  const dir = mmPick(["up", "down"]);
+  const ans = dir === "up" ? y * (1 + pct/100) : y * (1 - pct/100);
+  const factor = dir === "up" ? (1 + pct/100) : (1 - pct/100);
+  return {
+    prompt: dir === "up"
+      ? `${y} grows ${pct}%. New value?`
+      : `${y} falls ${pct}%. New value?`,
+    unit: "",
+    answer: ans, tolPct: 0, cat: "pct",
+    explain: `${y} × ${factor} = ${ans}`
+  };
+}
+
+function mmGenFrac(){
+  const pairs = [
+    { f: "1/2",  p: 50 },
+    { f: "1/3",  p: 33.33 },
+    { f: "2/3",  p: 66.67 },
+    { f: "1/4",  p: 25 },
+    { f: "3/4",  p: 75 },
+    { f: "1/5",  p: 20 },
+    { f: "2/5",  p: 40 },
+    { f: "3/5",  p: 60 },
+    { f: "4/5",  p: 80 },
+    { f: "1/6",  p: 16.67 },
+    { f: "5/6",  p: 83.33 },
+    { f: "1/8",  p: 12.5 },
+    { f: "3/8",  p: 37.5 },
+    { f: "5/8",  p: 62.5 },
+    { f: "7/8",  p: 87.5 },
+    { f: "1/10", p: 10 },
+    { f: "1/12", p: 8.33 },
+    { f: "1/16", p: 6.25 },
+  ];
+  const pr = mmPick(pairs);
+  const kind = mmPick(["fracToPct", "pctToDec"]);
+  if (kind === "fracToPct"){
+    return {
+      prompt: `${pr.f} as a %?`, unit: "%",
+      answer: pr.p, tolPct: 0.5, cat: "frac",
+      explain: `${pr.f} = ${pr.p}%`
+    };
+  }
+  const dec = +(pr.p / 100).toFixed(4);
+  return {
+    prompt: `${pr.p}% as a decimal?`, unit: "",
+    answer: dec, tolPct: 1, cat: "frac",
+    explain: `${pr.p}% = ${pr.f} = ${dec}`
+  };
+}
+
+function mmGenScale(){
+  const kind = mmPick(["BtoM", "MtoK", "unitsPrice", "rule72"]);
+  if (kind === "BtoM"){
+    const v = mmRnd(10, 48) / 10;
+    return {
+      prompt: `$${v}B = how many $M?`, unit: "$M",
+      answer: Math.round(v * 1000), tolPct: 0, cat: "scale",
+      explain: `$${v}B × 1,000 = $${Math.round(v * 1000)}M`
+    };
+  }
+  if (kind === "MtoK"){
+    const v = mmRnd(12, 98) * 10;
+    return {
+      prompt: `$${v}M = how many $K?`, unit: "$K",
+      answer: v * 1000, tolPct: 0, cat: "scale",
+      explain: `$${v}M × 1,000 = $${(v * 1000).toLocaleString()}K`
+    };
+  }
+  if (kind === "unitsPrice"){
+    const units = mmRnd(100, 950) * 1000;
+    const price = mmPick([5, 8, 10, 12, 15, 20, 25, 40, 50]);
+    const ansM = +(units * price / 1e6).toFixed(2);
+    return {
+      prompt: `${(units / 1000).toFixed(0)}K units × $${price}/unit = ? ($M)`,
+      unit: "$M",
+      answer: ansM, tolPct: 1, cat: "scale",
+      explain: `${units.toLocaleString()} × $${price} = $${(units * price).toLocaleString()} = $${ansM}M`
+    };
+  }
+  const r = mmPick([4, 6, 8, 9, 12, 18, 24]);
+  return {
+    prompt: `Rule of 72: ${r}%/yr growth → doubling time?`,
+    unit: "years",
+    answer: 72 / r, tolPct: 1, cat: "scale",
+    explain: `72 / ${r} = ${72 / r} years`
+  };
+}
+
+function mmGenOne(cat){
+  const real = cat === "mix"
+    ? mmPick(["mult", "div", "pct", "frac", "scale"])
+    : cat;
+  if (real === "mult")  return mmGenMult();
+  if (real === "div")   return mmGenDiv();
+  if (real === "pct")   return mmGenPct();
+  if (real === "frac")  return mmGenFrac();
+  return mmGenScale();
+}
+
+function buildMmPickers(){
+  const catBar = document.getElementById("mm-cat-bar");
+  const lenBar = document.getElementById("mm-len-bar");
+  if (!catBar || !lenBar) return;
+  catBar.innerHTML = "";
+  MM_CATS.forEach(c => {
+    const lbl = document.createElement("label");
+    lbl.className = "deck-chip";
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "mmcat"; inp.value = c.id;
+    if (c.id === mmCat) inp.checked = true;
+    inp.addEventListener("change", () => { mmCat = c.id; });
+    lbl.appendChild(inp);
+    lbl.appendChild(document.createTextNode(c.label));
+    catBar.appendChild(lbl);
+  });
+  lenBar.innerHTML = "";
+  MM_LENGTHS.forEach(n => {
+    const lbl = document.createElement("label");
+    lbl.className = "deck-chip";
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "mmlen"; inp.value = String(n);
+    if (n === mmLen) inp.checked = true;
+    inp.addEventListener("change", () => { mmLen = n; });
+    lbl.appendChild(inp);
+    lbl.appendChild(document.createTextNode(`${n} questions`));
+    lenBar.appendChild(lbl);
+  });
+}
+
+function startMm(){
+  mmSession += 1;
+  mmQueue = Array.from({ length: mmLen }, () => mmGenOne(mmCat));
+  mmIdx = 0;
+  mmOk = 0;
+  mmTimes = [];
+  mmBreakdown = {};
+  mmLocked = false;
+  mmStartTime = performance.now();
+
+  document.getElementById("mm-picker").style.display = "none";
+  document.getElementById("mm-done").style.display = "none";
+  document.getElementById("mm-session").style.display = "block";
+
+  document.getElementById("mm-score-ok").textContent = "0";
+  document.getElementById("mm-score-total").textContent = String(mmLen);
+
+  startMmTimer();
+  serveMm();
+}
+
+function startMmTimer(){
+  cancelAnimationFrame(mmTimerRaf);
+  const el = document.getElementById("mm-timer");
+  if (!el) return;
+  const tick = () => {
+    const t = (performance.now() - mmStartTime) / 1000;
+    el.textContent = `${t.toFixed(1)}s`;
+    mmTimerRaf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+function stopMmTimer(){
+  if (mmTimerRaf){ cancelAnimationFrame(mmTimerRaf); mmTimerRaf = null; }
+}
+
+function serveMm(){
+  const q = mmQueue[mmIdx];
+  mmLocked = false;
+  mmQStartTime = performance.now();
+
+  const catLabel = MM_CATS.find(c => c.id === q.cat)?.label || q.cat;
+  document.getElementById("mm-cat-badge").textContent = catLabel.toLowerCase();
+  document.getElementById("mm-prompt").textContent = q.prompt;
+  document.getElementById("mm-unit").textContent = q.unit;
+  document.getElementById("mm-score-q").textContent = `Q ${mmIdx + 1} / ${mmLen}`;
+
+  const input = document.getElementById("mm-input");
+  input.value = "";
+  input.disabled = false;
+
+  const fb = document.getElementById("mm-feedback");
+  fb.textContent = "";
+  fb.className = "md-feedback mm-feedback";
+
+  setTimeout(() => input.focus(), 30);
+}
+
+function mmRecord(cat, ok, ms){
+  if (!mmBreakdown[cat]) mmBreakdown[cat] = { ok: 0, total: 0, ms: [] };
+  mmBreakdown[cat].total += 1;
+  mmBreakdown[cat].ms.push(ms);
+  if (ok) mmBreakdown[cat].ok += 1;
+}
+
+function submitMm(){
+  if (mmLocked) return;
+  const q = mmQueue[mmIdx];
+  const raw = document.getElementById("mm-input").value.trim();
+  const val = parseFloat(raw);
+  const fb = document.getElementById("mm-feedback");
+
+  if (raw === "" || Number.isNaN(val)){
+    fb.textContent = "type a number first — or hit skip.";
+    fb.className = "md-feedback mm-feedback warn";
+    return;
+  }
+
+  const ms = performance.now() - mmQStartTime;
+  mmTimes.push(ms);
+
+  const tol = Math.max(
+    q.tolPct ? Math.abs(q.answer) * q.tolPct / 100 : 0,
+    0.005
+  );
+  const ok = Math.abs(val - q.answer) <= tol;
+
+  mmRecord(q.cat, ok, ms);
+  mmLocked = true;
+
+  if (ok){
+    mmOk += 1;
+    fb.textContent = `✓ ${q.explain}`;
+    fb.className = "md-feedback mm-feedback ok";
+  } else {
+    fb.textContent = `✗ was ${q.explain}`;
+    fb.className = "md-feedback mm-feedback bad";
+  }
+  document.getElementById("mm-score-ok").textContent = String(mmOk);
+  document.getElementById("mm-input").disabled = true;
+
+  const my = mmSession;
+  setTimeout(() => {
+    if (my !== mmSession) return;
+    advanceMm();
+  }, ok ? 600 : 1500);
+}
+
+function skipMm(){
+  if (mmLocked) return;
+  const q = mmQueue[mmIdx];
+  const ms = performance.now() - mmQStartTime;
+  mmTimes.push(ms);
+  mmRecord(q.cat, false, ms);
+
+  const fb = document.getElementById("mm-feedback");
+  fb.textContent = `↷ skipped — was ${q.explain}`;
+  fb.className = "md-feedback mm-feedback warn";
+  mmLocked = true;
+  document.getElementById("mm-input").disabled = true;
+
+  const my = mmSession;
+  setTimeout(() => {
+    if (my !== mmSession) return;
+    advanceMm();
+  }, 900);
+}
+
+function advanceMm(){
+  mmIdx += 1;
+  if (mmIdx >= mmQueue.length){ finishMm(); return; }
+  serveMm();
+}
+
+function mmFmtMs(ms){
+  const s = ms / 1000;
+  return s < 10 ? s.toFixed(1) + "s" : Math.round(s) + "s";
+}
+
+function finishMm(){
+  stopMmTimer();
+  const total = mmTimes.length;
+  const elapsed = (performance.now() - mmStartTime) / 1000;
+  const avg = total ? mmTimes.reduce((a, b) => a + b, 0) / total : 0;
+  const acc = total ? Math.round(100 * mmOk / total) : 0;
+
+  document.getElementById("mm-session").style.display = "none";
+  document.getElementById("mm-done").style.display = "block";
+
+  const stats = document.getElementById("mm-done-stats");
+  stats.innerHTML = total
+    ? `<strong>${mmOk}/${total}</strong> correct · ${acc}% accuracy · avg ${mmFmtMs(avg)}/q · ${elapsed.toFixed(1)}s total`
+    : "round ended with no questions answered.";
+
+  const bd = document.getElementById("mm-breakdown");
+  bd.innerHTML = "";
+  const rows = Object.entries(mmBreakdown);
+  if (rows.length <= 1){
+    bd.style.display = "none";
+  } else {
+    bd.style.display = "";
+    const head = document.createElement("div");
+    head.className = "mm-bd-head";
+    head.textContent = "by category";
+    bd.appendChild(head);
+    rows.forEach(([cat, r]) => {
+      const label = MM_CATS.find(c => c.id === cat)?.label || cat;
+      const rowAcc = Math.round(100 * r.ok / r.total);
+      const rowAvg = r.ms.reduce((a, b) => a + b, 0) / r.ms.length;
+      const row = document.createElement("div");
+      row.className = "mm-bd-row";
+      row.innerHTML =
+        `<span class="mm-bd-cat">${label}</span>` +
+        `<span class="mm-bd-val">${r.ok}/${r.total} · ${rowAcc}%</span>` +
+        `<span class="mm-bd-val">${mmFmtMs(rowAvg)}/q</span>`;
+      bd.appendChild(row);
+    });
+  }
+}
+
+function backToMmPicker(){
+  mmSession += 1;
+  stopMmTimer();
+  document.getElementById("mm-session").style.display = "none";
+  document.getElementById("mm-done").style.display = "none";
+  document.getElementById("mm-picker").style.display = "block";
+}
+
+buildMmPickers();
+document.getElementById("mm-start-btn")?.addEventListener("click", startMm);
+document.getElementById("mm-submit")?.addEventListener("click", submitMm);
+document.getElementById("mm-skip")?.addEventListener("click", skipMm);
+document.getElementById("mm-end")?.addEventListener("click", () => {
+  mmSession += 1;
+  stopMmTimer();
+  finishMm();
+});
+document.getElementById("mm-again")?.addEventListener("click", startMm);
+document.getElementById("mm-back")?.addEventListener("click", backToMmPicker);
+document.getElementById("mm-input")?.addEventListener("keydown", e => {
+  if (e.key === "Enter"){
+    e.preventDefault();
+    if (!mmLocked) submitMm();
   }
 });
 
@@ -1507,3 +1928,128 @@ if (cheatBtn) {
     setTimeout(() => { document.title = prevTitle; }, 500);
   });
 }
+
+/* =========================================================
+   JOBS — live consulting postings (via /api/jobs)
+   The serverless endpoint handles the 12-hour refresh cadence
+   and caching. The client just fetches once when the tab is
+   opened, and on explicit reload.
+   ========================================================= */
+let jobsLoaded = false;
+let jobsLoading = false;
+
+function jobsEsc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function jobsFmtPosted(iso){
+  if (!iso) return "";
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const days = Math.max(0, Math.round((Date.now() - then) / 86400000));
+  if (days === 0) return "today";
+  if (days === 1) return "1 day ago";
+  if (days < 7)   return `${days} days ago`;
+  if (days < 14)  return "1 week ago";
+  if (days < 30)  return `${Math.floor(days / 7)} weeks ago`;
+  return `${Math.floor(days / 30)} mo ago`;
+}
+
+function jobsFmtAge(fetchedAt){
+  if (!fetchedAt) return "";
+  const ms = Date.now() - new Date(fetchedAt).getTime();
+  const mins = Math.max(0, Math.round(ms / 60000));
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24)  return `${hrs}h ago`;
+  return `${Math.round(hrs / 24)}d ago`;
+}
+
+function renderJobs(payload){
+  const list = document.getElementById("jobs-list");
+  const meta = document.getElementById("jobs-meta");
+  if (!list || !meta) return;
+  const { jobs = [], fetched_at, stale, error, warning } = payload || {};
+
+  if (error){
+    list.innerHTML = `<div class="jobs-empty jobs-error">${jobsEsc(error)}</div>`;
+    meta.textContent = "feed unavailable";
+    return;
+  }
+  if (!jobs.length){
+    list.innerHTML = `<div class="jobs-empty">no consulting postings in the last 7 days — check back later.</div>`;
+    meta.textContent = fetched_at ? `refreshed ${jobsFmtAge(fetched_at)}` : "";
+    return;
+  }
+
+  const bits = [`<strong>${jobs.length}</strong> postings`];
+  if (stale) bits.push(`<span class="jobs-stale">· cached snapshot</span>`);
+  if (warning) bits.push(`<span class="jobs-stale">· ${jobsEsc(warning)}</span>`);
+  bits.push(`<span class="jobs-fetched">· refreshed ${jobsFmtAge(fetched_at)}</span>`);
+  meta.innerHTML = bits.join(" ");
+
+  list.innerHTML = jobs.map(j => {
+    const where = [j.city, j.region, j.country].filter(Boolean).join(", ");
+    const remote = j.remote
+      ? `<span class="jobs-badge jobs-badge--remote">remote</span>`
+      : "";
+    const type = j.type
+      ? `<span class="jobs-badge">${jobsEsc(j.type.toLowerCase())}</span>`
+      : "";
+    const posted = j.posted
+      ? `<span class="job-posted">${jobsEsc(jobsFmtPosted(j.posted))}</span>`
+      : "";
+    const publisher = j.publisher
+      ? `<div class="jobs-pub">via ${jobsEsc(j.publisher)}</div>`
+      : "";
+    return `
+      <a class="job-card" href="${jobsEsc(j.url)}" target="_blank" rel="noopener">
+        <div class="job-title">${jobsEsc(j.title)}</div>
+        <div class="job-firm">${jobsEsc(j.firm || "—")}</div>
+        <div class="job-meta">
+          <span class="job-where">${jobsEsc(where || "location n/a")}</span>
+          ${remote}${type}${posted}
+        </div>
+        ${publisher}
+      </a>
+    `;
+  }).join("");
+}
+
+async function loadJobs(force){
+  if (jobsLoading) return;
+  if (jobsLoaded && !force) return;
+  jobsLoading = true;
+  const meta = document.getElementById("jobs-meta");
+  const list = document.getElementById("jobs-list");
+  if (meta) meta.textContent = force ? "refreshing…" : "fetching latest postings…";
+  if (list && force) list.innerHTML = `<div class="jobs-empty">refreshing…</div>`;
+  try {
+    const r = await fetch("/api/jobs", { cache: "no-store" });
+    const body = await r.json().catch(() => ({ error: "bad response" }));
+    if (!r.ok && !body?.jobs?.length){
+      renderJobs({ error: body?.error || `status ${r.status}` });
+    } else {
+      renderJobs(body);
+      jobsLoaded = true;
+    }
+  } catch (e){
+    renderJobs({ error: e.message || "network error" });
+  } finally {
+    jobsLoading = false;
+  }
+}
+
+tabs.forEach(t => {
+  if (t.dataset.target === "jobs"){
+    t.addEventListener("click", () => loadJobs(false));
+  }
+});
+window.addEventListener("hashchange", () => {
+  if (location.hash === "#jobs") loadJobs(false);
+});
+if (location.hash === "#jobs") loadJobs(false);
+
+document.getElementById("jobs-refresh")?.addEventListener("click", () => loadJobs(true));

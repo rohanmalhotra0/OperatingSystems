@@ -14,8 +14,14 @@
     },
     "api/tts.js": {
       "maxDuration": 30
+    },
+    "api/jobs.js": {
+      "maxDuration": 15
     }
   },
+  "crons": [
+    { "path": "/api/jobs", "schedule": "0 6 * * *" }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",

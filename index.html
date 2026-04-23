@@ -87,82 +87,6 @@
     font-style: italic;
     color: var(--red);
   }
-  .lede .scribble{
-    font-family:'Caveat',cursive;
-    font-size: 22px;
-    color: var(--pencil);
-    display:block;
-    margin-top: 10px;
-  }
-
-  /* Featured "start here" card */
-  .featured{
-    position: relative;
-    display: block;
-    background: var(--paper-soft);
-    border: 2px solid var(--ink);
-    box-shadow: 8px 8px 0 var(--ink);
-    padding: 30px 34px 32px;
-    margin-bottom: 56px;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.1s, box-shadow 0.1s;
-  }
-  .featured:hover{ transform: translate(-3px,-3px); box-shadow: 11px 11px 0 var(--ink); }
-  .featured:active{ transform: translate(2px,2px); box-shadow: 3px 3px 0 var(--ink); }
-  .featured .badge{
-    position: absolute;
-    top: -16px; left: 28px;
-    background: var(--red);
-    color: var(--paper);
-    font-family:'IBM Plex Mono',monospace;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    padding: 5px 14px;
-    border: 2px solid var(--ink);
-    text-transform: uppercase;
-    transform: rotate(-2deg);
-  }
-  .featured .ribbon-tab{
-    position: absolute;
-    top: -22px; right: 32px;
-    padding: 8px 20px 12px;
-    background: var(--tab-3);
-    border: 2px solid var(--ink);
-    border-bottom: none;
-    border-radius: 14px 16px 0 0 / 26px 24px 0 0;
-    font-family:'IBM Plex Mono',monospace;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
-  }
-  .featured h2{
-    font-family:'Architects Daughter',cursive;
-    font-size: 42px;
-    margin: 8px 0 10px;
-    line-height: 1;
-  }
-  .featured h2 .dot{ color: var(--red); }
-  .featured .featured-desc{
-    font-size: 16px;
-    line-height: 1.5;
-    max-width: 620px;
-    margin: 0 0 18px;
-  }
-  .featured .open{
-    display: inline-flex;
-    align-items: baseline;
-    gap: 10px;
-    font-family:'Caveat',cursive;
-    font-size: 28px;
-    color: var(--red);
-    border-bottom: 2px solid var(--red);
-    padding-bottom: 2px;
-    line-height: 1;
-  }
-  .featured .open .arr{ transition: transform 0.15s; }
-  .featured:hover .open .arr{ transform: translateX(4px); }
 
   /* Table of contents section */
   .toc-heading{
@@ -353,18 +277,7 @@
 
   <p class="lede">
     A full consulting casebook, repackaged as a single-page study tool — <em>42 cases, 8 frameworks, ~80 vocab cards, worked examples with every assumption spelled out.</em> Walk a case interview-style, drill market-sizing math against a timer, or run a voice mock with the AI tutor.
-    <span class="scribble">↓ new? start with the worked examples.</span>
   </p>
-
-  <a class="featured" href="./Consulting/#examples">
-    <span class="badge">start here</span>
-    <span class="ribbon-tab">08 · examples</span>
-    <h2>learn by example<span class="dot">.</span></h2>
-    <p class="featured-desc">
-      Six fully worked walkthroughs showing how the vocab and formulas actually compose on a live case — how to estimate the 2-14-year-old population, why CAGR instead of a simple average, how to decompose a profit decline. Every step has a <em style="color:var(--red);font-style:normal">why</em>.
-    </p>
-    <span class="open">open worked examples <span class="arr">→</span></span>
-  </a>
 
   <div class="toc-heading">
     <h3>table of contents</h3>
