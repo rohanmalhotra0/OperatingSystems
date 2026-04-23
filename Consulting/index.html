@@ -374,7 +374,11 @@
     <!-- ========== CHEAT SHEET ========== -->
     <div class="res-block">
       <h3 class="res-h3">One-page cheat sheet</h3>
-      <p class="res-lede">Print this. Tape it above your desk. Tab 07 has a printable version (⌘+P in print mode). Below is the web version of the same rubric.</p>
+      <p class="res-lede">Print this. Tape it above your desk. Below is the web version; the button gives you a clean landscape PDF for printing.</p>
+
+      <div class="cheat-actions">
+        <button class="mini-btn" id="cheat-download" type="button">⬇ download cheat sheet (PDF)</button>
+      </div>
 
       <div class="cheat-grid">
         <div class="cheat-card">
@@ -563,8 +567,117 @@
 
 </main>
 
+<!-- ================= PRINTABLE CHEAT SHEET (hidden on screen, visible only on print / PDF export) ================= -->
+<div id="cheat-printable" aria-hidden="true">
+  <div class="cs-page">
+    <div class="cs-title">darden.lab · case-interview cheat sheet</div>
+    <div class="cs-sub2">one-page · landscape · build the framework before you solve the math</div>
+
+    <div class="cs-col">
+      <div class="cs-h">MECE check</div>
+      <div>Mutually Exclusive — buckets don't overlap.</div>
+      <div>Collectively Exhaustive — nothing important missing.</div>
+      <div>3–4 buckets ideal · 5 is a warning · 2 is lazy.</div>
+
+      <div class="cs-h">Profitability</div>
+      <div>Profit = Revenue − Cost</div>
+      <div class="cs-sub">Revenue</div>
+      <div>price × volume · segment by product / geo / customer</div>
+      <div class="cs-sub">Cost</div>
+      <div>fixed vs variable → COGS / SG&amp;A / overhead</div>
+      <div class="cs-sub">Rule out market first</div>
+      <div>industry shift vs firm-specific — check the market before digging into ops.</div>
+
+      <div class="cs-h">Market entry</div>
+      <div class="cs-sub">1. Market</div>
+      <div>size, growth, margins, competition</div>
+      <div class="cs-sub">2. Capability fit</div>
+      <div>can we win? distinctive strength?</div>
+      <div class="cs-sub">3. Economics</div>
+      <div>breakeven volume, time to breakeven, NPV</div>
+      <div class="cs-sub">4. Mode</div>
+      <div>build / buy / partner</div>
+
+      <div class="cs-h">M&amp;A</div>
+      <div class="cs-sub">Strategic rationale</div>
+      <div>why this, why now</div>
+      <div class="cs-sub">Target</div>
+      <div>standalone value, growth, quality of earnings</div>
+      <div class="cs-sub">Synergies</div>
+      <div>revenue (growth) + cost (consolidation)</div>
+      <div class="cs-sub">Risks</div>
+      <div>integration, regulatory, culture, customer concentration</div>
+
+      <div class="cs-h">New product / pricing</div>
+      <div class="cs-sub">Demand</div>
+      <div>who buys, what willingness to pay, substitutes</div>
+      <div class="cs-sub">Cost &amp; capacity</div>
+      <div>COGS, fixed to add, capacity constraints</div>
+      <div class="cs-sub">Price</div>
+      <div>cost-plus · competitor-match · value-based (anchor to willingness-to-pay)</div>
+      <div class="cs-sub">Launch</div>
+      <div>channel, positioning, cannibalization check</div>
+
+      <div class="cs-h">Math heuristics</div>
+      <div>US pop ≈ 330M · households ≈ 128M · avg 2.6</div>
+      <div>Life ≈ 78y · working years ≈ 45</div>
+      <div>Workday 8h · workweek 40h · workyear ≈ 2,000h</div>
+      <div>Breakeven = Fixed / (Price − Variable)</div>
+      <div>CAGR ≈ (end/start)^(1/n) − 1</div>
+      <div>Rule of 72: yrs to double ≈ 72 / r%</div>
+      <div>Margin = Profit / Revenue · Markup = Profit / Cost</div>
+
+      <div class="cs-h">Clarifying questions — opening</div>
+      <div>1. restate the prompt in your own words</div>
+      <div>2. ask 2–3 sharp Qs: time horizon, client goals, key metric</div>
+      <div>3. "Can I take a minute to structure?"</div>
+      <div>Ask for data once. Don't fish.</div>
+
+      <div class="cs-h">Recommendation (close strong)</div>
+      <div>1. Recommendation — one sentence, pick a side</div>
+      <div>2. Reasons — 2–3 from your analysis</div>
+      <div>3. Risks — what could derail it</div>
+      <div>4. Next steps — 30/60/90 days</div>
+      <div>Top-down · confident · no "maybe."</div>
+
+      <div class="cs-h">Red flags (reset now)</div>
+      <div>— talking &gt; 90s with no structure on paper</div>
+      <div>— math off by &gt; 10×</div>
+      <div>— 4+ clarifying Qs (they want you solving)</div>
+      <div>— the word "maybe" in your rec</div>
+
+      <div class="cs-h">First 60 seconds</div>
+      <div>1. write prompt verbatim</div>
+      <div>2. play it back in own words</div>
+      <div>3. 2–3 clarifying Qs</div>
+      <div>4. ask for a minute — USE it</div>
+      <div>5. present top-down: "three areas — A, B, C"</div>
+
+      <div class="cs-h">STAR — behavioral</div>
+      <div>S — 1 sentence setup</div>
+      <div>T — your role, what was at stake</div>
+      <div>A — what YOU did, 3–4 specific actions</div>
+      <div>R — numbers or clear lesson</div>
+      <div>Draft 6–8 stories: leadership · conflict · failure · analytical · impact · why consulting · why firm.</div>
+
+      <div class="cs-h">Common mistakes</div>
+      <div>— reciting a framework with no industry context</div>
+      <div>— math without units ($4.2M ≠ 4.2)</div>
+      <div>— ignoring the exhibit they handed you</div>
+      <div>— boiling the ocean in brainstorm (group your ideas)</div>
+      <div>— soft recommendation — pick a side</div>
+
+      <div class="cs-h">Day-of checklist</div>
+      <div>pen · notepad · water on desk · 1 browser window</div>
+      <div>stand up, say your name 3× to land your voice</div>
+      <div>smile on entry</div>
+      <div>freeze? "let me take 30s to reset"</div>
+      <div>ask a sharp Q at the end — about THEIR recent project</div>
+    </div>
+  </div>
+</div>
+
 <footer class="footer">
-  <span>darden 2024-25 · compiled from the casebook · &larr;/&rarr; arrow keys cycle tabs · build the framework before you solve the math</span>
   <div style="margin-top:6px">
     want to contribute? →
     <a href="https://github.com/rohanmalhotra0/OperatingSystems" style="color:var(--ink);border-bottom:1px solid var(--red);text-decoration:none;margin:0 4px">github repo</a>

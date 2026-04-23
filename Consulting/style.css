@@ -658,7 +658,8 @@ h2.pencil::after{
 @media print{
   @page { size: landscape; margin: 0; }
   body{ background: #fff !important; background-image: none !important; }
-  .masthead, .file-tabs, .footer, .sheet{ display: none !important; }
+  .masthead, .file-tabs, .footer, .sheet,
+  .cw-fab, .cw-panel, [class^="cw-"]{ display: none !important; }
   #cheat-printable{ display: block !important; }
   .cs-page{ page-break-after: always; }
   .cs-page:last-child{ page-break-after: auto; }
@@ -1945,3 +1946,13 @@ h2.pencil::after{
 }
 .src-extras-list li{ padding: 3px 0; }
 .src-extras-list strong{ color: var(--ink); }
+
+.cheat-actions{
+  display: flex;
+  gap: 10px;
+  margin: -6px 0 14px;
+}
+.cheat-actions .mini-btn{
+  background: var(--tab-3);
+  font-weight: 600;
+}
