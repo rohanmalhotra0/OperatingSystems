@@ -35,6 +35,7 @@
   <button class="tab" data-target="examples">08 · Examples</button>
   <button class="tab" data-target="resources">09 · Resources</button>
   <button class="tab" data-target="jobs">10 · Jobs</button>
+  <button class="tab" data-target="behaviorals">11 · Behaviorals</button>
   <button class="tab" data-target="home" onclick="location.href='../index.html';return false">↩ home</button>
 </nav>
 
@@ -707,6 +708,79 @@
 
     <div class="jobs-list" id="jobs-list">
       <div class="jobs-empty">fetching latest postings…</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BEHAVIORALS ================= -->
+<section class="sheet" id="behaviorals">
+  <div class="sheet-margin">
+    <h2 class="pencil">Behaviorals — your resume → STAR stories → answers</h2>
+    <p class="kicker">Paste your resume. The AI pulls out your experiences, you edit anything it got wrong, it turns each experience into a STAR story, and then produces spoken-style STAR answers to any of the common behavioral questions. Everything stays in your browser.</p>
+
+    <!-- Step 1: resume paste -->
+    <div class="beh-step">
+      <div class="beh-step-head">
+        <span class="beh-step-num">①</span>
+        <h3 class="beh-step-h">drop your resume</h3>
+      </div>
+      <p class="beh-hint">Plain text, bullets, whatever — paste from a PDF export or LinkedIn. The AI will structure it.</p>
+      <textarea id="beh-resume" class="beh-textarea" placeholder="Paste your resume here — name, experiences, projects, education, skills..."></textarea>
+      <div class="beh-actions">
+        <button id="beh-parse" class="mini-btn" type="button">parse with AI →</button>
+        <button id="beh-clear" class="mini-btn beh-btn-ghost" type="button">clear</button>
+        <span id="beh-parse-status" class="beh-status"></span>
+      </div>
+    </div>
+
+    <!-- Step 2: editable profile -->
+    <div class="beh-step" id="beh-profile-step" hidden>
+      <div class="beh-step-head">
+        <span class="beh-step-num">②</span>
+        <h3 class="beh-step-h">review &amp; edit your experience</h3>
+      </div>
+      <p class="beh-hint">Correct anything the AI got wrong. Add missing bullets. When it looks right, build stories.</p>
+      <div id="beh-profile"></div>
+      <div class="beh-actions">
+        <button id="beh-build" class="mini-btn" type="button">build STAR stories →</button>
+        <span id="beh-build-status" class="beh-status"></span>
+      </div>
+    </div>
+
+    <!-- Step 3: story library -->
+    <div class="beh-step" id="beh-stories-step" hidden>
+      <div class="beh-step-head">
+        <span class="beh-step-num">③</span>
+        <h3 class="beh-step-h">your stories</h3>
+      </div>
+      <p class="beh-hint">Edit any STAR field — the answer engine uses whatever is here. Each story is tagged so it can be auto-matched to the right question.</p>
+      <div id="beh-stories-list"></div>
+    </div>
+
+    <!-- Step 4: question → answer -->
+    <div class="beh-step" id="beh-question-step" hidden>
+      <div class="beh-step-head">
+        <span class="beh-step-num">④</span>
+        <h3 class="beh-step-h">answer a behavioral question</h3>
+      </div>
+      <p class="beh-hint">Pick a question. The AI picks the best-fitting story from yours and delivers it as a spoken-style STAR answer.</p>
+      <div class="beh-q-row">
+        <select id="beh-question" class="beh-select"></select>
+        <button id="beh-answer" class="mini-btn" type="button">generate answer →</button>
+      </div>
+      <div class="beh-custom-q">
+        <span class="beh-or">or try your own:</span>
+        <input id="beh-custom-q" class="beh-input" type="text" placeholder="Tell me about a time you…">
+      </div>
+      <span id="beh-answer-status" class="beh-status"></span>
+      <div id="beh-answer-out" hidden>
+        <div class="beh-used-story" id="beh-used-story"></div>
+        <div class="beh-answer-text" id="beh-answer-text"></div>
+        <div class="beh-actions">
+          <button id="beh-copy" class="mini-btn beh-btn-ghost" type="button">copy</button>
+          <button id="beh-regen" class="mini-btn beh-btn-ghost" type="button">regenerate</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>

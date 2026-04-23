@@ -2053,3 +2053,406 @@ window.addEventListener("hashchange", () => {
 if (location.hash === "#jobs") loadJobs(false);
 
 document.getElementById("jobs-refresh")?.addEventListener("click", () => loadJobs(true));
+
+
+// =====================================================================
+// BEHAVIORALS — resume → parsed profile → STAR stories → answers
+// =====================================================================
+
+const BEH_KEYS = {
+  resume:  "casen_beh_resume",
+  profile: "casen_beh_profile",
+  stories: "casen_beh_stories",
+};
+
+const BEH_QUESTIONS = [
+  { id: "leadership",     q: "Tell me about a time you led a team." },
+  { id: "failure",        q: "Tell me about a time you failed — and what you learned." },
+  { id: "conflict",       q: "Tell me about a time you had a conflict with a teammate." },
+  { id: "persuade",       q: "Tell me about a time you had to persuade someone." },
+  { id: "ambiguity",      q: "Tell me about a time you worked with ambiguous or incomplete information." },
+  { id: "prioritize",     q: "Tell me about a time you juggled competing priorities." },
+  { id: "above",          q: "Tell me about a time you went above and beyond." },
+  { id: "mistake",        q: "Tell me about a mistake you made and how you handled it." },
+  { id: "impact",         q: "Tell me about the biggest impact you've had." },
+  { id: "difficult",      q: "Tell me about a time you worked with a difficult person." },
+  { id: "learn_fast",     q: "Tell me about a time you had to learn something new quickly." },
+  { id: "influence",      q: "Tell me about a time you influenced without authority." },
+  { id: "analytical",     q: "Tell me about a complex analytical problem you solved." },
+  { id: "initiative",     q: "Tell me about a time you took initiative on something nobody asked you to do." },
+  { id: "why_consulting", q: "Why consulting?" },
+];
+
+let behProfile = null;
+let behStories = [];
+let behLastAnswer = null;
+let behBusy = false;
+
+function behEsc(s){
+  return String(s ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[ch]));
+}
+function behSave(key, val){
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+function behLoad(key, fallback){
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch { return fallback; }
+}
+function behStatus(elId, text, kind){
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = text || "";
+  el.className = "beh-status" + (kind ? " beh-status--" + kind : "");
+}
+function behSetBusy(on){
+  behBusy = !!on;
+  ["beh-parse","beh-build","beh-answer","beh-regen"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !!on;
+  });
+}
+
+async function behApi(action, payload){
+  const r = await fetch("/api/behaviorals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  const body = await r.json().catch(() => ({ error: "bad_response" }));
+  if (!r.ok) throw new Error(body?.message || body?.error || ("status " + r.status));
+  return body;
+}
+
+// ---- rendering: profile ----------------------------------------------------
+
+function renderBehProfile(){
+  const host = document.getElementById("beh-profile");
+  const step = document.getElementById("beh-profile-step");
+  if (!host || !step) return;
+  if (!behProfile){ step.hidden = true; return; }
+  step.hidden = false;
+
+  const p = behProfile;
+  const exps = Array.isArray(p.experiences) ? p.experiences : [];
+  const projs = Array.isArray(p.projects) ? p.projects : [];
+
+  const expHtml = exps.map((e, i) => `
+    <div class="beh-card" data-kind="exp" data-idx="${i}">
+      <div class="beh-card-head">
+        <input class="beh-inline beh-inline--role" data-field="role"    value="${behEsc(e.role||"")}" placeholder="role">
+        <span class="beh-at">@</span>
+        <input class="beh-inline beh-inline--co"   data-field="company" value="${behEsc(e.company||"")}" placeholder="company">
+        <span class="beh-when">
+          <input class="beh-inline beh-inline--date" data-field="start" value="${behEsc(e.start||"")}" placeholder="start">
+          <span class="beh-dash">—</span>
+          <input class="beh-inline beh-inline--date" data-field="end"   value="${behEsc(e.end||"")}" placeholder="end">
+        </span>
+        <button class="beh-x" data-act="rm-exp" title="remove">×</button>
+      </div>
+      <ul class="beh-bullets" data-role="bullets">
+        ${(e.bullets||[]).map(b => `<li><textarea class="beh-bullet" rows="2">${behEsc(b)}</textarea><button class="beh-x beh-x--small" data-act="rm-bullet" title="remove bullet">×</button></li>`).join("")}
+      </ul>
+      <button class="mini-btn beh-btn-ghost beh-add-bullet" data-act="add-bullet" type="button">+ bullet</button>
+    </div>
+  `).join("");
+
+  const projHtml = projs.map((pr, i) => `
+    <div class="beh-card" data-kind="proj" data-idx="${i}">
+      <div class="beh-card-head">
+        <input class="beh-inline beh-inline--role" data-field="title"   value="${behEsc(pr.title||"")}" placeholder="project title">
+        <span class="beh-at">·</span>
+        <input class="beh-inline beh-inline--co"   data-field="context" value="${behEsc(pr.context||"")}" placeholder="class / hackathon / personal">
+        <button class="beh-x" data-act="rm-proj" title="remove">×</button>
+      </div>
+      <ul class="beh-bullets" data-role="bullets">
+        ${(pr.bullets||[]).map(b => `<li><textarea class="beh-bullet" rows="2">${behEsc(b)}</textarea><button class="beh-x beh-x--small" data-act="rm-bullet" title="remove bullet">×</button></li>`).join("")}
+      </ul>
+      <button class="mini-btn beh-btn-ghost beh-add-bullet" data-act="add-bullet" type="button">+ bullet</button>
+    </div>
+  `).join("");
+
+  host.innerHTML = `
+    <div class="beh-id-row">
+      <label class="beh-id-label">name<input class="beh-inline" id="beh-name" value="${behEsc(p.name||"")}"></label>
+      <label class="beh-id-label">headline<input class="beh-inline beh-inline--wide" id="beh-headline" value="${behEsc(p.headline||"")}"></label>
+    </div>
+    <div class="beh-group">
+      <div class="beh-group-h">experiences <button class="mini-btn beh-btn-ghost" data-act="add-exp" type="button">+ add</button></div>
+      <div id="beh-exps">${expHtml || '<div class="beh-empty">no experiences parsed.</div>'}</div>
+    </div>
+    <div class="beh-group">
+      <div class="beh-group-h">projects <button class="mini-btn beh-btn-ghost" data-act="add-proj" type="button">+ add</button></div>
+      <div id="beh-projs">${projHtml || '<div class="beh-empty">no projects parsed.</div>'}</div>
+    </div>
+  `;
+  wireBehProfileEdits();
+}
+
+function readBehProfileFromDOM(){
+  if (!behProfile) return behProfile;
+  const p = { ...behProfile };
+  const nameEl = document.getElementById("beh-name");
+  const headEl = document.getElementById("beh-headline");
+  if (nameEl) p.name = nameEl.value;
+  if (headEl) p.headline = headEl.value;
+  const readCards = (selector, fields) => Array.from(document.querySelectorAll(selector)).map(card => {
+    const o = {};
+    fields.forEach(f => {
+      const el = card.querySelector(`[data-field="${f}"]`);
+      if (el) o[f] = el.value;
+    });
+    o.bullets = Array.from(card.querySelectorAll(".beh-bullet")).map(t => t.value).filter(s => s.trim());
+    return o;
+  });
+  p.experiences = readCards('#beh-exps .beh-card', ["role","company","start","end","location"]);
+  p.projects    = readCards('#beh-projs .beh-card', ["title","context"]);
+  return p;
+}
+
+function wireBehProfileEdits(){
+  const host = document.getElementById("beh-profile");
+  if (!host) return;
+  host.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    const act = btn.dataset.act;
+    behProfile = readBehProfileFromDOM();
+    if (act === "add-exp"){
+      behProfile.experiences = behProfile.experiences || [];
+      behProfile.experiences.push({ role:"", company:"", start:"", end:"", bullets:[""] });
+    } else if (act === "add-proj"){
+      behProfile.projects = behProfile.projects || [];
+      behProfile.projects.push({ title:"", context:"", bullets:[""] });
+    } else if (act === "rm-exp"){
+      const card = btn.closest(".beh-card");
+      const idx = +card.dataset.idx;
+      behProfile.experiences.splice(idx, 1);
+    } else if (act === "rm-proj"){
+      const card = btn.closest(".beh-card");
+      const idx = +card.dataset.idx;
+      behProfile.projects.splice(idx, 1);
+    } else if (act === "add-bullet"){
+      const card = btn.closest(".beh-card");
+      const idx  = +card.dataset.idx;
+      const arr  = card.dataset.kind === "exp" ? behProfile.experiences : behProfile.projects;
+      arr[idx].bullets = arr[idx].bullets || [];
+      arr[idx].bullets.push("");
+    } else if (act === "rm-bullet"){
+      const card = btn.closest(".beh-card");
+      const li   = btn.closest("li");
+      const bulletIdx = Array.from(card.querySelectorAll("li")).indexOf(li);
+      const idx  = +card.dataset.idx;
+      const arr  = card.dataset.kind === "exp" ? behProfile.experiences : behProfile.projects;
+      arr[idx].bullets.splice(bulletIdx, 1);
+    } else return;
+    behSave(BEH_KEYS.profile, behProfile);
+    renderBehProfile();
+  });
+  host.addEventListener("change", () => {
+    behProfile = readBehProfileFromDOM();
+    behSave(BEH_KEYS.profile, behProfile);
+  });
+}
+
+// ---- rendering: stories ----------------------------------------------------
+
+function renderBehStories(){
+  const host = document.getElementById("beh-stories-list");
+  const stepStories = document.getElementById("beh-stories-step");
+  const stepQuestion = document.getElementById("beh-question-step");
+  if (!host) return;
+
+  if (!behStories.length){
+    if (stepStories) stepStories.hidden = true;
+    if (stepQuestion) stepQuestion.hidden = true;
+    return;
+  }
+  if (stepStories) stepStories.hidden = false;
+  if (stepQuestion) stepQuestion.hidden = false;
+
+  host.innerHTML = behStories.map((s, i) => `
+    <div class="beh-story" data-idx="${i}">
+      <div class="beh-story-head">
+        <input class="beh-inline beh-inline--wide" data-field="title" value="${behEsc(s.title||"")}" placeholder="story title">
+        <button class="beh-x" data-act="rm-story" title="remove story">×</button>
+      </div>
+      <div class="beh-story-src">${behEsc(s.source||"")}</div>
+      <div class="beh-themes">${(s.themes||[]).map(t => `<span class="beh-theme">${behEsc(t)}</span>`).join("")}</div>
+      <div class="beh-star-grid">
+        <label><span class="beh-star-k">S · situation</span><textarea data-field="situation" rows="2">${behEsc(s.star?.situation||"")}</textarea></label>
+        <label><span class="beh-star-k">T · task</span><textarea data-field="task" rows="2">${behEsc(s.star?.task||"")}</textarea></label>
+        <label><span class="beh-star-k">A · action</span><textarea data-field="action" rows="4">${behEsc(s.star?.action||"")}</textarea></label>
+        <label><span class="beh-star-k">R · result</span><textarea data-field="result" rows="2">${behEsc(s.star?.result||"")}</textarea></label>
+      </div>
+    </div>
+  `).join("");
+
+  populateBehQuestionPicker();
+}
+
+function onBehStoryEdit(e){
+  const card = e.target.closest(".beh-story");
+  if (!card) return;
+  const idx = +card.dataset.idx;
+  const s = behStories[idx];
+  if (!s) return;
+  const field = e.target.dataset.field;
+  if (!field) return;
+  if (field === "title"){ s.title = e.target.value; }
+  else if (["situation","task","action","result"].includes(field)){
+    s.star = s.star || {};
+    s.star[field] = e.target.value;
+  }
+  behSave(BEH_KEYS.stories, behStories);
+}
+function onBehStoryClick(e){
+  const btn = e.target.closest("[data-act='rm-story']");
+  if (!btn) return;
+  const card = btn.closest(".beh-story");
+  const idx = +card.dataset.idx;
+  behStories.splice(idx, 1);
+  behSave(BEH_KEYS.stories, behStories);
+  renderBehStories();
+}
+
+function populateBehQuestionPicker(){
+  const sel = document.getElementById("beh-question");
+  if (!sel) return;
+  sel.innerHTML =
+    '<option value="">— pick a question —</option>' +
+    BEH_QUESTIONS.map(q => `<option value="${behEsc(q.q)}">${behEsc(q.q)}</option>`).join("");
+}
+
+// ---- answer rendering ------------------------------------------------------
+
+function renderBehAnswer(){
+  const out = document.getElementById("beh-answer-out");
+  const used = document.getElementById("beh-used-story");
+  const text = document.getElementById("beh-answer-text");
+  if (!out || !used || !text) return;
+  if (!behLastAnswer){ out.hidden = true; return; }
+  const story = behStories.find(s => s.id === behLastAnswer.picked_story_id);
+  used.innerHTML = story
+    ? `<span class="beh-used-label">using story:</span> <strong>${behEsc(story.title)}</strong> <span class="beh-story-src">${behEsc(story.source||"")}</span>`
+    : '<span class="beh-used-label">story not found — showing answer anyway.</span>';
+  text.innerHTML = behEsc(behLastAnswer.answer || "").split(/\n\n+/).map(p => `<p>${p}</p>`).join("");
+  out.hidden = false;
+}
+
+// ---- actions ---------------------------------------------------------------
+
+async function behParseResume(){
+  if (behBusy) return;
+  const ta = document.getElementById("beh-resume");
+  const resume = (ta?.value || "").trim();
+  if (!resume){ behStatus("beh-parse-status", "paste a resume first.", "err"); return; }
+  behSave(BEH_KEYS.resume, resume);
+  behSetBusy(true);
+  behStatus("beh-parse-status", "parsing with AI…", "info");
+  try {
+    const { profile } = await behApi("parse_resume", { resume });
+    behProfile = profile || {};
+    behSave(BEH_KEYS.profile, behProfile);
+    renderBehProfile();
+    behStatus("beh-parse-status", "parsed. review below ↓", "ok");
+  } catch (e){
+    behStatus("beh-parse-status", "parse failed: " + e.message, "err");
+  } finally {
+    behSetBusy(false);
+  }
+}
+
+async function behBuildStories(){
+  if (behBusy) return;
+  behProfile = readBehProfileFromDOM();
+  behSave(BEH_KEYS.profile, behProfile);
+  behSetBusy(true);
+  behStatus("beh-build-status", "building STAR stories…", "info");
+  try {
+    const { stories } = await behApi("build_stories", { profile: behProfile });
+    behStories = Array.isArray(stories) ? stories : [];
+    behSave(BEH_KEYS.stories, behStories);
+    renderBehStories();
+    behStatus("beh-build-status", `built ${behStories.length} ${behStories.length === 1 ? "story" : "stories"}. edit below ↓`, "ok");
+    document.getElementById("beh-stories-step")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e){
+    behStatus("beh-build-status", "build failed: " + e.message, "err");
+  } finally {
+    behSetBusy(false);
+  }
+}
+
+async function behAnswerQuestion(){
+  if (behBusy) return;
+  const sel = document.getElementById("beh-question");
+  const custom = document.getElementById("beh-custom-q");
+  const question = (custom?.value || "").trim() || sel?.value || "";
+  if (!question){ behStatus("beh-answer-status", "pick a question or type one.", "err"); return; }
+  if (!behStories.length){ behStatus("beh-answer-status", "build stories first.", "err"); return; }
+  behSetBusy(true);
+  behStatus("beh-answer-status", "generating answer…", "info");
+  try {
+    const out = await behApi("answer_question", { question, stories: behStories });
+    behLastAnswer = out;
+    renderBehAnswer();
+    behStatus("beh-answer-status", "", "");
+  } catch (e){
+    behStatus("beh-answer-status", "generation failed: " + e.message, "err");
+  } finally {
+    behSetBusy(false);
+  }
+}
+
+function behClearAll(){
+  if (!confirm("Clear your resume, parsed profile, and all stories? This can't be undone.")) return;
+  try {
+    localStorage.removeItem(BEH_KEYS.resume);
+    localStorage.removeItem(BEH_KEYS.profile);
+    localStorage.removeItem(BEH_KEYS.stories);
+  } catch {}
+  behProfile = null;
+  behStories = [];
+  behLastAnswer = null;
+  const ta = document.getElementById("beh-resume"); if (ta) ta.value = "";
+  document.getElementById("beh-profile-step").hidden = true;
+  document.getElementById("beh-stories-step").hidden = true;
+  document.getElementById("beh-question-step").hidden = true;
+  document.getElementById("beh-answer-out").hidden = true;
+  behStatus("beh-parse-status", "cleared.", "info");
+}
+
+function behInit(){
+  const resume = behLoad(BEH_KEYS.resume, "");
+  const ta = document.getElementById("beh-resume");
+  if (ta && resume) ta.value = resume;
+  behProfile = behLoad(BEH_KEYS.profile, null);
+  behStories = behLoad(BEH_KEYS.stories, []);
+  const storiesHost = document.getElementById("beh-stories-list");
+  if (storiesHost){
+    storiesHost.addEventListener("input", onBehStoryEdit);
+    storiesHost.addEventListener("click", onBehStoryClick);
+  }
+  if (behProfile) renderBehProfile();
+  if (behStories.length) renderBehStories();
+  populateBehQuestionPicker();
+}
+
+document.getElementById("beh-parse")?.addEventListener("click", behParseResume);
+document.getElementById("beh-build")?.addEventListener("click", behBuildStories);
+document.getElementById("beh-answer")?.addEventListener("click", behAnswerQuestion);
+document.getElementById("beh-regen")?.addEventListener("click", behAnswerQuestion);
+document.getElementById("beh-clear")?.addEventListener("click", behClearAll);
+document.getElementById("beh-copy")?.addEventListener("click", () => {
+  if (!behLastAnswer?.answer) return;
+  navigator.clipboard?.writeText(behLastAnswer.answer).then(() => {
+    behStatus("beh-answer-status", "copied.", "ok");
+    setTimeout(() => behStatus("beh-answer-status", "", ""), 1500);
+  });
+});
+document.getElementById("beh-custom-q")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter"){ e.preventDefault(); behAnswerQuestion(); }
+});
+
+behInit();
