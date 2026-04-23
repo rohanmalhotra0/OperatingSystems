@@ -2430,17 +2430,30 @@ function newsEsc(s){
 // Google News RSS stuffs <a>…</a> and publisher markup into the description.
 // Strip tags + decode common entities so we render a plain-text blurb (or
 // nothing if the feed gave us nothing substantive beyond the headline).
+// Defense-in-depth: cached feed payloads may already contain raw markup
+// from when the server-side strip was buggy, so scrub aggressively here too.
 function newsCleanSnippet(s){
   if (!s) return "";
-  const noTags = String(s).replace(/<[^>]*>/g, " ");
-  const decoded = noTags
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
+  // Decode entities first so encoded tags (&lt;a&gt;) become real tags.
+  const decoded = String(s)
+    .replace(/&#(\d+);/g,        (_, n) => String.fromCharCode(parseInt(n, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&amp;/g,  "&")
+    .replace(/&lt;/g,   "<")
+    .replace(/&gt;/g,   ">")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-  return decoded.replace(/\s+/g, " ").trim();
+    .replace(/&apos;/g, "'")
+    .replace(/&#39;/g,  "'")
+    .replace(/&nbsp;/g, " ");
+  // Strip well-formed tags, then cut at the first remaining `<` (which
+  // means a truncated tag — happens when the source sliced mid-tag).
+  const noTags = decoded.replace(/<[^>]*>/g, " ");
+  const cut = noTags.includes("<") ? noTags.slice(0, noTags.indexOf("<")) : noTags;
+  const text = cut.replace(/\s+/g, " ").trim();
+  // If what's left looks like a bare URL blob (e.g. Google News rss link
+  // fragment), treat it as no snippet.
+  if (/^https?:\/\/\S+$/i.test(text)) return "";
+  return text;
 }
 
 function newsFmtPosted(iso){

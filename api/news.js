@@ -129,7 +129,15 @@ function decodeEntities(s){
 }
 
 function stripTags(s){
-  return decodeEntities(String(s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+  // Decode entities FIRST so entity-encoded markup (&lt;a&gt;) becomes real
+  // tags we can strip. Google News packs the description as entity-encoded
+  // HTML, so stripping before decoding leaves the tags as visible text.
+  const decoded = decodeEntities(String(s || ""));
+  // Strip well-formed tags, then drop any dangling fragment from a lone `<`
+  // (can happen when the source truncates mid-tag).
+  const noTags = decoded.replace(/<[^>]+>/g, " ");
+  const cut = noTags.includes("<") ? noTags.slice(0, noTags.indexOf("<")) : noTags;
+  return cut.replace(/\s+/g, " ").trim();
 }
 
 function pickTag(xml, tag){

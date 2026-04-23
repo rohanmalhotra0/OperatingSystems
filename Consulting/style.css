@@ -3001,6 +3001,9 @@ h2.pencil::after{
   color: var(--ink);
   text-decoration: none;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+  /* keep long unbreakable strings (pasted URLs, RSS hashes) inside the card */
+  min-width: 0;
+  overflow: hidden;
 }
 .news-card:hover,
 .news-card:focus-visible{
@@ -3015,6 +3018,8 @@ h2.pencil::after{
   font-size: 16px;
   line-height: 1.3;
   color: var(--ink);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .news-snip{
   font-family:'Spectral', serif;
@@ -3022,6 +3027,13 @@ h2.pencil::after{
   line-height: 1.45;
   color: var(--pencil);
   margin: 2px 0 4px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  /* Cap to a few lines in case the snippet is unusually long. */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .news-meta-row{
   display: flex;
