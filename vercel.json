@@ -27,7 +27,7 @@
   },
   "crons": [
     { "path": "/api/jobs",                "schedule": "0 6 * * *" },
-    { "path": "/api/news?industry=all",   "schedule": "0 */2 * * *" }
+    { "path": "/api/news?industry=all",   "schedule": "0 7 * * *" }
   ],
   "headers": [
     {
