@@ -6,6 +6,7 @@
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <title>Casen — consulting casebook prep</title>
 <script src="/assets/auth-gate.js?v=1"></script>
+<script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Architects+Daughter&display=swap" rel="stylesheet">
@@ -212,6 +213,100 @@
     color: var(--pencil);
   }
   .footer a{ color:var(--ink); border-bottom:1px solid var(--red); text-decoration:none; margin:0 4px; }
+
+  /* ══════ animations ═══════════════════════════════════════ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.001ms !important;
+      transition-delay: 0ms !important;
+    }
+  }
+
+  /* Base reveal — gated on `.js` so nothing hides if scripts fail. */
+  .js .reveal{
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 620ms cubic-bezier(.2,.7,.2,1),
+      transform 620ms cubic-bezier(.2,.7,.2,1);
+    will-change: opacity, transform;
+  }
+  .js .reveal.is-visible{ opacity: 1; transform: none; }
+
+  /* Masthead cascade on load — no observer needed, above the fold. */
+  .js .masthead > *,
+  .js .lede{
+    opacity: 0;
+    animation: rise 720ms cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .js .masthead > h1.title{ animation-delay:  40ms; }
+  .js .masthead > .sub    { animation-delay: 200ms; }
+  .js .lede               { animation-delay: 360ms; }
+  @keyframes rise{
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Red dot after "Casen" gently pulses to draw the eye. */
+  .js h1.title .dot{
+    display: inline-block;
+    animation: dot-pulse 2.6s ease-in-out 1.6s infinite;
+    transform-origin: center 70%;
+  }
+  @keyframes dot-pulse{
+    0%, 100% { transform: scale(1); }
+    40%      { transform: scale(1.35); }
+    70%      { transform: scale(1); }
+  }
+
+  /* TOC heading picks up the same drawn-in red underline as landing. */
+  .js .toc-heading{ position: relative; }
+  .js .toc-heading::after{
+    content: "";
+    position: absolute;
+    left: 0; bottom: -1px;
+    width: 0; height: 3px;
+    background: var(--red);
+    transition: width 720ms cubic-bezier(.2,.7,.2,1) 180ms;
+    border-radius: 2px;
+  }
+  .js .toc-heading.is-visible::after{ width: 80px; }
+
+  /* TOC cards stagger into view when the grid is visible. */
+  .js .toc-grid.is-visible .toc-card:nth-child(1){ transition-delay:   0ms; }
+  .js .toc-grid.is-visible .toc-card:nth-child(2){ transition-delay:  70ms; }
+  .js .toc-grid.is-visible .toc-card:nth-child(3){ transition-delay: 140ms; }
+  .js .toc-grid.is-visible .toc-card:nth-child(4){ transition-delay: 210ms; }
+  .js .toc-grid.is-visible .toc-card:nth-child(5){ transition-delay: 280ms; }
+  .js .toc-grid.is-visible .toc-card:nth-child(6){ transition-delay: 350ms; }
+  .js .toc-grid.is-visible .toc-card:nth-child(7){ transition-delay: 420ms; }
+  .js .toc-grid.is-visible .toc-card:nth-child(8){ transition-delay: 490ms; }
+  .js .toc-grid.is-visible .toc-card:nth-child(9){ transition-delay: 560ms; }
+
+  /* Card hover gets a tiny rotate on top of the existing translate. */
+  .js .toc-card{ transition: transform 0.14s cubic-bezier(.3,.7,.3,1), box-shadow 0.14s; }
+  .js .toc-card:hover{ transform: translate(-3px,-3px) rotate(-0.4deg); box-shadow: 8px 8px 0 var(--ink); }
+
+  /* Stats strip stagger (6 cells). */
+  .js .stats-strip.is-visible .stat:nth-child(1){ transition-delay:   0ms; }
+  .js .stats-strip.is-visible .stat:nth-child(2){ transition-delay:  80ms; }
+  .js .stats-strip.is-visible .stat:nth-child(3){ transition-delay: 160ms; }
+  .js .stats-strip.is-visible .stat:nth-child(4){ transition-delay: 240ms; }
+  .js .stats-strip.is-visible .stat:nth-child(5){ transition-delay: 320ms; }
+  .js .stats-strip.is-visible .stat:nth-child(6){ transition-delay: 400ms; }
+
+  /* NEW badge pops in after the card lands. */
+  .js .toc-card.is-new::after{
+    opacity: 0;
+    animation: badge-pop 460ms cubic-bezier(.3,1.6,.5,1) 900ms forwards;
+  }
+  @keyframes badge-pop{
+    0%   { opacity: 0; transform: rotate(22deg) scale(.3); }
+    70%  { opacity: 1; transform: rotate(2deg)  scale(1.08); }
+    100% { opacity: 1; transform: rotate(8deg)  scale(1); }
+  }
 </style>
 <link rel="stylesheet" href="/assets/top-nav.css?v=1">
 <script defer src="/_vercel/insights/script.js"></script>
@@ -229,69 +324,69 @@
     A full consulting casebook, repackaged as a single-page study tool — <em>42 cases, 8 frameworks, ~80 vocab cards, worked examples with every assumption spelled out.</em> Walk a case interview-style, drill market-sizing math against a timer, or run a voice mock with the AI tutor.
   </p>
 
-  <div class="toc-heading">
+  <div class="toc-heading reveal">
     <h3>table of contents</h3>
     <span class="aside">nine tabs, one notebook</span>
   </div>
 
-  <div class="toc-grid">
-    <a class="toc-card" data-tint="1" href="./Consulting/#cards">
+  <div class="toc-grid reveal">
+    <a class="toc-card reveal" data-tint="1" href="./Consulting/#cards">
       <span class="chip">01</span>
       <h4>flashcards</h4>
       <p>Spaced-review queue for vocab + concepts. Hint, skip, undo, shuffle.</p>
       <span class="count">~80 cards · K/D/U/H</span>
     </a>
 
-    <a class="toc-card" data-tint="2" href="./Consulting/#learn">
+    <a class="toc-card reveal" data-tint="2" href="./Consulting/#learn">
       <span class="chip">02</span>
       <h4>learn</h4>
       <p>Read-through of the vocab in definition form, grouped by chapter.</p>
       <span class="count">MC quiz mode</span>
     </a>
 
-    <a class="toc-card" data-tint="3" href="./Consulting/#match">
+    <a class="toc-card reveal" data-tint="3" href="./Consulting/#match">
       <span class="chip">03</span>
       <h4>match</h4>
       <p>Term-to-definition speed drill. Pattern-lock the high-frequency ones.</p>
       <span class="count">timed · scored</span>
     </a>
 
-    <a class="toc-card" data-tint="4" href="./Consulting/#cases">
+    <a class="toc-card reveal" data-tint="4" href="./Consulting/#cases">
       <span class="chip">04</span>
       <h4>cases</h4>
       <p>Full-length cases walked stage-by-stage: prompt → clarifying → structure → math → recommend.</p>
       <span class="count">42 cases · full casebook</span>
     </a>
 
-    <a class="toc-card" data-tint="5" href="./Consulting/#frameworks">
+    <a class="toc-card reveal" data-tint="5" href="./Consulting/#frameworks">
       <span class="chip">05</span>
       <h4>frameworks</h4>
       <p>The eight bucket-sets by case type. When to pick each, what to force yourself to consider.</p>
       <span class="count">8 frameworks</span>
     </a>
 
-    <a class="toc-card" data-tint="6" href="./Consulting/#vocab">
+    <a class="toc-card reveal" data-tint="6" href="./Consulting/#vocab">
       <span class="chip">06</span>
       <h4>vocab</h4>
       <p>The full glossary with definitions, hints, and cross-links to cases that use each term.</p>
       <span class="count">searchable · chaptered</span>
     </a>
 
-    <a class="toc-card" data-tint="7" href="./Consulting/#formulas">
+    <a class="toc-card reveal" data-tint="7" href="./Consulting/#formulas">
       <span class="chip">07</span>
       <h4>formulas</h4>
       <p>CAGR, NPV, breakeven, margin vs markup — with when-to-use notes and a PDF download.</p>
       <span class="count">cheat sheet</span>
     </a>
 
-    <a class="toc-card is-new" data-tint="8" href="./Consulting/#examples">
+    <a class="toc-card reveal is-new" data-tint="8" href="./Consulting/#examples">
       <span class="chip">08</span>
       <h4>examples</h4>
       <p>Worked walkthroughs: framework pick → assumptions → steps → answer → sanity check → traps. Every step annotated.</p>
       <span class="count">6 examples · fully annotated</span>
     </a>
 
-    <a class="toc-card" data-tint="9" href="./Consulting/#resources">
+    <a class="toc-card reveal" data-tint="9" href="./Consulting/#resources">
       <span class="chip">09</span>
       <h4>resources</h4>
       <p>Voice mock interviews, AI tutor chat, analytics, PDF exports, source casebooks.</p>
@@ -299,19 +394,85 @@
     </a>
   </div>
 
-  <div class="stats-strip">
-    <div class="stat"><span class="n">42</span><span class="l">cases</span></div>
-    <div class="stat"><span class="n">80+</span><span class="l">vocab</span></div>
-    <div class="stat"><span class="n">8</span><span class="l">frameworks</span></div>
-    <div class="stat"><span class="n">17</span><span class="l">case math</span></div>
-    <div class="stat"><span class="n">6</span><span class="l">worked ex.</span></div>
-    <div class="stat"><span class="n">AI</span><span class="l">voice tutor</span></div>
+  <div class="stats-strip reveal">
+    <div class="stat reveal"><span class="n">42</span><span class="l">cases</span></div>
+    <div class="stat reveal"><span class="n">80+</span><span class="l">vocab</span></div>
+    <div class="stat reveal"><span class="n">8</span><span class="l">frameworks</span></div>
+    <div class="stat reveal"><span class="n">17</span><span class="l">case math</span></div>
+    <div class="stat reveal"><span class="n">6</span><span class="l">worked ex.</span></div>
+    <div class="stat reveal"><span class="n">AI</span><span class="l">voice tutor</span></div>
   </div>
 
   <div class="footer">
     <a href="/contact.html">contact →</a>
   </div>
 </div>
+
+<script>
+  // Scroll-triggered reveal animations. Matches landing.html's approach:
+  // .reveal starts hidden via the .js gate, then fades/translates in as
+  // it crosses the viewport. Staggered children (TOC cards, stats cells)
+  // use CSS transition-delay keyed off the parent's .is-visible class.
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!els.length) return;
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function (el) { io.observe(el); });
+  })();
+
+  // Stat-strip counter: ticks each numeric label up from zero when the
+  // strip scrolls into view. Non-numeric labels (AI) are left alone.
+  (function () {
+    var strip = document.querySelector('.stats-strip');
+    if (!strip) return;
+    var prefersReduced =
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+    var items = [];
+    strip.querySelectorAll('.stat .n').forEach(function (el) {
+      var text = (el.textContent || '').trim();
+      var m = text.match(/^(\d+)(.*)$/);
+      if (!m) return;
+      items.push({ el: el, target: parseInt(m[1], 10), suffix: m[2] || '' });
+      el.textContent = '0' + (m[2] || '');
+    });
+    if (!items.length) return;
+    var started = false;
+    function start() {
+      if (started) return;
+      started = true;
+      var duration = 1100;
+      var t0 = performance.now();
+      function tick(now) {
+        var t = Math.min(1, (now - t0) / duration);
+        var eased = 1 - Math.pow(1 - t, 3);
+        items.forEach(function (it) {
+          it.el.textContent = Math.round(it.target * eased) + it.suffix;
+        });
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+    if (!('IntersectionObserver' in window)) { start(); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { start(); io.disconnect(); }
+      });
+    }, { threshold: 0.35 });
+    io.observe(strip);
+  })();
+</script>
 
 <script type="module" src="/assets/sync.js"></script>
 <script type="module" src="/assets/top-nav.js?v=1"></script>
