@@ -1,6 +1,6 @@
 /* Shared top utility nav for Casen.
- * Present on every page so AI chat, metrics, jobs, behaviorals, and prep
- * are all one click away. Injected by /assets/top-nav.js.
+ * Present on every page so mock interview, metrics, jobs, behaviorals, and
+ * prep are all one click away. Injected by /assets/top-nav.js.
  */
 
 :root {
@@ -49,10 +49,9 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  flex: 1;
   margin-left: 8px;
-  flex-wrap: wrap;
-  overflow: hidden;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 .cnav-links a {
   color: var(--pencil, #5a564c);
@@ -77,6 +76,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto;
   padding: 5px 10px;
   background: var(--paper-soft, #efe6cd);
   border: 1.5px solid var(--ink, #1d1a16);
@@ -87,7 +87,7 @@
   font-size: 11.5px;
   text-transform: lowercase;
   letter-spacing: 1px;
-  transition: transform 0.08s, box-shadow 0.08s;
+  transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
 }
 .cnav-auth:hover {
   transform: translate(-1px, -1px);
@@ -102,30 +102,51 @@
   display: inline-block;
   flex-shrink: 0;
 }
+
+/* Signed-in state: a quiet status chip, not a CTA. Drops the brutalist box
+ * so a long email doesn't compete with the brand and nav links. */
+.cnav-auth.is-signed-in {
+  padding: 4px 4px 4px 8px;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  cursor: default;
+  pointer-events: none; /* the chip itself isn't a link when signed in */
+}
+.cnav-auth.is-signed-in:hover {
+  transform: none;
+  box-shadow: none;
+  background: transparent;
+}
 .cnav-auth.is-signed-in .cnav-auth-dot {
   background: var(--red, #b52d2d);
 }
 .cnav-auth-email {
-  max-width: 160px;
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--pencil, #5a564c);
 }
 .cnav-auth-out {
   margin-left: 4px;
-  padding: 0 0 0 8px;
-  border: none;
-  border-left: 1px solid var(--pencil, #5a564c);
+  padding: 3px 8px;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--pencil, #5a564c);
   cursor: pointer;
+  pointer-events: auto; /* re-enable; parent disabled them */
   font-family: inherit;
   font-size: inherit;
   letter-spacing: inherit;
   text-transform: lowercase;
+  border-radius: 2px;
+  transition: color 0.08s, border-color 0.08s, background 0.08s;
 }
 .cnav-auth-out:hover {
   color: var(--red, #b52d2d);
+  border-color: var(--red, #b52d2d);
+  background: var(--paper-soft, #efe6cd);
 }
 
 /* compact mode for narrow viewports */

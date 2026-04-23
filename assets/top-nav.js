@@ -14,7 +14,6 @@ const HTML = `
     <a href="/Consulting/#news" data-nav="news">news</a>
     <a href="/Consulting/#behaviorals" data-nav="behaviorals">behaviorals</a>
     <a href="/chat.html?tab=consulting&amp;mode=mock" data-nav="mock">mock interview</a>
-    <a href="/chat.html" data-nav="chat">AI chat</a>
     <a href="/metrics.html" data-nav="metrics">metrics</a>
   </div>
   <a class="cnav-auth" id="cnav-auth" href="/auth.html" aria-label="sign in">
@@ -26,18 +25,13 @@ const HTML = `
 function activeKey() {
   const path = location.pathname || "/";
   const hash = location.hash || "";
-  const search = location.search || "";
   if (path.startsWith("/Consulting")) {
     if (hash === "#jobs")         return "jobs";
     if (hash === "#news")         return "news";
     if (hash === "#behaviorals")  return "behaviorals";
     return "prep";
   }
-  if (path.includes("chat")) {
-    // mock interview shares /chat.html but gets its own nav highlight
-    if (/[?&]mode=mock\b/.test(search)) return "mock";
-    return "chat";
-  }
+  if (path.includes("chat")) return "mock";
   if (path.includes("metrics")) return "metrics";
   if (path.includes("auth"))    return null; // auth page — no tab highlighted
   return "home";
@@ -55,15 +49,27 @@ function renderAuth(user) {
   if (!chip) return;
   if (user) {
     chip.classList.add("is-signed-in");
-    chip.innerHTML =
-      '<span class="cnav-auth-dot"></span>' +
-      '<span class="cnav-auth-email">' + (user.email || "signed in") + '</span>' +
-      '<button class="cnav-auth-out" id="cnav-signout" type="button" title="sign out">sign out</button>';
-    document.getElementById("cnav-signout")?.addEventListener("click", async (e) => {
+    const email = user.email || "";
+    const handle = email.includes("@") ? email.split("@")[0] : (email || "signed in");
+    chip.replaceChildren();
+    const dot = document.createElement("span");
+    dot.className = "cnav-auth-dot";
+    const name = document.createElement("span");
+    name.className = "cnav-auth-email";
+    name.textContent = handle;
+    if (email) name.title = email;
+    const out = document.createElement("button");
+    out.className = "cnav-auth-out";
+    out.id = "cnav-signout";
+    out.type = "button";
+    out.title = "sign out";
+    out.textContent = "sign out";
+    out.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
       await signOut();
     });
+    chip.append(dot, name, out);
   } else {
     chip.classList.remove("is-signed-in");
     chip.innerHTML =
