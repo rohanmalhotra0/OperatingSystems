@@ -195,11 +195,11 @@
       onDone && onDone({ ok: true });
     },
 
-    async jsonChat({ tab, messages, mode, focus, mockCaseId, mockBlock, signal }){
+    async jsonChat({ tab, messages, mode, focus, mockCaseId, mockBlock, scoring, transcript, signal }){
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tab, messages, mode, focus, mockCaseId, mockBlock, format: "json" }),
+        body: JSON.stringify({ tab, messages, mode, focus, mockCaseId, mockBlock, scoring, transcript, format: "json" }),
         signal,
       });
       if (!res.ok){

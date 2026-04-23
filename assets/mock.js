@@ -467,6 +467,15 @@
       this.runTurn();
     }
 
+    _markInterviewComplete(){
+      this.interviewComplete = true;
+      const advBtn = this.root.querySelector('[data-act="advance"]');
+      if (advBtn){
+        advBtn.textContent = "finish & grade →";
+        advBtn.classList.add("cw-iconbtn--primary", "cw-mock-finish-pulse");
+      }
+    }
+
     updateStepperAndCase(){
       const stepper = this.root.querySelector("#cw-mock-stepper");
       if (stepper) stepper.innerHTML = this._renderStepperHTML();
@@ -519,10 +528,18 @@
           mockBlock: BLOCKS[this.blockIdx].id,
           messages: this.messages.slice(0, -1).map(m => ({ role: m.role, content: m.content })),
           signal: this.streamCtrl.signal,
-          onDelta: (t) => { buf += t; if (bodyEl) bodyEl.textContent = buf; this.scrollMsgsBottom(); },
+          onDelta: (t) => {
+            buf += t;
+            if (bodyEl) bodyEl.textContent = stripSentinel(buf);
+            this.scrollMsgsBottom();
+          },
           onDone: () => {
             if (aiEl) aiEl.classList.remove("cw-msg--typing");
-            this.messages[this.messages.length - 1].content = buf;
+            const clean = stripSentinel(buf);
+            if (bodyEl) bodyEl.textContent = clean;
+            this.messages[this.messages.length - 1].content = clean;
+            if (clean !== buf) this._markInterviewComplete();
+            buf = clean; // keep subsequent TTS + auto-arm from reading the sentinel
             finishedOK = true;
           },
           onError: (err) => {
@@ -887,45 +904,16 @@
 
       const transcript = this.messages
         .filter(m => !m.hidden)
-        .map(m => (m.role === "user" ? "STUDENT" : "INTERVIEWER") + ": " + m.content)
+        .map(m => (m.role === "user" ? "STUDENT" : "INTERVIEWER") + ": " + stripSentinel(m.content))
         .join("\n");
-
-      const gradeRequest = [
-        { role: "user", content:
-          `The mock interview is complete. Based on the transcript and the case ground truth you have, produce a grade as JSON with exactly this shape:
-{
-  "dimensions": {
-    "caseExecution": { "score": 0-5, "note": "one sentence" },
-    "communication": { "score": 0-5, "note": "one sentence" },
-    "behavioral":    { "score": 0-5, "note": "one sentence" }
-  },
-  "blocks": {
-    "clarify":    "one sentence of what happened",
-    "framework":  "...",
-    "math":       "...",
-    "brainstorm": "...",
-    "recommend":  "..."
-  },
-  "strengths":    ["bullet","bullet"],
-  "improvements": ["specific actionable bullet","specific actionable bullet"],
-  "overall":      "one short paragraph"
-}
-
-TRANSCRIPT
----
-${transcript}
----
-Only return the JSON object. No prose outside it.`
-        }
-      ];
 
       try {
         const grade = await this.streamClient.jsonChat({
           tab: this.tabId,
           mode: "mock",
           mockCaseId: this.selected?.id,
-          mockBlock: "recommend",
-          messages: gradeRequest,
+          scoring: true,
+          transcript,
         });
         this.grade = grade;
         logFinishedMock(this.tabId, this.selected, grade);
@@ -941,21 +929,27 @@ Only return the JSON object. No prose outside it.`
 
     renderDone(){
       const g = this.grade || {};
-      const dims = g.dimensions || {};
-      const blocks = g.blocks || {};
+      const scores = g.scores || {};
       const strengths = Array.isArray(g.strengths) ? g.strengths : [];
       const improvements = Array.isArray(g.improvements) ? g.improvements : [];
+      const hedges = Array.isArray(g.hedgeLanguage) ? g.hedgeLanguage : [];
+      const rambles = Array.isArray(g.ramblingMoments) ? g.ramblingMoments : [];
+      const mathErrs = Array.isArray(g.mathErrors) ? g.mathErrors : [];
+      const drills = Array.isArray(g.nextDrills) ? g.nextDrills : [];
+      const filler = g.fillerWords || {};
 
       const dimCard = (key, label) => {
-        const d = dims[key] || {};
+        const d = scores[key] || {};
         const score = Math.max(0, Math.min(5, Number(d.score) || 0));
         const pct = (score / 5) * 100;
+        const barCls = score >= 4 ? "cw-mock-dim-fill--strong" : score >= 3 ? "cw-mock-dim-fill--ok" : "cw-mock-dim-fill--weak";
         return `
           <div class="cw-mock-dim">
             <div class="cw-mock-dim-lbl">${esc(label)}</div>
             <div class="cw-mock-dim-score">${score}<span>/5</span></div>
-            <div class="cw-mock-dim-bar"><div class="cw-mock-dim-fill" style="width:${pct}%"></div></div>
-            ${d.note ? `<div class="cw-mock-dim-note">${esc(d.note)}</div>` : ""}
+            <div class="cw-mock-dim-bar"><div class="cw-mock-dim-fill ${barCls}" style="width:${pct}%"></div></div>
+            ${d.feedback ? `<div class="cw-mock-dim-note">${esc(d.feedback)}</div>` : ""}
+            ${d.evidence ? `<div class="cw-mock-dim-evidence"><b>evidence:</b> ${esc(d.evidence)}</div>` : ""}
           </div>`;
       };
 
@@ -1014,6 +1008,10 @@ Only return the JSON object. No prose outside it.`
           </ul>
         </div>` : "");
 
+      const fillerText = (filler && (filler.total || filler.topOffender))
+        ? `${Number(filler.total) || 0} total${filler.topOffender ? ` · most used: "${esc(filler.topOffender)}"` : ""}${Array.isArray(filler.examples) && filler.examples.length ? ` · samples: ${filler.examples.slice(0,5).map(esc).join(", ")}` : ""}`
+        : "";
+
       this.root.innerHTML = `
         <div class="cw-mock-donecard">
           <div class="cw-mock-done-hdr">
@@ -1021,10 +1019,13 @@ Only return the JSON object. No prose outside it.`
             <div class="cw-mock-done-sub">${esc(this.selected?.title || "")}</div>
           </div>
 
-          <div class="cw-mock-dimrow">
-            ${dimCard("caseExecution", "Case execution")}
-            ${dimCard("communication", "Communication")}
-            ${dimCard("behavioral",    "Behavioral")}
+          <div class="cw-mock-dimrow cw-mock-dimrow--6">
+            ${dimCard("clarifying",     "Clarifying")}
+            ${dimCard("framework",      "Framework")}
+            ${dimCard("math",           "Math")}
+            ${dimCard("brainstorm",     "Brainstorm")}
+            ${dimCard("recommendation", "Recommendation")}
+            ${dimCard("communication",  "Communication")}
           </div>
 
           ${g.overall ? `<div class="cw-mock-overall">${esc(g.overall)}</div>` : ""}
@@ -1037,15 +1038,29 @@ Only return the JSON object. No prose outside it.`
 
           ${improvements.length ? `
             <div class="cw-mock-listblock">
-              <div class="cw-mock-listblock-h">practice focus</div>
+              <div class="cw-mock-listblock-h">improvements</div>
               <ul>${improvements.map(s => `<li>${esc(s)}</li>`).join("")}</ul>
             </div>` : ""}
 
-          ${Object.keys(blocks).length ? `
+          ${drills.length ? `
             <div class="cw-mock-listblock">
-              <div class="cw-mock-listblock-h">per-block notes</div>
+              <div class="cw-mock-listblock-h">next drills</div>
+              <ul>${drills.map(s => `<li>${esc(s)}</li>`).join("")}</ul>
+            </div>` : ""}
+
+          ${mathErrs.length ? `
+            <div class="cw-mock-listblock cw-mock-listblock--warn">
+              <div class="cw-mock-listblock-h">math errors caught</div>
+              <ul>${mathErrs.map(s => `<li>${esc(s)}</li>`).join("")}</ul>
+            </div>` : ""}
+
+          ${(fillerText || hedges.length || rambles.length) ? `
+            <div class="cw-mock-listblock">
+              <div class="cw-mock-listblock-h">delivery patterns</div>
               <ul class="cw-mock-blocknotes">
-                ${BLOCKS.map(b => blocks[b.id] ? `<li><b>${esc(b.full)}</b> — ${esc(blocks[b.id])}</li>` : "").join("")}
+                ${fillerText ? `<li><b>filler words</b> — ${fillerText}</li>` : ""}
+                ${hedges.length ? `<li><b>hedging</b> — ${hedges.slice(0,3).map(esc).join(" · ")}</li>` : ""}
+                ${rambles.length ? `<li><b>rambling moments</b> — ${rambles.slice(0,3).map(esc).join(" · ")}</li>` : ""}
               </ul>
             </div>` : ""}
 
@@ -1073,6 +1088,11 @@ Only return the JSON object. No prose outside it.`
   /* =========================================================
      Helpers
      ========================================================= */
+  const SENTINEL_RE = /\[INTERVIEW_COMPLETE\]/gi;
+  function stripSentinel(s){
+    return String(s || "").replace(SENTINEL_RE, "").replace(/\s+$/g, "");
+  }
+
   async function loadCases(tabId){
     try {
       // eslint-disable-next-line no-undef
@@ -1139,12 +1159,18 @@ Only return the JSON object. No prose outside it.`
   function logFinishedMock(tabId, caseData, grade){
     try {
       const log = JSON.parse(localStorage.getItem(MOCKS_LOG_KEY) || "[]");
+      // flatten scores.*.score into a simple map for metrics/history reads
+      const scoreMap = {};
+      const s = grade?.scores || {};
+      for (const k of Object.keys(s)) {
+        if (s[k] && typeof s[k].score === "number") scoreMap[k] = s[k].score;
+      }
       log.push({
         tab: tabId,
         caseId: caseData?.id,
         caseTitle: caseData?.title,
         ts: Date.now(),
-        dimensions: grade?.dimensions || null,
+        scores: scoreMap,
         overall: grade?.overall || "",
       });
       if (log.length > 200) log.splice(0, log.length - 200);

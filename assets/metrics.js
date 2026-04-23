@@ -284,22 +284,33 @@
       .slice()
       .sort((a, b) => (b.ts || 0) - (a.ts || 0))
       .forEach(m => {
-        const d = m.dimensions || {};
-        const dim = (k, lbl) => {
-          const s = Number(d[k]?.score) || 0;
-          return `<div class="mx-dim"><div class="mx-dim-n">${s}<span>/5</span></div><div class="mx-dim-lbl">${lbl}</div></div>`;
-        };
+        // Support both old-schema (dimensions.caseExecution.score) and new-schema
+        // (scores.{clarifying,framework,math,brainstorm,recommendation,communication}).
+        const scores = m.scores || {};
+        const legacyDims = m.dimensions || {};
+        const legacyScore = k => Number(legacyDims[k]?.score) || 0;
+        const valFor = k => (k in scores ? Number(scores[k]) || 0 : 0);
+        const dim = (n, lbl) => `<div class="mx-dim"><div class="mx-dim-n">${n}<span>/5</span></div><div class="mx-dim-lbl">${lbl}</div></div>`;
+        const isNew = Object.keys(scores).length > 0;
+        const dimsHTML = isNew
+          ? [
+              dim(valFor("framework"),      "Framework"),
+              dim(valFor("math"),           "Math"),
+              dim(valFor("recommendation"), "Rec"),
+              dim(valFor("communication"),  "Comms"),
+            ].join("")
+          : [
+              dim(legacyScore("caseExecution"), "Execution"),
+              dim(legacyScore("communication"), "Comms"),
+              dim(legacyScore("behavioral"),    "Behavior"),
+            ].join("");
         el.appendChild(h(`
           <div class="mx-mockrow">
             <div>
               <div class="mx-mockrow-title">${escapeHTML(m.caseTitle || "case #" + (m.caseId || ""))}</div>
               <div class="mx-mockrow-meta">${escapeHTML(timeAgo(m.ts))} · ${escapeHTML(m.tab || "")}</div>
             </div>
-            <div class="mx-mockrow-dims">
-              ${dim("caseExecution", "Execution")}
-              ${dim("communication", "Comms")}
-              ${dim("behavioral", "Behavior")}
-            </div>
+            <div class="mx-mockrow-dims">${dimsHTML}</div>
             ${m.overall ? `<div class="mx-mockrow-overall">${escapeHTML(m.overall)}</div>` : ""}
           </div>
         `));
