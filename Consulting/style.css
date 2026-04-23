@@ -75,18 +75,6 @@ html,body{
   letter-spacing: 1px;
   text-transform: lowercase;
 }
-.tape{
-  position:absolute;
-  top: -6px;
-  width: 110px; height: 28px;
-  background: rgba(224,194,120,0.58);
-  border: 1px dashed rgba(0,0,0,0.15);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  transform: rotate(-3deg);
-}
-.tape-left{ left: 80px; transform: rotate(-4deg); }
-.tape-right{ right: 80px; transform: rotate(3deg); background: rgba(183,198,217,0.55); }
-
 .stamp{
   position:absolute;
   right: 56px; top: 40px;
