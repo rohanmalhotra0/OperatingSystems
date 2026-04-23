@@ -98,38 +98,89 @@
 <!-- ================= LEARN ================= -->
 <section class="sheet" id="learn">
   <div class="sheet-margin">
-    <h2 class="pencil">Learn — 4-option multiple choice</h2>
-    <p class="kicker">MC on vocab, formulas, and concepts only. (Frameworks + full case walkthroughs live in their own tabs — they don't fit a multiple-choice quiz.) Pick a filter, each correct answer masters a term; each miss requeues it.</p>
+    <h2 class="pencil">Learn</h2>
+    <p class="kicker">Two modes: <strong>vocab MC</strong> drills terms, formulas, and concepts. <strong>math drills</strong> gives you a timed single-problem practice (market sizing, breakeven, CAGR, margin, profit) — exactly what an interviewer hands you mid-case.</p>
 
-    <div id="learn-start">
-      <div class="deck-bar" id="learn-filter-bar">
-        <!-- filter chips injected by app.js -->
-      </div>
-      <button class="mini-btn" id="learn-start-btn" style="margin-top:6px">start session &rarr;</button>
+    <div class="learn-mode-switch">
+      <button class="mode-btn mode-btn--on" data-lmode="mc">vocab MC</button>
+      <button class="mode-btn" data-lmode="math">math drills</button>
     </div>
 
-    <div id="learn-session" style="display:none">
-      <div class="learn-prog">
-        <div class="learn-prog-bar"><div class="learn-prog-fill" id="learn-prog-fill" style="width:0%"></div></div>
-        <span class="learn-prog-txt" id="learn-prog-txt">0 / 0 mastered</span>
+    <!-- ============ MODE: VOCAB MC ============ -->
+    <div id="learn-mc-mode">
+      <div id="learn-start">
+        <div class="deck-bar" id="learn-filter-bar">
+          <!-- filter chips injected by app.js -->
+        </div>
+        <button class="mini-btn" id="learn-start-btn" style="margin-top:6px">start session &rarr;</button>
       </div>
 
-      <div class="check-box">
-        <h4>multiple choice</h4>
-        <p style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--pencil);margin:0 0 4px" id="learn-mc-cat"></p>
-        <p style="font-family:'Spectral',serif;font-size:17px;margin:0 0 10px" id="learn-mc-q"></p>
-        <div class="learn-mc-opts" id="learn-mc-opts"></div>
-        <div class="check-feedback" id="learn-mc-fb"></div>
-        <button class="mini-btn" id="learn-mc-next" style="display:none;margin-top:10px">continue &rarr;</button>
+      <div id="learn-session" style="display:none">
+        <div class="learn-prog">
+          <div class="learn-prog-bar"><div class="learn-prog-fill" id="learn-prog-fill" style="width:0%"></div></div>
+          <span class="learn-prog-txt" id="learn-prog-txt">0 / 0 mastered</span>
+        </div>
+
+        <div class="check-box">
+          <h4>multiple choice</h4>
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--pencil);margin:0 0 4px" id="learn-mc-cat"></p>
+          <p style="font-family:'Spectral',serif;font-size:17px;margin:0 0 10px" id="learn-mc-q"></p>
+          <div class="learn-mc-opts" id="learn-mc-opts"></div>
+          <div class="check-feedback" id="learn-mc-fb"></div>
+          <button class="mini-btn" id="learn-mc-next" style="display:none;margin-top:10px">continue &rarr;</button>
+        </div>
+      </div>
+
+      <div id="learn-done" style="display:none">
+        <div class="done-screen">
+          <div class="done-icon">✓</div>
+          <div class="done-title">All mastered!</div>
+          <div class="done-sub" id="learn-done-txt"></div>
+          <button class="mini-btn" id="learn-restart">study again &rarr;</button>
+        </div>
       </div>
     </div>
 
-    <div id="learn-done" style="display:none">
-      <div class="done-screen">
-        <div class="done-icon">✓</div>
-        <div class="done-title">All mastered!</div>
-        <div class="done-sub" id="learn-done-txt"></div>
-        <button class="mini-btn" id="learn-restart">study again &rarr;</button>
+    <!-- ============ MODE: MATH DRILLS ============ -->
+    <div id="learn-math-mode" style="display:none">
+      <div id="md-picker">
+        <div class="deck-bar" id="md-type-bar">
+          <!-- type chips injected by app.js -->
+        </div>
+        <button class="mini-btn" id="md-start-btn" style="margin-top:6px">start drill &rarr;</button>
+      </div>
+
+      <div id="md-session" style="display:none">
+        <div class="md-head">
+          <span class="md-type-badge" id="md-type-badge"></span>
+          <span class="md-timer" id="md-timer">3:00</span>
+        </div>
+
+        <div class="check-box md-box">
+          <p class="md-prompt" id="md-prompt"></p>
+
+          <div class="md-answer-row">
+            <input type="number" step="any" class="md-input" id="md-input" placeholder="your answer">
+            <span class="md-unit" id="md-unit"></span>
+          </div>
+
+          <div class="md-actions">
+            <button class="mini-btn" id="md-check">check</button>
+            <button class="mini-btn md-ghost" id="md-show-sol">show solution</button>
+          </div>
+
+          <div class="md-feedback" id="md-feedback"></div>
+
+          <div class="md-solution" id="md-solution" style="display:none">
+            <h5>walk-through</h5>
+            <p id="md-solution-txt"></p>
+          </div>
+
+          <div class="md-nav">
+            <button class="mini-btn" id="md-next" style="display:none">next drill &rarr;</button>
+            <button class="mini-btn md-ghost" id="md-back">back to picker</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
