@@ -1207,7 +1207,7 @@ h2.pencil::after{
 .fw-head{
   all: unset;
   cursor: pointer;
-  display: flex; gap: 12px; align-items: baseline;
+  display: flex; gap: 12px; align-items: center;
   padding: 14px 18px;
   width: 100%;
 }
@@ -1224,8 +1224,28 @@ h2.pencil::after{
 }
 .fw-toggle{
   font-family:'IBM Plex Mono', monospace;
-  font-size: 13px;
-  color: var(--pencil);
+  font-size: 10.5px;
+  letter-spacing: 1.2px;
+  padding: 3px 10px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 2px 2px 0 var(--ink);
+  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+.fw-head:hover .fw-toggle{
+  background: var(--tab-3);
+  transform: translate(-1px,-1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.fw-item:has(.fw-body.open) .fw-toggle{
+  background: var(--tab-2);
 }
 .fw-body{
   display: none;
