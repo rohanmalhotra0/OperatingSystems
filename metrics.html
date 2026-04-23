@@ -64,6 +64,16 @@
   </footer>
 </div>
 
+<script type="module" src="/assets/sync.js"></script>
 <script src="/assets/metrics.js?v=1" defer></script>
+<script type="module">
+  // When the server pulls progress in, re-render metrics so the new data shows.
+  window.addEventListener("progress-synced", (e) => {
+    if (!e.detail || !e.detail.count) return;
+    const sub = document.getElementById("mx-sub");
+    if (sub) sub.textContent = `synced ${e.detail.count} keys · reloading…`;
+    setTimeout(() => window.location.reload(), 400);
+  });
+</script>
 </body>
 </html>

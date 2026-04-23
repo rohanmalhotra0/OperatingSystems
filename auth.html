@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sign in · darden.lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Architects+Daughter&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:       #f3ecd8;
+    --paper-soft:  #efe6cd;
+    --ink:         #1d1a16;
+    --pencil:      #5a564c;
+    --red:         #b52d2d;
+    --green:       #4a7c3a;
+    --tab-1:       #e7c7a1;
+    --tab-2:       #c9d4a8;
+    --tab-3:       #e9d9a8;
+    --rule-blue:   #7c9cbf;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family:'Spectral',Georgia,serif;
+    background-image:
+      linear-gradient(rgba(124,156,191,0.14) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,156,191,0.14) 1px, transparent 1px),
+      radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1.5px);
+    background-size: 22px 22px, 22px 22px, 5px 5px;
+  }
+  ::selection{ background: var(--red); color: var(--paper); }
+
+  .wrap{
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 60px 24px 48px;
+  }
+
+  .back{
+    display: inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 12px;
+    color: var(--pencil);
+    text-decoration: none;
+    margin-bottom: 26px;
+    letter-spacing: 1px;
+  }
+  .back:hover{ color: var(--red); }
+
+  .masthead{
+    margin-bottom: 28px;
+  }
+  h1.title{
+    font-family:'Architects Daughter','Caveat',cursive;
+    font-size: 48px;
+    margin: 0;
+    letter-spacing: -1px;
+    text-shadow: 2px 2px 0 rgba(181,45,45,0.22);
+  }
+  h1 .dot{ color: var(--red); }
+  .sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 12px;
+    color: var(--pencil);
+    margin: 4px 0 0;
+    letter-spacing: 1px;
+    text-transform: lowercase;
+  }
+
+  .card{
+    position: relative;
+    background: var(--paper-soft);
+    border: 2px solid var(--ink);
+    box-shadow: 7px 7px 0 var(--ink);
+    padding: 34px 30px 28px;
+  }
+  .card .tab-strip{
+    position: absolute;
+    top: -22px; left: 24px;
+    padding: 8px 18px 12px;
+    background: var(--tab-3);
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 14px 16px 0 0 / 26px 24px 0 0;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* Toggle between sign-in / sign-up */
+  .toggle{
+    display: flex;
+    border: 1.5px solid var(--ink);
+    margin-bottom: 22px;
+  }
+  .toggle button{
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 10px 0;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--pencil);
+    border-right: 1.5px solid var(--ink);
+  }
+  .toggle button:last-child{ border-right: none; }
+  .toggle button.on{
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  h2.mode-title{
+    font-family:'Architects Daughter',cursive;
+    font-size: 32px;
+    margin: 0 0 4px;
+    line-height: 1;
+  }
+  .mode-title .dot{ color: var(--red); }
+  .mode-sub{
+    font-family:'Caveat',cursive;
+    font-size: 18px;
+    color: var(--pencil);
+    margin: 0 0 20px;
+  }
+
+  form{ margin: 0; }
+  label{
+    display: block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--pencil);
+    margin-bottom: 6px;
+  }
+  input[type="email"],
+  input[type="password"]{
+    width: 100%;
+    padding: 10px 12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    margin-bottom: 16px;
+    outline: none;
+  }
+  input:focus{
+    border-color: var(--red);
+    box-shadow: 3px 3px 0 var(--red);
+  }
+
+  .submit{
+    width: 100%;
+    padding: 12px;
+    font-family:'Architects Daughter',cursive;
+    font-size: 22px;
+    color: var(--paper);
+    background: var(--ink);
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--red);
+    cursor: pointer;
+    margin-top: 4px;
+    transition: transform 0.08s, box-shadow 0.08s;
+  }
+  .submit:hover{ transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--red); }
+  .submit:active{ transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--red); }
+  .submit:disabled{ opacity: 0.55; cursor: wait; transform: none; box-shadow: 4px 4px 0 var(--red); }
+
+  .divider{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 22px 0 16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 10.5px;
+    letter-spacing: 2px;
+    color: var(--pencil);
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after{
+    content: "";
+    flex: 1;
+    height: 1px;
+    border-top: 1px dashed var(--pencil);
+  }
+
+  .magic{
+    width: 100%;
+    padding: 10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    cursor: pointer;
+  }
+  .magic:hover{ background: var(--tab-2); }
+
+  .msg{
+    margin-top: 16px;
+    padding: 12px 14px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 12.5px;
+    line-height: 1.45;
+    border: 1.5px dashed var(--pencil);
+    display: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .msg.show{ display: block; }
+  .msg.ok{    border-color: var(--green); color: var(--green); background: rgba(74,124,58,0.08); }
+  .msg.err{   border-color: var(--red);   color: var(--red);   background: rgba(181,45,45,0.08); }
+
+  .foot{
+    margin-top: 18px;
+    text-align: center;
+    font-family:'Caveat',cursive;
+    font-size: 18px;
+    color: var(--pencil);
+  }
+  .foot a{ color: var(--red); text-decoration: none; border-bottom: 1.5px solid var(--red); }
+
+  .session-box{
+    display: none;
+    padding: 22px 20px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    margin-bottom: 18px;
+  }
+  .session-box.show{ display: block; }
+  .session-box .hello{
+    font-family:'Architects Daughter',cursive;
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+  .session-box .email{
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 13px;
+    color: var(--pencil);
+    margin: 0 0 14px;
+    word-break: break-all;
+  }
+  .session-box button{
+    padding: 8px 16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: var(--paper-soft);
+    border: 1.5px solid var(--ink);
+    cursor: pointer;
+  }
+  .session-box button:hover{ background: var(--red); color: var(--paper); border-color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="back" href="/">← darden.lab</a>
+
+  <header class="masthead">
+    <h1 class="title">sign in<span class="dot">.</span></h1>
+    <p class="sub">your progress, synced across devices</p>
+  </header>
+
+  <div class="session-box" id="session-box">
+    <p class="hello">hi there —</p>
+    <p class="email" id="session-email"></p>
+    <button type="button" id="sign-out-btn">sign out</button>
+  </div>
+
+  <div class="card" id="auth-card">
+    <span class="tab-strip">access</span>
+
+    <div class="toggle" role="tablist">
+      <button type="button" class="on" data-mode="signin">sign in</button>
+      <button type="button" data-mode="signup">sign up</button>
+    </div>
+
+    <h2 class="mode-title" id="mode-title">welcome back<span class="dot">.</span></h2>
+    <p class="mode-sub" id="mode-sub">pick up where you left off</p>
+
+    <form id="auth-form" autocomplete="on">
+      <label for="email">email</label>
+      <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
+
+      <label for="password">password</label>
+      <input type="password" id="password" name="password" required minlength="6" autocomplete="current-password" placeholder="at least 6 characters">
+
+      <button class="submit" type="submit" id="submit-btn">sign in →</button>
+    </form>
+
+    <div class="divider">or</div>
+    <button class="magic" type="button" id="magic-btn">send me a magic link</button>
+
+    <div class="msg" id="msg"></div>
+
+    <p class="foot" id="foot">new here? <a href="#" data-switch-mode="signup">create an account</a></p>
+  </div>
+</div>
+
+<script type="module">
+  import { supabase, getUser, signOut, onAuthChange } from "/assets/supabase.js";
+
+  const card        = document.getElementById("auth-card");
+  const sessionBox  = document.getElementById("session-box");
+  const sessionEmail= document.getElementById("session-email");
+  const signOutBtn  = document.getElementById("sign-out-btn");
+  const toggleBtns  = document.querySelectorAll(".toggle button");
+  const modeTitle   = document.getElementById("mode-title");
+  const modeSub     = document.getElementById("mode-sub");
+  const form        = document.getElementById("auth-form");
+  const emailEl     = document.getElementById("email");
+  const passwordEl  = document.getElementById("password");
+  const submitBtn   = document.getElementById("submit-btn");
+  const magicBtn    = document.getElementById("magic-btn");
+  const msg         = document.getElementById("msg");
+  const foot        = document.getElementById("foot");
+
+  let mode = "signin"; // "signin" | "signup"
+
+  function setMode(next){
+    mode = next;
+    toggleBtns.forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
+    if (mode === "signin") {
+      modeTitle.innerHTML = 'welcome back<span class="dot">.</span>';
+      modeSub.textContent = "pick up where you left off";
+      submitBtn.textContent = "sign in →";
+      passwordEl.autocomplete = "current-password";
+      foot.innerHTML = 'new here? <a href="#" data-switch-mode="signup">create an account</a>';
+    } else {
+      modeTitle.innerHTML = 'start fresh<span class="dot">.</span>';
+      modeSub.textContent = "a new notebook, just for you";
+      submitBtn.textContent = "create account →";
+      passwordEl.autocomplete = "new-password";
+      foot.innerHTML = 'already have one? <a href="#" data-switch-mode="signin">sign in</a>';
+    }
+    hideMsg();
+  }
+
+  toggleBtns.forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  foot.addEventListener("click", (e) => {
+    const link = e.target.closest("[data-switch-mode]");
+    if (!link) return;
+    e.preventDefault();
+    setMode(link.dataset.switchMode);
+  });
+
+  function showMsg(text, kind){
+    msg.textContent = text;
+    msg.className = "msg show " + (kind || "");
+  }
+  function hideMsg(){ msg.className = "msg"; msg.textContent = ""; }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email    = emailEl.value.trim();
+    const password = passwordEl.value;
+    if (!email || !password) return;
+
+    submitBtn.disabled = true;
+    hideMsg();
+
+    try {
+      if (mode === "signin") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        showMsg("signed in. redirecting…", "ok");
+        setTimeout(() => { window.location.href = "/"; }, 600);
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email, password,
+          options: { emailRedirectTo: window.location.origin + "/auth.html" },
+        });
+        if (error) throw error;
+        if (data.user && !data.session) {
+          showMsg("account created — check your email to confirm, then sign in.", "ok");
+        } else {
+          showMsg("account created. redirecting…", "ok");
+          setTimeout(() => { window.location.href = "/"; }, 600);
+        }
+      }
+    } catch (err) {
+      showMsg(err.message || "something went wrong.", "err");
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  magicBtn.addEventListener("click", async () => {
+    const email = emailEl.value.trim();
+    if (!email) { showMsg("enter your email first.", "err"); return; }
+    magicBtn.disabled = true;
+    hideMsg();
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin + "/" },
+      });
+      if (error) throw error;
+      showMsg("magic link sent. check your inbox.", "ok");
+    } catch (err) {
+      showMsg(err.message || "couldn't send link.", "err");
+    } finally {
+      magicBtn.disabled = false;
+    }
+  });
+
+  signOutBtn.addEventListener("click", async () => {
+    signOutBtn.disabled = true;
+    await signOut();
+    render(null);
+    signOutBtn.disabled = false;
+  });
+
+  function render(user){
+    if (user) {
+      sessionEmail.textContent = user.email || "(no email)";
+      sessionBox.classList.add("show");
+      card.style.display = "none";
+    } else {
+      sessionBox.classList.remove("show");
+      card.style.display = "";
+    }
+  }
+
+  (async () => { render(await getUser()); })();
+  onAuthChange(render);
+</script>
+
+</body>
+</html>
