@@ -11,6 +11,7 @@ const HTML = `
   <div class="cnav-links">
     <a href="/Consulting/" data-nav="prep">prep</a>
     <a href="/Consulting/#jobs" data-nav="jobs">jobs</a>
+    <a href="/Consulting/#news" data-nav="news">news</a>
     <a href="/Consulting/#behaviorals" data-nav="behaviorals">behaviorals</a>
     <a href="/chat.html?tab=consulting&amp;mode=mock" data-nav="mock">mock interview</a>
     <a href="/chat.html" data-nav="chat">AI chat</a>
@@ -28,6 +29,7 @@ function activeKey() {
   const search = location.search || "";
   if (path.startsWith("/Consulting")) {
     if (hash === "#jobs")         return "jobs";
+    if (hash === "#news")         return "news";
     if (hash === "#behaviorals")  return "behaviorals";
     return "prep";
   }

@@ -794,6 +794,36 @@
   </div>
 </section>
 
+<!-- ================= NEWS ================= -->
+<section class="sheet" id="news">
+  <div class="sheet-margin">
+    <h2 class="pencil">News — M&amp;A deals, industry, hiring trends</h2>
+    <p class="kicker">Scraped from Google News (which aggregates Reuters, Bloomberg, WSJ, FT, DealBook, PE Hub, etc.) via the free RSS search endpoint. Pick an industry bucket — FIG, TMT, healthcare, PE, hiring trends — each cached for two hours. Every card links straight to the original story on the publisher's site.</p>
+
+    <div class="news-filter" id="news-filter" role="tablist" aria-label="news industry filter">
+      <button class="news-chip is-active" data-industry="all"          type="button">all M&amp;A</button>
+      <button class="news-chip"           data-industry="deals"        type="button">announced deals</button>
+      <button class="news-chip"           data-industry="fig"          type="button">FIG</button>
+      <button class="news-chip"           data-industry="tmt"          type="button">TMT</button>
+      <button class="news-chip"           data-industry="healthcare"   type="button">healthcare</button>
+      <button class="news-chip"           data-industry="energy"       type="button">energy</button>
+      <button class="news-chip"           data-industry="consumer"     type="button">consumer</button>
+      <button class="news-chip"           data-industry="industrials"  type="button">industrials</button>
+      <button class="news-chip"           data-industry="pe"           type="button">private equity</button>
+      <button class="news-chip"           data-industry="hiring"       type="button">hiring trends</button>
+    </div>
+
+    <div class="news-toolbar" id="news-toolbar">
+      <span class="news-meta" id="news-meta">loading latest headlines…</span>
+      <button class="mini-btn" id="news-refresh" type="button" title="reload the feed">↻ reload</button>
+    </div>
+
+    <div class="news-list" id="news-list">
+      <div class="news-empty">fetching latest headlines…</div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= BEHAVIORALS ================= -->
 <section class="sheet" id="behaviorals">
   <div class="sheet-margin">

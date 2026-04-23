@@ -2398,6 +2398,150 @@ if (location.hash === "#jobs") loadJobs(false);
 document.getElementById("jobs-refresh")?.addEventListener("click", () => loadJobs(true));
 
 
+/* =========================================================
+   NEWS — M&A deals + industry + hiring trends (via /api/news)
+   One cache entry per industry, 2h TTL on the server. The client
+   keeps a small cache of rendered payloads so switching back to
+   a filter is instant — force=true bypasses it on reload.
+   ========================================================= */
+let newsIndustry  = "all";
+const newsCache   = new Map();   // industry -> rendered payload
+const newsLoading = new Set();   // industry in-flight
+
+function newsEsc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function newsFmtPosted(iso){
+  if (!iso) return "";
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const mins = Math.max(0, Math.round((Date.now() - then) / 60000));
+  if (mins < 60)       return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24)        return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  if (days < 7)        return `${days}d ago`;
+  if (days < 30)       return `${Math.floor(days / 7)}w ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
+function newsFmtAge(fetchedAt){
+  if (!fetchedAt) return "";
+  const ms = Date.now() - new Date(fetchedAt).getTime();
+  const mins = Math.max(0, Math.round(ms / 60000));
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24)  return `${hrs}h ago`;
+  return `${Math.round(hrs / 24)}d ago`;
+}
+
+function renderNews(payload){
+  const list = document.getElementById("news-list");
+  const meta = document.getElementById("news-meta");
+  if (!list || !meta) return;
+  const { items = [], fetched_at, stale, error, warning, label } = payload || {};
+
+  if (error){
+    list.innerHTML = `<div class="news-empty news-error">${newsEsc(error)}</div>`;
+    meta.textContent = "feed unavailable";
+    return;
+  }
+  if (!items.length){
+    list.innerHTML = `<div class="news-empty">no headlines in this bucket yet — try another industry or reload in a few minutes.</div>`;
+    meta.textContent = fetched_at ? `refreshed ${newsFmtAge(fetched_at)}` : "";
+    return;
+  }
+
+  const bits = [`<strong>${items.length}</strong> headlines`];
+  if (label)   bits.push(`· <em>${newsEsc(label)}</em>`);
+  if (stale)   bits.push(`<span class="news-stale">· cached snapshot</span>`);
+  if (warning) bits.push(`<span class="news-stale">· ${newsEsc(warning)}</span>`);
+  bits.push(`<span class="news-fetched">· refreshed ${newsFmtAge(fetched_at)}</span>`);
+  meta.innerHTML = bits.join(" ");
+
+  list.innerHTML = items.map(n => {
+    const src  = n.source
+      ? `<span class="news-src">${newsEsc(n.source)}</span>`
+      : "";
+    const when = n.published
+      ? `<span class="news-when">${newsEsc(newsFmtPosted(n.published))}</span>`
+      : "";
+    const snip = n.snippet
+      ? `<div class="news-snip">${newsEsc(n.snippet)}</div>`
+      : "";
+    return `
+      <a class="news-card" href="${newsEsc(n.link)}" target="_blank" rel="noopener">
+        <div class="news-title">${newsEsc(n.title)}</div>
+        ${snip}
+        <div class="news-meta-row">${src}${when}</div>
+      </a>
+    `;
+  }).join("");
+}
+
+function paintNewsFilter(){
+  document.querySelectorAll("#news-filter .news-chip").forEach(c => {
+    c.classList.toggle("is-active", c.dataset.industry === newsIndustry);
+  });
+}
+
+async function loadNews(industry, force){
+  const ind = industry || newsIndustry;
+  if (!force && newsCache.has(ind)){
+    renderNews(newsCache.get(ind));
+    return;
+  }
+  if (newsLoading.has(ind)) return;
+  newsLoading.add(ind);
+
+  const meta = document.getElementById("news-meta");
+  const list = document.getElementById("news-list");
+  if (meta) meta.textContent = force ? "refreshing…" : "fetching latest headlines…";
+  if (list) list.innerHTML = `<div class="news-empty">${force ? "refreshing…" : "fetching latest headlines…"}</div>`;
+
+  try {
+    const r = await fetch(`/api/news?industry=${encodeURIComponent(ind)}`, { cache: "no-store" });
+    const body = await r.json().catch(() => ({ error: "bad response" }));
+    if (!r.ok && !body?.items?.length){
+      renderNews({ error: body?.error || `status ${r.status}` });
+    } else {
+      newsCache.set(ind, body);
+      if (ind === newsIndustry) renderNews(body);
+    }
+  } catch (e){
+    renderNews({ error: e.message || "network error" });
+  } finally {
+    newsLoading.delete(ind);
+  }
+}
+
+document.querySelectorAll("#news-filter .news-chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    newsIndustry = chip.dataset.industry || "all";
+    paintNewsFilter();
+    loadNews(newsIndustry, false);
+  });
+});
+
+document.getElementById("news-refresh")?.addEventListener("click", () => {
+  newsCache.delete(newsIndustry);
+  loadNews(newsIndustry, true);
+});
+
+tabs.forEach(t => {
+  if (t.dataset.target === "news"){
+    t.addEventListener("click", () => loadNews(newsIndustry, false));
+  }
+});
+window.addEventListener("hashchange", () => {
+  if (location.hash === "#news") loadNews(newsIndustry, false);
+});
+if (location.hash === "#news") loadNews(newsIndustry, false);
+
+
 // =====================================================================
 // BEHAVIORALS — resume → parsed profile → STAR stories → answers
 // =====================================================================

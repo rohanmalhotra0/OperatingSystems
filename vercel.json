@@ -18,12 +18,16 @@
     "api/jobs.js": {
       "maxDuration": 15
     },
+    "api/news.js": {
+      "maxDuration": 15
+    },
     "api/behaviorals.js": {
       "maxDuration": 30
     }
   },
   "crons": [
-    { "path": "/api/jobs", "schedule": "0 6 * * *" }
+    { "path": "/api/jobs",                "schedule": "0 6 * * *" },
+    { "path": "/api/news?industry=all",   "schedule": "0 */2 * * *" }
   ],
   "headers": [
     {
