@@ -2142,7 +2142,7 @@ h2.pencil::after{
   font-weight: 600;
 }
 
-/* ============== learn mode switch (vocab MC vs math drills) ============== */
+/* ============== learn mode switch (vocab MC vs case math) ============== */
 .learn-mode-switch{
   display: flex;
   gap: 0;
