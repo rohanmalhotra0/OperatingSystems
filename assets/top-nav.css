@@ -103,15 +103,15 @@
   flex-shrink: 0;
 }
 
-/* Signed-in state: a quiet status chip, not a CTA. Drops the brutalist box
- * so a long email doesn't compete with the brand and nav links. */
+/* Signed-in state: compact avatar + sign-out link, no email text. Keeps the
+ * chip tiny so a long email can't crash into the nav links. */
 .cnav-auth.is-signed-in {
-  padding: 4px 4px 4px 8px;
+  padding: 3px 4px 3px 3px;
+  gap: 6px;
   background: transparent;
   border-color: transparent;
   box-shadow: none;
   cursor: default;
-  pointer-events: none; /* the chip itself isn't a link when signed in */
 }
 .cnav-auth.is-signed-in:hover {
   transform: none;
@@ -119,23 +119,27 @@
   background: transparent;
 }
 .cnav-auth.is-signed-in .cnav-auth-dot {
+  width: 22px;
+  height: 22px;
   background: var(--red, #b52d2d);
-}
-.cnav-auth-email {
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--pencil, #5a564c);
+  color: var(--paper, #f3ecd8);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
 }
 .cnav-auth-out {
-  margin-left: 4px;
+  margin-left: 0;
   padding: 3px 8px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--pencil, #5a564c);
   cursor: pointer;
-  pointer-events: auto; /* re-enable; parent disabled them */
   font-family: inherit;
   font-size: inherit;
   letter-spacing: inherit;
@@ -160,7 +164,6 @@
   .cnav-brand { font-size: 20px; }
   .cnav-links { gap: 14px; font-size: 11px; width: 100%; order: 3; margin-left: 0; padding-top: 2px; border-top: 1px dashed var(--pencil, #5a564c); }
   .cnav-auth { margin-left: auto; font-size: 10.5px; padding: 4px 8px; }
-  .cnav-auth-email { max-width: 120px; }
 }
 
 /* dim the old floating auth chip on root / Consulting if present (legacy) */

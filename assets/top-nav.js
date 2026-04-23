@@ -49,15 +49,16 @@ function renderAuth(user) {
   if (!chip) return;
   if (user) {
     chip.classList.add("is-signed-in");
+    chip.removeAttribute("href");
+    chip.setAttribute("aria-label", "signed in");
     const email = user.email || "";
-    const handle = email.includes("@") ? email.split("@")[0] : (email || "signed in");
+    const handle = email.includes("@") ? email.split("@")[0] : email;
+    const initial = (handle || "").trim().charAt(0).toUpperCase() || "·";
     chip.replaceChildren();
-    const dot = document.createElement("span");
-    dot.className = "cnav-auth-dot";
-    const name = document.createElement("span");
-    name.className = "cnav-auth-email";
-    name.textContent = handle;
-    if (email) name.title = email;
+    const avatar = document.createElement("span");
+    avatar.className = "cnav-auth-dot";
+    avatar.textContent = initial;
+    if (email) avatar.title = email;
     const out = document.createElement("button");
     out.className = "cnav-auth-out";
     out.id = "cnav-signout";
@@ -69,9 +70,11 @@ function renderAuth(user) {
       e.stopPropagation();
       await signOut();
     });
-    chip.append(dot, name, out);
+    chip.append(avatar, out);
   } else {
     chip.classList.remove("is-signed-in");
+    chip.setAttribute("href", "/auth.html");
+    chip.setAttribute("aria-label", "sign in");
     chip.innerHTML =
       '<span class="cnav-auth-dot"></span>' +
       '<span class="cnav-auth-label">sign in</span>';
