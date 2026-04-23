@@ -838,3 +838,14 @@ document.querySelectorAll(".tl-tab").forEach(tab => {
     document.querySelectorAll(".tl-track").forEach(tr => tr.classList.toggle("tl-track--active", tr.id === target));
   });
 });
+
+/* ---------- Resources: cheat-sheet PDF download (uses browser print → Save as PDF) ---------- */
+const cheatBtn = document.getElementById("cheat-download");
+if (cheatBtn) {
+  cheatBtn.addEventListener("click", () => {
+    const prevTitle = document.title;
+    document.title = "darden-lab-cheat-sheet";
+    window.print();
+    setTimeout(() => { document.title = prevTitle; }, 500);
+  });
+}

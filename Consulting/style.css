@@ -658,7 +658,8 @@ h2.pencil::after{
 @media print{
   @page { size: landscape; margin: 0; }
   body{ background: #fff !important; background-image: none !important; }
-  .masthead, .file-tabs, .footer, .sheet{ display: none !important; }
+  .masthead, .file-tabs, .footer, .sheet,
+  .cw-fab, .cw-panel, [class^="cw-"]{ display: none !important; }
   #cheat-printable{ display: block !important; }
   .cs-page{ page-break-after: always; }
   .cs-page:last-child{ page-break-after: auto; }
@@ -1206,7 +1207,7 @@ h2.pencil::after{
 .fw-head{
   all: unset;
   cursor: pointer;
-  display: flex; gap: 12px; align-items: baseline;
+  display: flex; gap: 12px; align-items: center;
   padding: 14px 18px;
   width: 100%;
 }
@@ -1223,8 +1224,28 @@ h2.pencil::after{
 }
 .fw-toggle{
   font-family:'IBM Plex Mono', monospace;
-  font-size: 13px;
-  color: var(--pencil);
+  font-size: 10.5px;
+  letter-spacing: 1.2px;
+  padding: 3px 10px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 2px 2px 0 var(--ink);
+  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+.fw-head:hover .fw-toggle{
+  background: var(--tab-3);
+  transform: translate(-1px,-1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.fw-item:has(.fw-body.open) .fw-toggle{
+  background: var(--tab-2);
 }
 .fw-body{
   display: none;
@@ -1945,3 +1966,13 @@ h2.pencil::after{
 }
 .src-extras-list li{ padding: 3px 0; }
 .src-extras-list strong{ color: var(--ink); }
+
+.cheat-actions{
+  display: flex;
+  gap: 10px;
+  margin: -6px 0 14px;
+}
+.cheat-actions .mini-btn{
+  background: var(--tab-3);
+  font-weight: 600;
+}
