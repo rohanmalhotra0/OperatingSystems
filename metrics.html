@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Architects+Daughter&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/metrics.css?v=1">
+<link rel="stylesheet" href="/assets/top-nav.css?v=1">
 </head>
 <body>
 
@@ -21,7 +22,6 @@
       <button class="mx-chip mx-chip--on" data-range="7">7 days</button>
       <button class="mx-chip" data-range="30">30 days</button>
       <button class="mx-chip" data-range="all">all time</button>
-      <a class="mx-home" href="/index.html">↩ home</a>
     </div>
   </header>
 
@@ -66,6 +66,7 @@
 
 <script type="module" src="/assets/sync.js"></script>
 <script src="/assets/metrics.js?v=1" defer></script>
+<script type="module" src="/assets/top-nav.js?v=1"></script>
 <script type="module">
   // When the server pulls progress in, re-render metrics so the new data shows.
   window.addEventListener("progress-synced", (e) => {

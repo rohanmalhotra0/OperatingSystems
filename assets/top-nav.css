@@ -1,0 +1,151 @@
+/* Shared top utility nav for Casen.
+ * Present on every page so AI chat, metrics, jobs, behaviorals, and prep
+ * are all one click away. Injected by /assets/top-nav.js.
+ */
+
+:root {
+  --cnav-h: 52px;
+}
+
+.cnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 22px;
+  height: var(--cnav-h);
+  background: var(--paper, #f3ecd8);
+  border-bottom: 2px solid var(--ink, #1d1a16);
+  box-shadow: 0 3px 0 var(--ink, #1d1a16), 0 6px 14px rgba(0, 0, 0, 0.07);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+}
+
+.cnav-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: 'Architects Daughter', cursive;
+  font-size: 24px;
+  letter-spacing: -0.5px;
+  color: var(--ink, #1d1a16);
+  text-decoration: none;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.cnav-brand-mark {
+  color: var(--red, #b52d2d);
+  font-size: 18px;
+  transform: translateY(-1px);
+}
+.cnav-brand-dot {
+  color: var(--red, #b52d2d);
+}
+
+.cnav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  margin-left: 8px;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+.cnav-links a {
+  color: var(--pencil, #5a564c);
+  text-decoration: none;
+  text-transform: lowercase;
+  padding: 4px 2px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.1s, border-bottom-color 0.1s;
+  white-space: nowrap;
+}
+.cnav-links a:hover {
+  color: var(--ink, #1d1a16);
+  border-bottom-color: var(--pencil, #5a564c);
+}
+.cnav-links a.is-active {
+  color: var(--red, #b52d2d);
+  border-bottom-color: var(--red, #b52d2d);
+  font-weight: 600;
+}
+
+.cnav-auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: var(--paper-soft, #efe6cd);
+  border: 1.5px solid var(--ink, #1d1a16);
+  box-shadow: 2px 2px 0 var(--ink, #1d1a16);
+  color: var(--ink, #1d1a16);
+  text-decoration: none;
+  flex-shrink: 0;
+  font-size: 11.5px;
+  text-transform: lowercase;
+  letter-spacing: 1px;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.cnav-auth:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink, #1d1a16);
+  background: var(--tab-2, #c9d4a8);
+}
+.cnav-auth-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pencil, #5a564c);
+  display: inline-block;
+  flex-shrink: 0;
+}
+.cnav-auth.is-signed-in .cnav-auth-dot {
+  background: var(--red, #b52d2d);
+}
+.cnav-auth-email {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cnav-auth-out {
+  margin-left: 4px;
+  padding: 0 0 0 8px;
+  border: none;
+  border-left: 1px solid var(--pencil, #5a564c);
+  background: transparent;
+  color: var(--pencil, #5a564c);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: lowercase;
+}
+.cnav-auth-out:hover {
+  color: var(--red, #b52d2d);
+}
+
+/* compact mode for narrow viewports */
+@media (max-width: 780px) {
+  :root { --cnav-h: auto; }
+  .cnav {
+    flex-wrap: wrap;
+    padding: 8px 14px;
+    gap: 8px 14px;
+  }
+  .cnav-brand { font-size: 20px; }
+  .cnav-links { gap: 14px; font-size: 11px; width: 100%; order: 3; margin-left: 0; padding-top: 2px; border-top: 1px dashed var(--pencil, #5a564c); }
+  .cnav-auth { margin-left: auto; font-size: 10.5px; padding: 4px 8px; }
+  .cnav-auth-email { max-width: 120px; }
+}
+
+/* dim the old floating auth chip on root / Consulting if present (legacy) */
+body .auth-chip { display: none !important; }
+
+/* chat.html is a 100vh app shell — subtract the nav height so it fits */
+body[data-chat-mode="full"] .cp-shell {
+  height: calc(100vh - var(--cnav-h));
+}

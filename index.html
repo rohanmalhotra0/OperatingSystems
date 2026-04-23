@@ -219,53 +219,10 @@
     color: var(--pencil);
   }
   .footer a{ color:var(--ink); border-bottom:1px solid var(--red); text-decoration:none; margin:0 4px; }
-
-  .auth-chip{
-    position: absolute;
-    top: 24px; right: 28px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    font-family:'IBM Plex Mono',monospace;
-    font-size: 11.5px;
-    letter-spacing: 1px;
-    text-transform: lowercase;
-    color: var(--ink);
-    background: var(--paper-soft);
-    border: 1.5px solid var(--ink);
-    text-decoration: none;
-    box-shadow: 3px 3px 0 var(--ink);
-    z-index: 5;
-  }
-  .auth-chip:hover{ background: var(--tab-2); transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
-  .auth-chip .dot{
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--pencil);
-    display: inline-block;
-  }
-  .auth-chip.signed-in .dot{ background: var(--red); }
-  .auth-chip .email{
-    max-width: 160px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .auth-chip .signout{
-    margin-left: 4px;
-    padding-left: 8px;
-    border-left: 1px solid var(--pencil);
-    color: var(--pencil);
-  }
-  .auth-chip .signout:hover{ color: var(--red); }
 </style>
+<link rel="stylesheet" href="/assets/top-nav.css?v=1">
 </head>
 <body>
-
-<a class="auth-chip" id="auth-chip" href="/auth.html">
-  <span class="dot"></span>
-  <span class="label">sign in</span>
-</a>
 
 <div class="wrap">
   <header class="masthead">
@@ -363,39 +320,12 @@
     ·
     <a href="https://rohanm.org">rohanm.org</a>
     ·
-    <a href="/chat.html">full chat →</a>
-    ·
-    <a href="/metrics.html">metrics 📊</a>
-    ·
     <a href="https://github.com/rohanmalhotra0/schoolwork">nyu schoolwork →</a>
   </div>
 </div>
 
 <script type="module" src="/assets/sync.js"></script>
-<script type="module">
-  import { getUser, signOut, onAuthChange } from "/assets/supabase.js";
-  const chip = document.getElementById("auth-chip");
-  function render(user){
-    if (user) {
-      chip.classList.add("signed-in");
-      chip.href = "/auth.html";
-      chip.innerHTML =
-        '<span class="dot"></span>' +
-        '<span class="email">' + (user.email || "signed in") + '</span>' +
-        '<span class="signout" id="signout-link">sign out</span>';
-      document.getElementById("signout-link").addEventListener("click", async (e) => {
-        e.preventDefault(); e.stopPropagation();
-        await signOut();
-      });
-    } else {
-      chip.classList.remove("signed-in");
-      chip.href = "/auth.html";
-      chip.innerHTML = '<span class="dot"></span><span class="label">sign in</span>';
-    }
-  }
-  (async () => { render(await getUser()); })();
-  onAuthChange(render);
-</script>
+<script type="module" src="/assets/top-nav.js?v=1"></script>
 <script src="/assets/chat-widget.js?v=1" defer></script>
 <link rel="stylesheet" href="/assets/chat-widget.css?v=1">
 </body>

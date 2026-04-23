@@ -268,11 +268,11 @@
   }
   .session-box button:hover{ background: var(--red); color: var(--paper); border-color: var(--red); }
 </style>
+<link rel="stylesheet" href="/assets/top-nav.css?v=1">
 </head>
 <body>
 
 <div class="wrap">
-  <a class="back" href="/">← Casen</a>
 
   <header class="masthead">
     <h1 class="title">sign in<span class="dot">.</span></h1>
@@ -443,6 +443,7 @@
   (async () => { render(await getUser()); })();
   onAuthChange(render);
 </script>
+<script type="module" src="/assets/top-nav.js?v=1"></script>
 
 </body>
 </html>
