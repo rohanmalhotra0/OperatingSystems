@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <title>Casen — the consulting casebook, rebuilt as a study tool</title>
-<meta name="description" content="A full consulting casebook as a single-page study tool. 42 cases, 8 frameworks, 80+ vocab cards, AI voice mocks, live M&A news, and structured prep timelines.">
+<meta name="description" content="A full consulting casebook as a single-page study tool. 71 cases, 8 frameworks, 80+ vocab cards, AI voice mocks, resume-to-STAR behaviorals, live job board, M&A news, and structured prep timelines.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Architects+Daughter&display=swap" rel="stylesheet">
@@ -402,6 +402,52 @@
     font-family:'Caveat', cursive;
     font-size: 18px;
     color: var(--red);
+  }
+
+  /* ── companion tools row ───────────────────────────────── */
+  .tools-row{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 36px;
+  }
+  @media (max-width: 640px){ .tools-row{ grid-template-columns: 1fr; } }
+  .tool-card{
+    position: relative;
+    padding: 28px 24px 22px;
+    background: var(--paper-soft);
+    border: 2px solid var(--ink);
+    box-shadow: 5px 5px 0 var(--ink);
+  }
+  .tool-card .tool-label{
+    display: inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--red);
+    border: 1.5px solid var(--red);
+    padding: 2px 7px;
+    margin-bottom: 10px;
+  }
+  .tool-card h4{
+    font-family:'Architects Daughter', cursive;
+    font-size: 28px;
+    margin: 0 0 10px;
+    line-height: 1;
+  }
+  .tool-card h4 .mono{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 14px;
+    color: var(--pencil);
+    margin-left: 6px;
+    letter-spacing: 1px;
+  }
+  .tool-card p{
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.55;
   }
 
   /* ── spotlight blocks ──────────────────────────────────── */
@@ -806,10 +852,10 @@
       <h1>Casen<span class="dot">.</span></h1>
       <p class="hero-lede">
         The full consulting casebook, rebuilt as a single-page study tool.
-        <em>42 cases, 8 frameworks, ~80 vocab cards, AI voice mocks, live deal news.</em>
+        <em>71 cases, 8 frameworks, ~80 vocab cards, AI voice mocks, resume-to-STAR behavioral prep, live job board, and M&amp;A news.</em>
       </p>
       <p class="hero-extra">
-        Walk a case interview-style, drill market-sizing against a timer, or run a full voice mock with the AI tutor. Your progress follows you across every device.
+        Walk a case interview-style, drill market-sizing against a timer, turn your resume into STAR stories, or run a full voice mock with the AI tutor. Your progress follows you across every device.
       </p>
       <div class="cta-row">
         <a class="btn btn-primary" href="/auth.html?mode=signup">create free account →</a>
@@ -823,16 +869,16 @@
       <p class="page-title">friday · case prep</p>
       <ul class="scribble-list">
         <li>
-          market-size: coffee shops in NYC
-          <span class="meta">math · 4 min · 92% accuracy</span>
+          market-size: US coffee shops
+          <span class="meta">brain teasers · 4 min · within tol</span>
         </li>
         <li>
-          profitability framework drill
-          <span class="meta">frameworks · 6 min</span>
-        </li>
-        <li>
-          M&amp;A case — Darden #14
+          M&amp;A case — HuDisney (#1)
           <span class="meta">cases · stage 3 of 5</span>
+        </li>
+        <li>
+          resume → STAR stories
+          <span class="meta">behaviorals · 6 stories drafted</span>
         </li>
         <li>
           voice mock: market entry
@@ -845,19 +891,19 @@
 
   <!-- ── stats ─────────────────────────────────────────── -->
   <div class="stats-strip">
-    <div class="stat"><span class="n">42</span><span class="l">cases</span></div>
-    <div class="stat"><span class="n">80+</span><span class="l">vocab</span></div>
+    <div class="stat"><span class="n">71</span><span class="l">full cases</span></div>
+    <div class="stat"><span class="n">80+</span><span class="l">vocab cards</span></div>
     <div class="stat"><span class="n">8</span><span class="l">frameworks</span></div>
-    <div class="stat"><span class="n">17</span><span class="l">case math</span></div>
-    <div class="stat"><span class="n">6</span><span class="l">worked ex.</span></div>
+    <div class="stat"><span class="n">15</span><span class="l">brain teasers</span></div>
+    <div class="stat"><span class="n">STAR</span><span class="l">behavioral prep</span></div>
     <div class="stat"><span class="n">AI</span><span class="l">voice tutor</span></div>
   </div>
 
   <!-- ── whats inside ──────────────────────────────────── -->
   <section class="section">
     <span class="section-label">what's inside</span>
-    <h2 class="section-title">ten tabs, one notebook.</h2>
-    <p class="section-sub">every way to practice, in one place</p>
+    <h2 class="section-title">twelve tabs, one notebook.</h2>
+    <p class="section-sub">plus a voice tutor and a progress dashboard on the side</p>
 
     <div class="feature-grid">
       <div class="feature-card" data-tint="1">
@@ -885,7 +931,7 @@
         <span class="chip">04</span>
         <h4>cases</h4>
         <p>Full-length cases walked stage-by-stage: prompt → clarifying → structure → math → recommend. Every step is annotated with what a strong answer sounds like.</p>
-        <span class="count">42 cases · full casebook</span>
+        <span class="count">71 cases · full casebook</span>
       </div>
 
       <div class="feature-card" data-tint="5">
@@ -918,23 +964,51 @@
 
       <div class="feature-card" data-tint="9">
         <span class="chip">09</span>
-        <h4>resources</h4>
-        <p>Voice mock interviews with the AI, tutor chat for stuck moments, progress analytics, printable PDFs, and the source casebooks we built from.</p>
-        <span class="count">tools · references · PDFs</span>
+        <h4>brain teasers</h4>
+        <p>Market-sizing and Fermi estimation drills. Submit a number against a tolerance window, then see the reasoning walkthrough — the part interviewers actually grade.</p>
+        <span class="count">15 drills · full walkthroughs</span>
+      </div>
+
+      <div class="feature-card" data-tint="6">
+        <span class="chip">10</span>
+        <h4>behaviorals</h4>
+        <p>Paste your resume. AI extracts every experience, you edit anything it got wrong, and it turns each one into a STAR story with spoken-style answers to the common prompts.</p>
+        <span class="count">resume → STAR → answers</span>
+      </div>
+
+      <div class="feature-card" data-tint="2">
+        <span class="chip">11</span>
+        <h4>jobs</h4>
+        <p>Live consulting postings aggregated from LinkedIn, Indeed, Google Jobs, and ZipRecruiter. Auto-refreshes every 12 hours — click a card to open the source site.</p>
+        <span class="count">4 sources · 12h refresh</span>
       </div>
 
       <div class="feature-card" data-tint="5">
-        <span class="chip">10</span>
+        <span class="chip">12</span>
         <h4>news</h4>
         <p>Scraped M&amp;A deals, industry headlines, and hiring trends. Filter by FIG / TMT / healthcare / PE / consumer — every card links to the original story.</p>
         <span class="count">10 buckets · 2h refresh</span>
+      </div>
+    </div>
+
+    <!-- ── standalone companion tools ───────────────────── -->
+    <div class="tools-row">
+      <div class="tool-card">
+        <span class="tool-label">companion tool</span>
+        <h4>mock interview <span class="mono">/chat</span></h4>
+        <p>Dedicated voice-mock surface. Walk a full case out loud, get a structure / quant / communication grade and a transcript saved to metrics.</p>
+      </div>
+      <div class="tool-card">
+        <span class="tool-label">companion page</span>
+        <h4>metrics <span class="mono">/metrics</span></h4>
+        <p>Daily-activity heatmap, per-course mastery, ten weakest terms across every tab, and a graded history of every mock you've finished.</p>
       </div>
     </div>
   </section>
 
   <!-- ── spotlight: voice mock ─────────────────────────── -->
   <section class="section">
-    <span class="section-label">spotlight · voice mocks</span>
+    <span class="section-label">spotlight · mock interview</span>
     <h2 class="section-title">run a full case, out loud.</h2>
     <p class="section-sub">the AI plays interviewer — you get a graded rubric</p>
 
@@ -942,13 +1016,13 @@
       <div class="spot-copy">
         <h3>practice the hardest part: saying it.</h3>
         <p>
-          Reading case frameworks is easy. Saying them out loud under time pressure is the whole thing. Casen's AI voice tutor runs the full interviewer arc — prompt, clarifying questions, pushbacks, math drills — and scores you on structure, quant, and communication.
+          Reading case frameworks is easy. Saying them out loud under time pressure is the whole thing. Casen's mock-interview page runs the full interviewer arc — prompt, clarifying questions, pushbacks, math drills — and scores you on structure, quant, and communication. Dedicated tab, always a click away in the top nav.
         </p>
         <ul class="bullets">
           <li>Browser-based voice chat — no app, no setup</li>
           <li>Three-dimension grade + one-sentence feedback per mock</li>
           <li>Full transcript saved to your metrics page</li>
-          <li>Ask the tutor any concept mid-case — it holds context</li>
+          <li>Also doubles as a general tutor — ask any concept mid-case</li>
         </ul>
       </div>
 
@@ -976,7 +1050,7 @@
   <!-- ── spotlight: cases ──────────────────────────────── -->
   <section class="section">
     <span class="section-label">spotlight · cases</span>
-    <h2 class="section-title">forty-two cases, walked stage by stage.</h2>
+    <h2 class="section-title">seventy-one cases, walked stage by stage.</h2>
     <p class="section-sub">not a wall of text — a guided dialogue</p>
 
     <div class="spotlight reverse">
@@ -986,8 +1060,8 @@
           Cases aren't PDFs to scroll — they're interactive. Each one walks you through prompt, clarifying, structure, math, and recommendation in turn. You try it; the tab reveals what a strong answer would have said and why.
         </p>
         <ul class="bullets">
-          <li>42 full cases from the canonical MBB casebooks</li>
-          <li>17 with live math you can solve against a timer</li>
+          <li>71 full cases drawn from the canonical MBB casebooks (Darden, Wharton, Tuck, and more)</li>
+          <li>Live math steps you can solve against a timer</li>
           <li>Stage-level save — pause a case, resume next session</li>
           <li>Framework hint per case, if you want the nudge</li>
         </ul>
@@ -1015,6 +1089,153 @@
           <div class="case-step">
             <span class="n">5</span>
             <div class="t"><strong>recommend</strong>Proceed — but stage the integration and re-evaluate at 18 months.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── spotlight: behaviorals ────────────────────────── -->
+  <section class="section">
+    <span class="section-label">spotlight · behaviorals</span>
+    <h2 class="section-title">resume in, STAR stories out.</h2>
+    <p class="section-sub">the behavioral round, prepped in one paste</p>
+
+    <div class="spotlight">
+      <div class="spot-copy">
+        <h3>drop your resume — get answers to every common prompt.</h3>
+        <p>
+          Paste your resume as plain text. The AI pulls out each experience — job, project, leadership moment, award. You edit anything it misread, and it drafts a proper STAR story for each one, then produces spoken-style answers to the usual "tell me about a time…" questions.
+        </p>
+        <ul class="bullets">
+          <li>One-paste resume ingest — LinkedIn, PDF copy, plain bullets all work</li>
+          <li>Editable profile so you correct misreads before stories are drafted</li>
+          <li>STAR (Situation / Task / Action / Result) format per experience</li>
+          <li>Spoken-style answers tuned for 60–90 seconds out loud</li>
+        </ul>
+      </div>
+
+      <div class="spot-visual">
+        <div class="mock-card">
+          <span class="mock-tab">behaviorals · step 3</span>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:1.3px; text-transform:uppercase; color:var(--pencil); margin-bottom:10px;">
+            prompt · tell me about a time you led under ambiguity
+          </div>
+          <div class="case-step">
+            <span class="n">S</span>
+            <div class="t"><strong>situation</strong>Led a 4-person intern team at a fintech with no defined product brief for the summer.</div>
+          </div>
+          <div class="case-step">
+            <span class="n">T</span>
+            <div class="t"><strong>task</strong>Needed to ship a deliverable exec leadership would actually use by week 10.</div>
+          </div>
+          <div class="case-step">
+            <span class="n">A</span>
+            <div class="t"><strong>action</strong>Interviewed six stakeholders, narrowed to a churn-driver dashboard, ran weekly demos to tighten scope.</div>
+          </div>
+          <div class="case-step">
+            <span class="n">R</span>
+            <div class="t"><strong>result</strong>Dashboard adopted by the retention team; three recommendations made it into Q4 roadmap.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── spotlight: jobs ───────────────────────────────── -->
+  <section class="section">
+    <span class="section-label">spotlight · jobs</span>
+    <h2 class="section-title">live postings, pulled from four job boards.</h2>
+    <p class="section-sub">the recruiter tab is built-in</p>
+
+    <div class="spotlight reverse">
+      <div class="spot-copy">
+        <h3>stop juggling five tabs of indeed &amp; linkedin.</h3>
+        <p>
+          The jobs tab aggregates consulting postings from LinkedIn, Indeed, Google Jobs, and ZipRecruiter via the JSearch API. Every 12 hours the feed refreshes automatically; in between, you get the cached snapshot so it always loads instantly. Click any card to open the original post on the source site.
+        </p>
+        <ul class="bullets">
+          <li>Four sources aggregated: LinkedIn · Indeed · Google Jobs · ZipRecruiter</li>
+          <li>Auto-refresh every 12 hours — the first visitor after the window triggers the fetch</li>
+          <li>Each card opens the original post — no lock-in, no middleman</li>
+          <li>Cached so it loads instantly and works offline once seen</li>
+        </ul>
+      </div>
+
+      <div class="spot-visual">
+        <div class="mock-card">
+          <span class="mock-tab">jobs · consulting · fresh</span>
+          <div class="news-item">
+            <div class="news-meta">
+              <span class="news-chip">LINKEDIN</span>
+              <span>posted 4h ago</span>
+            </div>
+            <p class="headline"><strong>Associate Consultant</strong> — Bain &amp; Company · New York, NY (full-time)</p>
+          </div>
+          <div class="news-item">
+            <div class="news-meta">
+              <span class="news-chip tmt">INDEED</span>
+              <span>posted 11h ago</span>
+            </div>
+            <p class="headline"><strong>Business Analyst, Consulting</strong> — McKinsey · Chicago, IL (new grad · 2026 start)</p>
+          </div>
+          <div class="news-item">
+            <div class="news-meta">
+              <span class="news-chip pe">GOOGLE JOBS</span>
+              <span>posted 1d ago</span>
+            </div>
+            <p class="headline"><strong>Strategy Consultant</strong> — Deloitte · San Francisco, CA (hybrid)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── spotlight: brain teasers ──────────────────────── -->
+  <section class="section">
+    <span class="section-label">spotlight · brain teasers</span>
+    <h2 class="section-title">market-sizing drills that grade the reasoning.</h2>
+    <p class="section-sub">fermi estimation, with walkthroughs</p>
+
+    <div class="spotlight">
+      <div class="spot-copy">
+        <h3>the number's fine — the process is the answer.</h3>
+        <p>
+          Fifteen market-sizing and Fermi-style drills. You submit a number, the app checks it against a tolerance window, and then reveals the line-by-line walkthrough so you can compare your assumptions to a strong one. Anchor to the real-world figure is shown at the end.
+        </p>
+        <ul class="bullets">
+          <li>Numeric answer + generous tolerance window (estimation is the skill)</li>
+          <li>Per-step reasoning walkthrough — the part interviewers actually grade</li>
+          <li>Real-world anchor at the end so you know how close you were</li>
+          <li>Two categories: market-sizing ($) and Fermi (count)</li>
+        </ul>
+      </div>
+
+      <div class="spot-visual">
+        <div class="mock-card">
+          <span class="mock-tab">brain teaser · bt-m1</span>
+          <div style="font-family:'Spectral',serif; font-size:15px; line-height:1.5; margin-bottom:14px; padding-bottom:10px; border-bottom:1px dashed rgba(90,86,76,0.4);">
+            <strong>Prompt:</strong> Estimate the annual US retail coffee-shop market ($B).
+          </div>
+          <div class="case-step">
+            <span class="n">1</span>
+            <div class="t">US population ≈ 330M; adults ≈ 260M.</div>
+          </div>
+          <div class="case-step">
+            <span class="n">2</span>
+            <div class="t">~65% of adults drink coffee → ~170M coffee drinkers.</div>
+          </div>
+          <div class="case-step">
+            <span class="n">3</span>
+            <div class="t">Of those, ~45% regularly buy coffee out → ~75M shop buyers.</div>
+          </div>
+          <div class="case-step">
+            <span class="n">4</span>
+            <div class="t">Frequency: 4 cups/week × 50 weeks × $3.50 ≈ $700/yr.</div>
+          </div>
+          <div class="case-step">
+            <span class="n">5</span>
+            <div class="t"><strong style="color:var(--red)">your guess: $52B</strong>· anchor: $47B · within tolerance ✓</div>
           </div>
         </div>
       </div>
@@ -1181,7 +1402,7 @@
     <div class="faq-list">
       <details class="faq-item">
         <summary>Is it actually free?</summary>
-        <p>Yes. The entire casebook, all drills, the news feed, and the voice tutor are free while Casen is in early access. No card, no trial timer.</p>
+        <p>Yes. The full casebook, every drill, behaviorals, the jobs feed, the news feed, and the voice mock are all free while Casen is in early access. No card, no trial timer.</p>
       </details>
       <details class="faq-item">
         <summary>Why do I need to make an account?</summary>
