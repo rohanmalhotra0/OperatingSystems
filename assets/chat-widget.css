@@ -1102,3 +1102,502 @@
   color: var(--cw-ink);
 }
 .cw-mock-msg-btn:hover{ background: var(--cw-paper-soft); }
+
+/* =========================================================
+   Call UI — mock interview "phone call" experience
+   Dark surface, central orb, minimal controls. Inspired by
+   ChatGPT voice mode.
+   ========================================================= */
+.cw-call{
+  --call-bg:       #0a0a14;
+  --call-bg-2:     #141427;
+  --call-ink:      #f2f2f8;
+  --call-sub:      rgba(242,242,248,0.65);
+  --call-line:     rgba(255,255,255,0.08);
+  --call-accent:   #ffd27a;  /* warm idle */
+  --call-ai:       #8fb7ff;  /* blue — interviewer speaking */
+  --call-user:     #a8f0c1;  /* green — you speaking */
+  --call-warn:     #ff8282;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  background: radial-gradient(ellipse at 50% 20%, var(--call-bg-2) 0%, var(--call-bg) 70%);
+  color: var(--call-ink);
+  padding: 16px 18px 14px;
+  gap: 10px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.cw-call::before{
+  /* subtle grain */
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 3px 3px;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 0;
+}
+.cp-main .cw-call{ padding: 22px 28px 18px 78px; min-height: calc(100vh - 140px); }
+
+/* ---------- top bar ---------- */
+.cw-call-top{
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 12px;
+}
+.cw-call-top-mid{
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 0;
+}
+.cw-call-blocklbl{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--call-sub);
+}
+.cw-call-steps{
+  display: flex; align-items: center; gap: 3px;
+}
+.cw-call-dot{
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: var(--call-sub);
+  background: rgba(255,255,255,0.02);
+  transition: all 160ms ease;
+}
+.cw-call-dot--done{
+  background: rgba(168,240,193,0.14);
+  border-color: rgba(168,240,193,0.5);
+  color: var(--call-user);
+}
+.cw-call-dot--active{
+  background: rgba(255,255,255,0.95);
+  border-color: #fff;
+  color: #141427;
+  box-shadow: 0 0 12px rgba(255,255,255,0.35);
+}
+.cw-call-dot-sep{
+  width: 10px; height: 1px;
+  background: rgba(255,255,255,0.14);
+}
+.cw-call-topbtn{
+  all: unset;
+  cursor: pointer;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%;
+  color: var(--call-ink);
+  background: rgba(255,255,255,0.04);
+  transition: background 140ms ease, transform 140ms ease;
+}
+.cw-call-topbtn:hover{ background: rgba(255,255,255,0.1); }
+.cw-call-topbtn:active{ transform: scale(0.95); }
+.cw-call-topbtn-glyph{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  font-style: italic;
+}
+
+/* ---------- body / orb ---------- */
+.cw-call-body{
+  position: relative; z-index: 1;
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 12px 0;
+  min-height: 320px;
+}
+.cw-call-title{
+  font-family: 'Caveat', cursive;
+  font-size: 30px;
+  line-height: 1.05;
+  color: var(--call-ink);
+  text-align: center;
+  max-width: 80%;
+}
+.cw-call-sub{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--call-sub);
+}
+.cw-call-orb-wrap{
+  position: relative;
+  margin: 12px 0 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.cw-call-orb{
+  --cw-orb-scale: 1;
+  --cw-orb-glow: 0.4;
+  --cw-orb-active: 0;
+  --orb-size: clamp(180px, 32vw, 280px);
+  position: relative;
+  width: var(--orb-size);
+  height: var(--orb-size);
+  border-radius: 50%;
+  cursor: pointer;
+  transform: scale(var(--cw-orb-scale));
+  transition: transform 80ms linear;
+  outline: none;
+  will-change: transform;
+}
+.cw-call-orb:focus-visible{
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.35), 0 0 60px rgba(143,183,255,0.4);
+}
+.cw-orb-halo{
+  position: absolute; inset: -45%;
+  background: radial-gradient(circle at center,
+    rgba(255,210,122,0.35) 0%,
+    rgba(143,183,255,0.2) 35%,
+    rgba(143,183,255,0) 65%);
+  filter: blur(28px);
+  opacity: calc(0.55 + var(--cw-orb-glow) * 0.8);
+  transition: opacity 140ms ease;
+  pointer-events: none;
+}
+.cw-orb-ring{
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    rgba(255,210,122,0.9),
+    rgba(143,183,255,0.9),
+    rgba(168,240,193,0.9),
+    rgba(255,210,122,0.9));
+  filter: blur(18px);
+  opacity: 0.55;
+  animation: cw-orb-rot 14s linear infinite;
+}
+.cw-orb-ring--2{
+  inset: 6%;
+  animation-duration: 22s;
+  animation-direction: reverse;
+  filter: blur(12px);
+  opacity: 0.75;
+}
+.cw-orb-ring--3{
+  inset: 14%;
+  animation-duration: 32s;
+  filter: blur(8px);
+  opacity: 0.9;
+}
+.cw-orb-core{
+  position: absolute; inset: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,255,255,0.95) 0%,
+    rgba(255,235,200,0.9) 20%,
+    rgba(255,180,120,0.5) 45%,
+    rgba(80,60,130,0.35) 75%,
+    rgba(20,20,40,0.8) 100%);
+  box-shadow:
+    inset 0 -12px 30px rgba(0,0,0,0.45),
+    inset 0 8px 18px rgba(255,255,255,0.25),
+    0 10px 40px rgba(143,183,255,0.25);
+}
+.cw-orb-shine{
+  position: absolute;
+  top: 12%; left: 22%;
+  width: 32%; height: 26%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%);
+  filter: blur(4px);
+  pointer-events: none;
+  opacity: 0.8;
+}
+@keyframes cw-orb-rot{
+  to { transform: rotate(360deg); }
+}
+
+/* Orb tints by conversational state */
+.cw-call[data-state="ai"]    .cw-orb-core { background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.95) 0%, rgba(200,220,255,0.9) 20%, rgba(120,160,250,0.6) 45%, rgba(50,50,120,0.45) 75%, rgba(15,20,40,0.85) 100%); }
+.cw-call[data-state="ai"]    .cw-orb-halo { background: radial-gradient(circle at center, rgba(143,183,255,0.5) 0%, rgba(143,183,255,0.2) 40%, rgba(143,183,255,0) 70%); }
+.cw-call[data-state="user"]  .cw-orb-core { background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.95) 0%, rgba(220,255,230,0.9) 20%, rgba(130,235,180,0.6) 45%, rgba(40,90,70,0.45) 75%, rgba(10,25,20,0.85) 100%); }
+.cw-call[data-state="user"]  .cw-orb-halo { background: radial-gradient(circle at center, rgba(168,240,193,0.55) 0%, rgba(168,240,193,0.18) 40%, rgba(168,240,193,0) 70%); }
+.cw-call[data-state="think"] .cw-orb-core { filter: saturate(0.7) brightness(0.88); }
+.cw-call[data-state="think"] .cw-orb-ring{ animation-duration: 6s; }
+
+.cw-call-status{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--call-sub);
+  margin-top: 4px;
+  min-height: 1.2em;
+}
+.cw-call-timer{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1.4px;
+}
+
+/* ---------- captions ---------- */
+.cw-call-caption{
+  position: relative; z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  min-height: 54px;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 0 16px;
+}
+.cw-call-cap-role{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--call-sub);
+}
+.cw-call-cap-text{
+  font-family: 'Spectral', serif;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--call-ink);
+  max-height: 4.8em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* ---------- call controls ---------- */
+.cw-call-controls{
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 8px 0 4px;
+  flex-wrap: wrap;
+}
+.cw-call-ctrl{
+  all: unset;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 14px;
+  min-width: 58px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  color: var(--call-ink);
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+.cw-call-ctrl:hover{ background: rgba(255,255,255,0.11); }
+.cw-call-ctrl:active{ transform: scale(0.96); }
+.cw-call-ctrl-glyph{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+}
+.cw-call-ctrl-lbl{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--call-sub);
+}
+.cw-call-ctrl--mic{
+  width: 66px; height: 66px;
+  min-width: 66px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd27a 0%, #f89d3e 100%);
+  color: #1a1208;
+  border-color: rgba(255,210,122,0.8);
+  box-shadow: 0 6px 24px rgba(255,180,90,0.35);
+  padding: 0;
+}
+.cw-call-ctrl--mic:hover{ background: linear-gradient(180deg, #ffe199 0%, #ffaf5a 100%); }
+.cw-call-ctrl--mic .cw-call-ctrl-glyph{ font-size: 22px; }
+.cw-call-ctrl--listening{
+  background: linear-gradient(180deg, #ff8282 0%, #e04b4b 100%) !important;
+  color: #fff;
+  border-color: rgba(255,130,130,0.9);
+  box-shadow: 0 0 0 0 rgba(255,130,130,0.6);
+  animation: cw-call-pulse 1.3s ease-out infinite;
+}
+.cw-call-ctrl--processing{
+  background: linear-gradient(180deg, #8fb7ff 0%, #5e7bff 100%) !important;
+  color: #fff;
+}
+.cw-call-ctrl--error{
+  background: linear-gradient(180deg, #ff8282 0%, #a83030 100%) !important;
+  color: #fff;
+}
+@keyframes cw-call-pulse{
+  0%   { box-shadow: 0 0 0 0   rgba(255,130,130,0.55); }
+  70%  { box-shadow: 0 0 0 18px rgba(255,130,130,0); }
+  100% { box-shadow: 0 0 0 0   rgba(255,130,130,0); }
+}
+.cw-call-ctrl--end{ color: var(--call-warn); border-color: rgba(255,130,130,0.4); }
+.cw-call-ctrl--end:hover{ background: rgba(255,130,130,0.15); }
+.cw-call-ctrl--advance{ color: var(--call-user); border-color: rgba(168,240,193,0.4); }
+.cw-call-ctrl--advance:hover{ background: rgba(168,240,193,0.12); }
+
+/* ---------- drawer ---------- */
+.cw-call-drawer{
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: min(420px, 92%);
+  background: rgba(10,10,18,0.96);
+  border-left: 1px solid var(--call-line);
+  padding: 18px 20px;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 280ms cubic-bezier(.4,0,.2,1);
+  z-index: 5;
+  backdrop-filter: blur(10px);
+}
+.cw-call-drawer[data-open="true"]{
+  transform: translateX(0);
+  box-shadow: -12px 0 40px rgba(0,0,0,0.5);
+}
+.cw-call-drawer-head{
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--call-line);
+  margin-bottom: 14px;
+}
+.cw-call-drawer-title{
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--call-ink);
+}
+.cw-call-drawer-close{
+  all: unset;
+  cursor: pointer;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: var(--call-sub);
+  font-size: 20px;
+  background: rgba(255,255,255,0.06);
+}
+.cw-call-drawer-close:hover{ background: rgba(255,255,255,0.14); color: var(--call-ink); }
+.cw-call-drawer-sec{ margin-bottom: 18px; }
+.cw-call-drawer-lbl{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--call-sub);
+  margin-bottom: 6px;
+}
+.cw-call-drawer-body{
+  font-family: 'Spectral', serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(242,242,248,0.9);
+}
+.cw-call-drawer-tips{
+  margin: 0; padding-left: 18px;
+  font-family: 'Spectral', serif;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: rgba(242,242,248,0.85);
+}
+.cw-call-drawer-tips li{ margin-bottom: 4px; }
+.cw-call-drawer-transcript{
+  display: flex; flex-direction: column; gap: 10px;
+  max-height: 45vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.cw-call-trans-row{
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+}
+.cw-call-trans-row--user{ background: rgba(168,240,193,0.08); }
+.cw-call-trans-row--ai{ background: rgba(143,183,255,0.08); }
+.cw-call-trans-role{
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--call-sub);
+  margin-bottom: 3px;
+}
+.cw-call-trans-text{
+  font-family: 'Spectral', serif;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--call-ink);
+}
+
+/* Hidden message box used by runTurn internals — messages still append
+   here but the node is visually removed from the call UI. */
+.cw-mock-msgs--hidden{
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+/* Settings popover — dark variant when inside the call UI */
+.cw-call .cw-mock-settings-popover{
+  position: absolute;
+  top: 56px; right: 16px;
+  z-index: 6;
+  background: rgba(20,20,40,0.98);
+  border: 1px solid var(--call-line);
+  color: var(--call-ink);
+  padding: 14px 16px;
+  border-radius: 12px;
+  min-width: 240px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+}
+.cw-call .cw-mock-settings-popover select,
+.cw-call .cw-mock-settings-popover input[type="checkbox"]{
+  color-scheme: dark;
+}
+.cw-call .cw-mock-settings-popover .cw-mock-settings-h{
+  color: var(--call-ink);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cw-call .cw-mock-settings-row{
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: rgba(242,242,248,0.9);
+}
+.cw-call .cw-mock-settings-close{
+  all: unset; cursor: pointer;
+  color: var(--call-sub);
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Reduced-motion guard: keep the orb calm. */
+@media (prefers-reduced-motion: reduce){
+  .cw-orb-ring{ animation: none !important; }
+  .cw-call-orb{ transition: none !important; }
+  .cw-call-ctrl--listening{ animation: none !important; }
+}
+
+/* Narrow widget surface — keep orb smaller and controls tight */
+.cw-call--widget .cw-call-orb{ --orb-size: clamp(150px, 50vw, 220px); }
+.cw-call--widget .cw-call-title{ font-size: 24px; }
+.cw-call--widget{ padding: 12px 14px 10px; }
+.cw-call--widget .cw-call-controls{ gap: 6px; }
+.cw-call--widget .cw-call-ctrl{ padding: 8px 10px; min-width: 48px; }
+.cw-call--widget .cw-call-ctrl--mic{ width: 58px; height: 58px; min-width: 58px; }

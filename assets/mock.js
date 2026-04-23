@@ -99,6 +99,8 @@
       if (this.streamCtrl) try { this.streamCtrl.abort(); } catch {}
       this._stopRecording();
       this._stopAudio();
+      this._stopOrbLoop();
+      if (this._audioCtx) { try { this._audioCtx.close(); } catch {} this._audioCtx = null; }
       if (this.blockTickTimer) { clearInterval(this.blockTickTimer); this.blockTickTimer = null; }
       // tear down any document listeners attached for the settings popover
       if (this._settingsDocHandler) {
@@ -227,12 +229,166 @@
     }
 
     renderRun(){
+      const voice = !!this.voicePrefs.voiceMode;
+      if (voice) {
+        this._renderCallRun();
+      } else {
+        this._renderTextRun();
+      }
+    }
+
+    // ============== CALL UI (voice mode — default) ==============
+    // Dark full-surface layout modeled on ChatGPT voice mode / a Zoom call:
+    // a pulsing orb is the only real affordance, with a minimal stepper up
+    // top, live captions below, and call-style controls at the bottom. Case
+    // prompt + tips + full transcript hide behind an "info" drawer so the
+    // orb stays the focus.
+    _renderCallRun(){
       const c = this.selected;
       const blk = BLOCKS[this.blockIdx];
-      const voice = !!this.voicePrefs.voiceMode;
+      const stepDotsHTML = BLOCKS.map((b, i) => {
+        const state = i < this.blockIdx ? "done" : i === this.blockIdx ? "active" : "todo";
+        return `<span class="cw-call-dot cw-call-dot--${state}" title="${esc(b.full)}" data-step="${i}">
+          <span class="cw-call-dot-n">${i + 1}</span>
+        </span>`;
+      }).join('<span class="cw-call-dot-sep"></span>');
+
+      const advanceLbl = this.blockIdx === BLOCKS.length - 1
+        ? "finish & grade"
+        : `next: ${BLOCKS[this.blockIdx + 1].label}`;
 
       this.root.innerHTML = `
-        <div class="cw-mock-run cw-mock-run--${this.surface}${voice ? " cw-mock-run--voice" : ""}">
+        <div class="cw-call cw-call--${this.surface}" id="cw-call-root">
+          <div class="cw-call-top">
+            <button class="cw-call-topbtn" data-act="info" title="case prompt & tips">
+              <span class="cw-call-topbtn-glyph">i</span>
+            </button>
+            <div class="cw-call-top-mid">
+              <div class="cw-call-blocklbl">${esc(blk.full)}</div>
+              <div class="cw-call-steps" id="cw-call-steps">${stepDotsHTML}</div>
+            </div>
+            <button class="cw-call-topbtn" data-act="settings" title="voice settings">
+              <span class="cw-call-topbtn-glyph">⚙</span>
+            </button>
+          </div>
+
+          <div class="cw-call-body">
+            <div class="cw-call-title">${esc(c.title)}</div>
+            <div class="cw-call-sub">#${esc(String(c.id))} · ${esc(c.type || "")} · diff ${esc(c.difficulty || "")}</div>
+
+            <div class="cw-call-orb-wrap" id="cw-call-orb-wrap">
+              <div class="cw-call-orb" id="cw-call-orb" role="button" tabindex="0" aria-label="tap to speak">
+                <div class="cw-orb-halo"></div>
+                <div class="cw-orb-ring cw-orb-ring--1"></div>
+                <div class="cw-orb-ring cw-orb-ring--2"></div>
+                <div class="cw-orb-ring cw-orb-ring--3"></div>
+                <div class="cw-orb-core"></div>
+                <div class="cw-orb-shine"></div>
+              </div>
+              <div class="cw-call-status" id="cw-call-status">tap the orb to begin</div>
+              <div class="cw-call-timer" id="cw-call-timer">${fmtMMSS(Date.now() - (this.blockStartTimes[this.blockIdx] || Date.now()))}</div>
+            </div>
+
+            <div class="cw-call-caption" id="cw-call-caption">
+              <div class="cw-call-cap-role" id="cw-call-cap-role">interviewer</div>
+              <div class="cw-call-cap-text" id="cw-call-cap-text">warming up…</div>
+            </div>
+          </div>
+
+          <div class="cw-call-controls">
+            <button class="cw-call-ctrl" data-act="hint" title="ask for a nudge">
+              <span class="cw-call-ctrl-glyph">?</span>
+              <span class="cw-call-ctrl-lbl">hint</span>
+            </button>
+            <button class="cw-call-ctrl cw-call-ctrl--mic" data-act="mic" id="cw-call-mic" title="tap to talk">
+              <span class="cw-call-ctrl-glyph" id="cw-call-mic-glyph">●</span>
+            </button>
+            <button class="cw-call-ctrl" data-act="keyboard" title="type instead">
+              <span class="cw-call-ctrl-glyph">⌨</span>
+              <span class="cw-call-ctrl-lbl">type</span>
+            </button>
+            <button class="cw-call-ctrl cw-call-ctrl--end" data-act="exit" title="end call">
+              <span class="cw-call-ctrl-glyph">✕</span>
+              <span class="cw-call-ctrl-lbl">end</span>
+            </button>
+            <button class="cw-call-ctrl cw-call-ctrl--advance" data-act="advance" title="${esc(advanceLbl)}">
+              <span class="cw-call-ctrl-glyph">→</span>
+              <span class="cw-call-ctrl-lbl">${esc(this.blockIdx === BLOCKS.length - 1 ? "finish" : "next")}</span>
+            </button>
+          </div>
+
+          <!-- Hidden message box so runTurn() has the element it expects. -->
+          <div class="cw-mock-msgs cw-mock-msgs--hidden" id="cw-mock-msgs"></div>
+
+          <div class="cw-call-drawer" id="cw-call-drawer" data-open="false">
+            <div class="cw-call-drawer-head">
+              <div class="cw-call-drawer-title">case ${esc(String(c.id))} · ${esc(c.title)}</div>
+              <button class="cw-call-drawer-close" data-act="closedrawer" aria-label="close">×</button>
+            </div>
+            <div class="cw-call-drawer-sec">
+              <div class="cw-call-drawer-lbl">prompt</div>
+              <div class="cw-call-drawer-body">${esc(c.prompt)}</div>
+            </div>
+            <div class="cw-call-drawer-sec">
+              <div class="cw-call-drawer-lbl">current block · <b id="cw-mock-cur-block">${esc(blk.full)}</b></div>
+              <ul class="cw-call-drawer-tips" id="cw-mock-tips-list">${tipsFor(blk.id).map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+            </div>
+            <div class="cw-call-drawer-sec">
+              <div class="cw-call-drawer-lbl">transcript</div>
+              <div class="cw-call-drawer-transcript" id="cw-call-transcript"></div>
+            </div>
+          </div>
+
+          <div class="cw-mock-settings-popover" id="cw-mock-settings" style="display:none"></div>
+        </div>
+      `;
+      this.root.classList.add("cw-mock--mounted");
+
+      // Replay any existing messages into the hidden #cw-mock-msgs so runTurn
+      // can keep appending. Also refresh captions + transcript from state.
+      this.renderMessages();
+      this._refreshCaptionsFromState();
+      this._refreshTranscriptFromState();
+
+      // Wire controls
+      const orb = this.root.querySelector("#cw-call-orb");
+      if (orb) {
+        orb.addEventListener("click", () => this.onMicButton());
+        orb.addEventListener("keydown", (e) => {
+          if (e.key === " " || e.key === "Enter") { e.preventDefault(); this.onMicButton(); }
+        });
+      }
+      const micBtn = this.root.querySelector("#cw-call-mic");
+      if (micBtn) micBtn.addEventListener("click", () => this.onMicButton());
+
+      const bind = (sel, fn) => {
+        const el = this.root.querySelector(sel);
+        if (el) el.addEventListener("click", fn);
+      };
+      bind('[data-act="hint"]',        () => this.requestHint());
+      bind('[data-act="advance"]',     () => this.advanceBlock());
+      bind('[data-act="exit"]',        () => {
+        if (confirm("end the call? your progress will be discarded.")) this.onExit();
+      });
+      bind('[data-act="settings"]',    () => this.toggleSettings());
+      bind('[data-act="info"]',        () => this._openDrawer());
+      bind('[data-act="closedrawer"]', () => this._closeDrawer());
+      bind('[data-act="keyboard"]',    () => this.toggleVoiceMode());
+
+      // Keep the live block timer ticking.
+      this._startBlockTicker();
+
+      this._setMicState(this.micState || "idle");
+      this._startOrbLoop();
+    }
+
+    // ============== TEXT UI (legacy split layout) ==============
+    _renderTextRun(){
+      const c = this.selected;
+      const blk = BLOCKS[this.blockIdx];
+
+      this.root.innerHTML = `
+        <div class="cw-mock-run cw-mock-run--${this.surface}">
           <div class="cw-mock-stepper" id="cw-mock-stepper">${this._renderStepperHTML()}</div>
 
           <div class="cw-mock-split">
@@ -262,14 +418,14 @@
               <div class="cw-mock-msgs" id="cw-mock-msgs"></div>
 
               <div class="cw-mock-input-zone" id="cw-mock-input-zone">
-                ${voice ? this._renderVoiceInputHTML() : this._renderTextInputHTML()}
+                ${this._renderTextInputHTML()}
               </div>
 
               <div class="cw-mock-runbar">
                 <button class="cw-iconbtn cw-iconbtn--ghost" data-act="exit">exit</button>
                 <button class="cw-iconbtn" data-act="hint" title="ask for a nudge without giving the answer">?  hint</button>
-                <button class="cw-iconbtn cw-mock-mode-toggle" data-act="mode" title="${voice ? "switch to typing" : "switch to voice"}">
-                  ${voice ? "✎ type" : "🎙 voice"}
+                <button class="cw-iconbtn cw-mock-mode-toggle" data-act="mode" title="switch to the live call">
+                  🎙 call
                 </button>
                 <button class="cw-iconbtn cw-mock-gear" data-act="settings" title="voice settings">⚙</button>
                 <span class="cw-mock-runbar-spacer"></span>
@@ -296,10 +452,51 @@
       this.root.querySelector('[data-act="mode"]').addEventListener("click", () => this.toggleVoiceMode());
       this.root.querySelector('[data-act="settings"]').addEventListener("click", () => this.toggleSettings());
 
-      if (!voice) {
-        const input = this.root.querySelector("#cw-mock-input");
-        if (input) setTimeout(() => input.focus(), 50);
+      const input = this.root.querySelector("#cw-mock-input");
+      if (input) setTimeout(() => input.focus(), 50);
+    }
+
+    _openDrawer(){
+      const d = this.root.querySelector("#cw-call-drawer");
+      if (d) d.dataset.open = "true";
+    }
+    _closeDrawer(){
+      const d = this.root.querySelector("#cw-call-drawer");
+      if (d) d.dataset.open = "false";
+    }
+
+    _refreshCaptionsFromState(){
+      // Show the most recent assistant message in the caption zone so the
+      // student has a visual anchor alongside the spoken audio.
+      const roleEl = this.root.querySelector("#cw-call-cap-role");
+      const textEl = this.root.querySelector("#cw-call-cap-text");
+      if (!roleEl || !textEl) return;
+      const visible = this.messages.filter(m => !m.hidden);
+      const last = visible[visible.length - 1];
+      if (!last) {
+        roleEl.textContent = "interviewer";
+        textEl.textContent = "warming up…";
+        return;
       }
+      roleEl.textContent = last.role === "user" ? "you" : "interviewer";
+      textEl.textContent = stripSentinel(last.content || "");
+    }
+
+    _refreshTranscriptFromState(){
+      const box = this.root.querySelector("#cw-call-transcript");
+      if (!box) return;
+      box.innerHTML = "";
+      this.messages.filter(m => !m.hidden).forEach(m => {
+        const row = document.createElement("div");
+        row.className = "cw-call-trans-row cw-call-trans-row--" + (m.role === "user" ? "user" : "ai");
+        row.innerHTML = `
+          <div class="cw-call-trans-role">${m.role === "user" ? "you" : "interviewer"}</div>
+          <div class="cw-call-trans-text"></div>
+        `;
+        row.querySelector(".cw-call-trans-text").textContent = stripSentinel(m.content || "");
+        box.appendChild(row);
+      });
+      box.scrollTop = box.scrollHeight;
     }
 
     _renderStepperHTML(){
@@ -406,6 +603,13 @@
       `;
       wrap.querySelector(".cw-msg-body").textContent = content;
       box.appendChild(wrap);
+      // Mirror finalized, non-empty messages into the call UI caption + live
+      // transcript. Streaming AI deltas handle their own caption updates
+      // inside runTurn, so only user (fully-formed) messages land here.
+      if (this.root.querySelector("#cw-call-root") && role === "user" && content) {
+        this._setCaption("you", content);
+        this._refreshTranscriptFromState();
+      }
       return wrap;
     }
 
@@ -477,17 +681,39 @@
     }
 
     updateStepperAndCase(){
+      const blk = BLOCKS[this.blockIdx];
+      // Legacy stepper (text mode)
       const stepper = this.root.querySelector("#cw-mock-stepper");
       if (stepper) stepper.innerHTML = this._renderStepperHTML();
-      const blk = BLOCKS[this.blockIdx];
+      // Call UI dots
+      const steps = this.root.querySelector("#cw-call-steps");
+      if (steps) {
+        steps.innerHTML = BLOCKS.map((b, i) => {
+          const state = i < this.blockIdx ? "done" : i === this.blockIdx ? "active" : "todo";
+          return `<span class="cw-call-dot cw-call-dot--${state}" title="${esc(b.full)}" data-step="${i}">
+            <span class="cw-call-dot-n">${i + 1}</span>
+          </span>`;
+        }).join('<span class="cw-call-dot-sep"></span>');
+      }
+      const blockLblEl = this.root.querySelector(".cw-call-blocklbl");
+      if (blockLblEl) blockLblEl.textContent = blk.full;
+
       const currBlkEl = this.root.querySelector("#cw-mock-cur-block");
       if (currBlkEl) currBlkEl.textContent = blk.full;
       const tipsEl = this.root.querySelector("#cw-mock-tips-list");
       if (tipsEl) tipsEl.innerHTML = tipsFor(blk.id).map(t => `<li>${esc(t)}</li>`).join("");
+
       const advBtn = this.root.querySelector('[data-act="advance"]');
       if (advBtn){
-        advBtn.textContent = this.blockIdx === BLOCKS.length - 1 ? "finish & grade →" : `next: ${BLOCKS[this.blockIdx+1].label} →`;
-        advBtn.classList.toggle("cw-iconbtn--primary", this.blockIdx === BLOCKS.length - 1);
+        // Legacy text mode ends with a textual label on the same button.
+        if (advBtn.classList.contains("cw-iconbtn")) {
+          advBtn.textContent = this.blockIdx === BLOCKS.length - 1 ? "finish & grade →" : `next: ${BLOCKS[this.blockIdx+1].label} →`;
+          advBtn.classList.toggle("cw-iconbtn--primary", this.blockIdx === BLOCKS.length - 1);
+        } else {
+          // Call UI advance button — update the small label inside.
+          const lbl = advBtn.querySelector(".cw-call-ctrl-lbl");
+          if (lbl) lbl.textContent = this.blockIdx === BLOCKS.length - 1 ? "finish" : "next";
+        }
       }
     }
 
@@ -495,11 +721,14 @@
       if (this.blockTickTimer) clearInterval(this.blockTickTimer);
       this.blockTickTimer = setInterval(() => {
         if (this.phase !== "running") return;
+        const start = this.blockStartTimes[this.blockIdx] || Date.now();
+        const dur = Date.now() - start;
+        // Legacy stepper live tick
         const liveEl = this.root.querySelector('.cw-mock-step--active .cw-mock-step-time--live');
-        if (liveEl) {
-          const start = this.blockStartTimes[this.blockIdx] || Date.now();
-          liveEl.textContent = fmtMMSS(Date.now() - start);
-        }
+        if (liveEl) liveEl.textContent = fmtMMSS(dur);
+        // Call UI timer
+        const callTimer = this.root.querySelector("#cw-call-timer");
+        if (callTimer) callTimer.textContent = fmtMMSS(dur);
       }, 1000);
     }
 
@@ -520,6 +749,8 @@
       if (send) send.disabled = true;
       let finishedOK = false;
 
+      this._setCallStatus("thinking…");
+
       try {
         await this.streamClient.streamChat({
           tab: this.tabId,
@@ -530,7 +761,9 @@
           signal: this.streamCtrl.signal,
           onDelta: (t) => {
             buf += t;
-            if (bodyEl) bodyEl.textContent = stripSentinel(buf);
+            const clean = stripSentinel(buf);
+            if (bodyEl) bodyEl.textContent = clean;
+            this._setCaption("interviewer", clean);
             this.scrollMsgsBottom();
           },
           onDone: () => {
@@ -540,18 +773,22 @@
             this.messages[this.messages.length - 1].content = clean;
             if (clean !== buf) this._markInterviewComplete();
             buf = clean; // keep subsequent TTS + auto-arm from reading the sentinel
+            this._setCaption("interviewer", clean);
+            this._refreshTranscriptFromState();
             finishedOK = true;
           },
           onError: (err) => {
             if (aiEl){ aiEl.classList.remove("cw-msg--typing","cw-msg--ai"); aiEl.classList.add("cw-msg--err"); }
             if (bodyEl) bodyEl.textContent = err.message || "mock failed";
             this.messages[this.messages.length - 1].content = `[error: ${err.message || "mock failed"}]`;
+            this._setCaption("interviewer", err.message || "mock failed");
           },
         });
       } finally {
         this.streaming = false;
         this.streamCtrl = null;
         if (send) send.disabled = false;
+        if (this.voicePrefs.voiceMode) this._setCallStatus("idle");
       }
 
       // Voice mode: optionally TTS the reply, then auto-arm the mic.
@@ -576,6 +813,8 @@
       try {
         const audio = await window.ChatLab.voice.speak(text, this.voicePrefs.voice);
         this.currentAudio = audio;
+        this._connectTTSAnalyser(audio);
+        this._setCallStatus("interviewer speaking…");
         if (aiEl) {
           const actions = aiEl.querySelector(".cw-msg-actions");
           if (actions) {
@@ -621,6 +860,109 @@
         } catch {}
         this.currentAudio = null;
       }
+      this._aiAnalyser = null;
+      this.aiLevel = 0;
+    }
+
+    /* ---------- call UI: orb animation ---------- */
+    // The orb breathes on its own and pulses harder when either the AI TTS
+    // audio or the user's mic has signal. Both levels are sampled per frame
+    // and the louder wins so we don't average out actual speech peaks.
+    _ensureAudioCtx(){
+      if (this._audioCtx) return this._audioCtx;
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      try { this._audioCtx = new Ctx(); } catch { return null; }
+      return this._audioCtx;
+    }
+
+    _connectTTSAnalyser(audio){
+      // Route the TTS Audio element through the WebAudio graph so we can
+      // sample its level in the orb loop. Each TTS reply uses a fresh Audio
+      // (so the once-per-element restriction on createMediaElementSource
+      // never bites us). Network tracking is best-effort — if the graph
+      // fails to connect we still play audio, just without a reactive orb.
+      const ctx = this._ensureAudioCtx();
+      if (!ctx) return;
+      try {
+        if (ctx.state === "suspended") ctx.resume().catch(() => {});
+        const src = ctx.createMediaElementSource(audio);
+        const an  = ctx.createAnalyser();
+        an.fftSize = 256;
+        src.connect(an);
+        an.connect(ctx.destination);
+        this._aiAnalyser = an;
+        this._aiBuf = new Uint8Array(an.frequencyBinCount);
+      } catch (err) {
+        // Most likely: audio element already routed elsewhere. Fall back to
+        // plain playback — the orb will idle-breathe and that's fine.
+        console.warn("tts analyser wire failed:", err);
+        this._aiAnalyser = null;
+      }
+    }
+
+    _startOrbLoop(){
+      if (this._orbRaf) return;
+      const loop = () => {
+        this._orbRaf = requestAnimationFrame(loop);
+        const orb = this.root.querySelector("#cw-call-orb");
+        if (!orb) return;
+        // AI level — read from analyser if connected
+        let aiLevel = 0;
+        if (this._aiAnalyser && this._aiBuf) {
+          try {
+            this._aiAnalyser.getByteTimeDomainData(this._aiBuf);
+            let sum = 0;
+            for (let i = 0; i < this._aiBuf.length; i++) {
+              const v = this._aiBuf[i] - 128;
+              sum += v * v;
+            }
+            const rms = Math.sqrt(sum / this._aiBuf.length);
+            aiLevel = Math.min(1, rms / 40);
+          } catch { /* ignore */ }
+        }
+        this.aiLevel = aiLevel;
+
+        // User mic level is updated in _renderMicLevel; decay it here so a
+        // single loud frame doesn't get stuck.
+        this.userLevel = Math.max(0, (this.userLevel || 0) * 0.88);
+
+        const active = Math.max(aiLevel, this.userLevel || 0);
+        // Breathing baseline (slow sin) plus active-signal gain.
+        const t = performance.now() / 1000;
+        const breathe = 0.02 + 0.03 * Math.sin(t * 1.2);
+        const scale = 1 + breathe + active * 0.18;
+        const glow  = 0.35 + breathe * 2 + active * 0.8;
+
+        orb.style.setProperty("--cw-orb-scale", scale.toFixed(3));
+        orb.style.setProperty("--cw-orb-glow",  Math.min(1.2, glow).toFixed(3));
+        orb.style.setProperty("--cw-orb-active", active.toFixed(3));
+      };
+      this._orbRaf = requestAnimationFrame(loop);
+    }
+
+    _stopOrbLoop(){
+      if (this._orbRaf) cancelAnimationFrame(this._orbRaf);
+      this._orbRaf = null;
+    }
+
+    _setCallStatus(label){
+      const el = this.root.querySelector("#cw-call-status");
+      if (el) el.textContent = label;
+      // Also reflect state on the call root for CSS (orb hue, etc.)
+      const root = this.root.querySelector("#cw-call-root");
+      if (root) root.dataset.state = label.includes("speaking") ? "ai" :
+                                     label.includes("listening") ? "user" :
+                                     label.includes("thinking") ? "think" :
+                                     label.includes("transcrib") ? "think" :
+                                     "idle";
+    }
+
+    _setCaption(role, text){
+      const roleEl = this.root.querySelector("#cw-call-cap-role");
+      const textEl = this.root.querySelector("#cw-call-cap-text");
+      if (roleEl) roleEl.textContent = role;
+      if (textEl) textEl.textContent = text || "";
     }
 
     /* ---------- voice mode controls ---------- */
@@ -630,6 +972,7 @@
       saveVoicePrefs(this.voicePrefs);
       this._stopRecording();
       this._stopAudio();
+      this._stopOrbLoop();
       this.renderRun();
     }
 
@@ -870,19 +1213,53 @@
 
     _setMicState(state){
       this.micState = state;
-      if (!this.voicePrefs.voiceMode) return; // user toggled to text mode mid-recording
+      if (state !== "error") this._micErrorMsg = null;
+      // Call UI path — update orb status + mic button glyph in place
+      const callRoot = this.root.querySelector("#cw-call-root");
+      if (callRoot) {
+        const label =
+          state === "listening"  ? "listening…" :
+          state === "processing" ? "transcribing…" :
+          state === "error"      ? (this._micErrorMsg || "mic error — tap to retry") :
+                                   "tap the orb to speak";
+        this._setCallStatus(label);
+        const micBtn = this.root.querySelector("#cw-call-mic");
+        const glyph  = this.root.querySelector("#cw-call-mic-glyph");
+        if (micBtn) {
+          micBtn.classList.remove(
+            "cw-call-ctrl--listening",
+            "cw-call-ctrl--processing",
+            "cw-call-ctrl--error"
+          );
+          if (state === "listening")  micBtn.classList.add("cw-call-ctrl--listening");
+          if (state === "processing") micBtn.classList.add("cw-call-ctrl--processing");
+          if (state === "error")      micBtn.classList.add("cw-call-ctrl--error");
+        }
+        if (glyph) {
+          glyph.textContent = state === "listening" ? "■" : state === "processing" ? "…" : "●";
+        }
+        callRoot.dataset.mic = state;
+        return;
+      }
+      // Legacy text-mode fallback (voice input zone inside split layout)
+      if (!this.voicePrefs.voiceMode) return;
       const zone = this.root.querySelector("#cw-mock-input-zone");
       if (!zone) return;
       zone.innerHTML = this._renderVoiceInputHTML();
       this._wireInputZone();
-      if (state !== "error") this._micErrorMsg = null;
     }
 
     _renderMicLevel(rms){
+      // Call UI — feed the orb's user-side pulse
+      const callRoot = this.root.querySelector("#cw-call-root");
+      if (callRoot) {
+        this.userLevel = Math.min(1, rms / 30);
+        return;
+      }
+      // Legacy bars
       const meter = this.root.querySelector("#cw-mic-meter");
       if (!meter) return;
       const bars = meter.querySelectorAll(".cw-mic-bar");
-      // map rms (0..50ish) → bar count
       const pct = Math.min(1, rms / 30);
       const litCount = Math.floor(pct * bars.length);
       bars.forEach((b, i) => {
@@ -899,6 +1276,7 @@
       if (this.blockTickTimer) { clearInterval(this.blockTickTimer); this.blockTickTimer = null; }
       this._stopRecording();
       this._stopAudio();
+      this._stopOrbLoop();
       this.phase = "done";
       this.renderGradingLoading();
 
@@ -1139,17 +1517,25 @@
   }
 
   const VOICE_PREFS_KEY = "rohan.lab.mock.voice.prefs";
+  // Bumped to v2 when the mock interview flipped to the ChatGPT-style call UI
+  // as the default — we want existing users (who had voiceMode:false saved
+  // under v1) to land on the new experience on their next visit without
+  // having to manually flip a toggle. Old prefs are ignored once per device.
+  const VOICE_PREFS_VERSION = 2;
   function loadVoicePrefs(){
+    const defaults = {
+      _v: VOICE_PREFS_VERSION,
+      voiceMode: true,
+      speakReplies: true,
+      autoStop: true,
+      voice: "onyx",
+    };
     try {
       const v = JSON.parse(localStorage.getItem(VOICE_PREFS_KEY) || "{}");
-      return Object.assign({
-        voiceMode: false,
-        speakReplies: true,
-        autoStop: true,
-        voice: "onyx",
-      }, v);
+      if (v._v !== VOICE_PREFS_VERSION) return defaults;
+      return Object.assign({}, defaults, v);
     } catch {
-      return { voiceMode: false, speakReplies: true, autoStop: true, voice: "onyx" };
+      return defaults;
     }
   }
   function saveVoicePrefs(prefs){
