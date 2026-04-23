@@ -44,21 +44,31 @@ function paintActive(nav) {
   });
 }
 
+// Replace the #cnav-auth element with either an <a> (signed out) or a <div>
+// (signed in) — we can't just toggle classes on a single element, because a
+// <button> inside an <a> is invalid HTML and browsers swallow clicks on the
+// nested button in that case. Rebuilding the element per auth state keeps
+// the markup valid: either an anchor with no interactive descendants, or a
+// plain container div holding the avatar + sign-out button.
 function renderAuth(user) {
-  const chip = document.getElementById("cnav-auth");
-  if (!chip) return;
+  const current = document.getElementById("cnav-auth");
+  if (!current) return;
+
   if (user) {
-    chip.classList.add("is-signed-in");
-    chip.removeAttribute("href");
-    chip.setAttribute("aria-label", "signed in");
-    const email = user.email || "";
-    const handle = email.includes("@") ? email.split("@")[0] : email;
+    const email   = user.email || "";
+    const handle  = email.includes("@") ? email.split("@")[0] : email;
     const initial = (handle || "").trim().charAt(0).toUpperCase() || "·";
-    chip.replaceChildren();
+
+    const wrap = document.createElement("div");
+    wrap.id = "cnav-auth";
+    wrap.className = "cnav-auth is-signed-in";
+    wrap.setAttribute("aria-label", "signed in");
+
     const avatar = document.createElement("span");
     avatar.className = "cnav-auth-dot";
     avatar.textContent = initial;
     if (email) avatar.title = email;
+
     const out = document.createElement("button");
     out.className = "cnav-auth-out";
     out.id = "cnav-signout";
@@ -68,17 +78,25 @@ function renderAuth(user) {
     out.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      await signOut();
+      // Navigate even if signOut() rejects or hangs — leaving the user
+      // stranded on a protected page with no session would be worse than
+      // a stale refresh token on the server.
+      try { await signOut(); } catch (_) {}
       location.replace("/");
     });
-    chip.append(avatar, out);
+
+    wrap.append(avatar, out);
+    current.replaceWith(wrap);
   } else {
-    chip.classList.remove("is-signed-in");
-    chip.setAttribute("href", "/auth.html");
-    chip.setAttribute("aria-label", "sign in");
-    chip.innerHTML =
+    const link = document.createElement("a");
+    link.id = "cnav-auth";
+    link.className = "cnav-auth";
+    link.href = "/auth.html";
+    link.setAttribute("aria-label", "sign in");
+    link.innerHTML =
       '<span class="cnav-auth-dot"></span>' +
       '<span class="cnav-auth-label">sign in</span>';
+    current.replaceWith(link);
   }
 }
 
