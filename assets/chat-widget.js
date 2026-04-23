@@ -12,7 +12,7 @@
   // does; if you add cases to another tab, flip the flag here.
   // hasContent flags whether /api/content?tab=<id> has a pack (needed by quiz).
   // hasCases flags which tabs have CASES (needed by mock). Home has neither —
-  // it's a landing surface for general chat/explain only.
+  // it's a landing surface for general chat only.
   const TABS = {
     "":           { id: "home",       label: "Casen",           scope: "case-interview prep",          hasCases: false, hasContent: false },
     "consulting": { id: "consulting", label: "Casen",           scope: "consulting / case interviews", hasCases: true,  hasContent: true  },
@@ -26,18 +26,25 @@
 
   const CURRENT_TAB = detectTab();
 
-  /* ---------- starter prompts per tab + mode ----------
-     Only chat and explain show starters. Quiz and mock mount their own
-     structured UIs (picker → session), so their starter arrays are dead
-     code and have been removed. */
+  /* ---------- starter prompts per tab ----------
+     Only chat shows starters. Quiz and mock mount their own structured UIs
+     (picker → session), so their starter arrays are dead code and have
+     been removed. */
   const STARTERS = {
     consulting: {
-      chat:    ["What's the difference between a profitability and growth case?", "Walk me through the 5 building blocks of a case.", "When do I use perpetuity vs simple payback?"],
-      explain: ["Explain the M&A framework.", "Explain NPV of a perpetuity.", "Explain the Ansoff growth matrix."],
+      chat: [
+        "What's the difference between a profitability and growth case?",
+        "Walk me through the 5 building blocks of a case.",
+        "Explain the M&A framework.",
+        "Explain NPV of a perpetuity.",
+      ],
     },
     home: {
-      chat:    ["What's on Casen?", "Which tab should I study first today?"],
-      explain: ["Explain how this site is organized."],
+      chat: [
+        "What's on Casen?",
+        "Which tab should I study first today?",
+        "Explain how this site is organized.",
+      ],
     },
   };
 
@@ -78,7 +85,12 @@
       return this.allSessions().filter(s => s.tab === tabId);
     },
     getSession(id){
-      return this._readAll().find(s => s.id === id) || null;
+      const s = this._readAll().find(x => x.id === id) || null;
+      // Legacy sessions saved before "explain" was merged into "chat" still
+      // carry mode="explain" in localStorage. Surface them as chat so the
+      // mode bar and starter lookup don't choke on an unknown mode.
+      if (s && s.mode === "explain") s.mode = "chat";
+      return s;
     },
     currentSessionId(tabId){
       return this._readCurrent()[tabId] || null;
@@ -340,21 +352,28 @@
   }
 
   function renderModeBar(){
+    // Only structured modes get a pill — plain chat is the default surface
+    // and showing a "chat" button next to itself is pure noise. Tabs with
+    // no cases / no content pack hide those pills too, which on home leaves
+    // the bar empty; we hide the whole bar in that case.
     const modes = [
-      ["chat",    "chat"],
-      ["quiz",    "quiz me"],
-      ["explain", "explain"],
-      ["mock",    "mock"],
+      ["quiz", "quiz me"],
+      ["mock", "mock"],
     ];
     el.modes.innerHTML = "";
-    modes.forEach(([id, label]) => {
-      // Mock needs CASES; quiz needs a /api/content pack. Hide on tabs that lack either.
-      if (id === "mock" && !CURRENT_TAB.hasCases) return;
-      if (id === "quiz" && !CURRENT_TAB.hasContent) return;
+    const visible = modes.filter(([id]) =>
+      !(id === "mock" && !CURRENT_TAB.hasCases) &&
+      !(id === "quiz" && !CURRENT_TAB.hasContent)
+    );
+    el.modes.style.display = visible.length ? "" : "none";
+    visible.forEach(([id, label]) => {
+      const active = session?.mode === id;
       const b = document.createElement("button");
-      b.className = "cw-mode" + (session?.mode === id ? " cw-mode--active" : "");
+      b.className = "cw-mode" + (active ? " cw-mode--active" : "");
       b.textContent = label;
-      b.addEventListener("click", () => switchMode(id));
+      // Clicking an active structured pill takes you back to plain chat —
+      // otherwise the only way out of quiz/mock was the module's own exit.
+      b.addEventListener("click", () => switchMode(active ? "chat" : id));
       el.modes.appendChild(b);
     });
   }
@@ -409,7 +428,7 @@
       surface:  "widget",
       onExit:   () => switchMode("chat"),
       onAskExplain: (term) => {
-        switchMode("explain");
+        switchMode("chat");
         // pre-fill a request
         el.input.value = `Explain "${term}" in depth — definition, intuition, one example, and common traps.`;
         onSend();
@@ -566,15 +585,18 @@
      student into the chat widget pre-populated. Called by small
      "ask AI" icons scattered across vocab cards, cases, frameworks, etc.
      Shapes:
-       askAI({ mode: "explain", focus: "NPV", prompt: "Explain NPV…" })
-       askAI({ mode: "mock",    caseId: 7 })
-       askAI({ mode: "chat",    prompt: "open a discussion about…" })
+       askAI({ focus: "NPV", prompt: "Explain NPV…" })  // plain chat
+       askAI({ mode: "mock", caseId: 7 })
+       askAI({ prompt: "open a discussion about…" })
+     "explain" is an alias for "chat" kept for back-compat with older call
+     sites — they behave identically.
      ========================================================= */
   let pendingMockCaseId = null;
 
   function askAI(opts){
     const o = opts || {};
-    const mode = o.mode || "chat";
+    const rawMode = o.mode || "chat";
+    const mode = rawMode === "explain" ? "chat" : rawMode;
 
     // Ensure panel + session exist
     if (!el.panel) return; // widget not initialized (e.g., on /chat.html)
@@ -597,7 +619,7 @@
       return;
     }
 
-    // explain / chat: pre-fill the input, auto-send if a prompt was given
+    // chat: pre-fill the input, auto-send if a prompt was given
     const promptText = o.prompt || (o.focus ? `Explain "${o.focus}" in depth — definition, intuition, one example, and common traps.` : "");
     if (!promptText) return;
     // wait for renderSession to have swapped to chat UI, then send

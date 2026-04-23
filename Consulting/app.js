@@ -1782,7 +1782,7 @@ function renderCaseBody(c, body, opts){
       e.stopPropagation();
       if (!window.ChatLab?.askAI) return;
       window.ChatLab.askAI({
-        mode: "explain",
+        mode: "chat",
         focus: `${c.title} – ${nextStage.label}`,
         prompt: `For ${sourceFullName(sourceOf(c))} case "${c.title}" (#${c.id}), give me a small nudge on the ${nextStage.label.toLowerCase()} block. Don't reveal the answer — just one guiding question or prompt that would help me think through it.`,
       });
@@ -2226,14 +2226,14 @@ document.addEventListener("click", (e) => {
   if (btn.hasAttribute("data-ask-explain")){
     const term = btn.getAttribute("data-ask-explain");
     window.ChatLab.askAI({
-      mode: "explain",
+      mode: "chat",
       focus: term,
       prompt: `Explain "${term}" in depth — definition, intuition, one concrete example, and 1-2 common traps a student might fall into.`,
     });
   } else if (btn.hasAttribute("data-ask-framework")){
     const name = btn.getAttribute("data-ask-framework");
     window.ChatLab.askAI({
-      mode: "explain",
+      mode: "chat",
       focus: name,
       prompt: `Walk me through the "${name}" framework — list the bucket set, when to reach for it vs alternatives, and one concrete case where it applies.`,
     });
@@ -2245,7 +2245,7 @@ document.addEventListener("click", (e) => {
     const ex = (typeof WORKED_EXAMPLES !== "undefined" ? WORKED_EXAMPLES : []).find(w => w.id === exId);
     const title = ex?.title || exId;
     window.ChatLab.askAI({
-      mode: "explain",
+      mode: "chat",
       focus: title,
       prompt: `Re-walk the worked example "${title}" from scratch in your own words. Use a DIFFERENT set of assumption numbers than the canned version so I can practice the logic without memorizing the arithmetic. Then ask me one follow-up variation to solve.`,
     });

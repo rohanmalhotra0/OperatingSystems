@@ -57,7 +57,11 @@
   }
   if (!activeTab) activeTab = TAB_LIST[0];
 
-  const requestedMode = qs.get("mode");
+  const rawMode = qs.get("mode");
+  // "explain" is a legacy alias — behaves identically to "chat" and should
+  // land in a regular chat session, not some orphan mode that the mode bar
+  // no longer renders.
+  const requestedMode = rawMode === "explain" ? "chat" : rawMode;
   if (requestedMode && !qs.get("s")){
     const modeOkForTab =
       !(requestedMode === "mock" && !activeTab.hasCases) &&
@@ -127,7 +131,7 @@
       surface: "page",
       onExit: () => switchModeFromStructured("chat"),
       onAskExplain: (term) => {
-        switchModeFromStructured("explain");
+        switchModeFromStructured("chat");
         el.input.value = `Explain "${term}" in depth — definition, intuition, one example, and common traps.`;
         onSend();
       },
@@ -267,17 +271,28 @@
   }
 
   function renderModeBar(){
-    const modes = [["chat","chat"],["quiz","quiz me"],["explain","explain"],["mock","mock"]];
+    // Plain chat is the default surface — no need for a "chat" pill next to
+    // itself. Only structured modes get pills, and they're hidden on tabs
+    // that lack the relevant content (no cases → no mock, no pack → no quiz).
+    const modes = [["quiz","quiz me"],["mock","mock"]];
     el.modes.innerHTML = "";
-    modes.forEach(([id,label]) => {
-      if (id === "mock" && !activeTab.hasCases) return; // hide mock pill on case-less tabs
-      if (id === "quiz" && !activeTab.hasContent) return; // hide quiz when there's no content pack to load
+    const visible = modes.filter(([id]) =>
+      !(id === "mock" && !activeTab.hasCases) &&
+      !(id === "quiz" && !activeTab.hasContent)
+    );
+    el.modes.style.display = visible.length ? "" : "none";
+    visible.forEach(([id,label]) => {
+      const currentMode = activeSession?.mode || "chat";
+      const active = currentMode === id;
       const b = document.createElement("button");
-      b.className = "cw-mode" + ((activeSession?.mode || "chat") === id ? " cw-mode--active" : "");
+      b.className = "cw-mode" + (active ? " cw-mode--active" : "");
       b.textContent = label;
       b.addEventListener("click", () => {
-        if (!activeSession) activeSession = store.createSession(activeTab.id, id);
-        store.updateSession(activeSession.id, { mode: id });
+        // Toggle semantics: clicking an active structured pill returns to
+        // plain chat. Otherwise enter the picked mode.
+        const nextMode = active ? "chat" : id;
+        if (!activeSession) activeSession = store.createSession(activeTab.id, nextMode);
+        store.updateSession(activeSession.id, { mode: nextMode });
         activeSession = store.getSession(activeSession.id);
         renderAll();
       });

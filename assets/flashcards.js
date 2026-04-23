@@ -265,7 +265,7 @@
         if (!card || !window.ChatLab?.askAI) return;
         const term = this.termOf(card);
         window.ChatLab.askAI({
-          mode: "explain",
+          mode: "chat",
           focus: term,
           prompt: `Explain "${term}" in depth — definition, intuition, one concrete example, and 1-2 common traps a student might fall into.`,
         });
