@@ -10,9 +10,12 @@
   // hasCases flags which tabs have a CASES array in their content pack
   // (→ show the "mock" pill in the chat widget). Only Consulting currently
   // does; if you add cases to another tab, flip the flag here.
+  // hasContent flags whether /api/content?tab=<id> has a pack (needed by quiz).
+  // hasCases flags which tabs have CASES (needed by mock). Home has neither —
+  // it's a landing surface for general chat/explain only.
   const TABS = {
-    "":           { id: "home",       label: "Casen",           scope: "case-interview prep",          hasCases: false },
-    "consulting": { id: "consulting", label: "Casen",           scope: "consulting / case interviews", hasCases: true  },
+    "":           { id: "home",       label: "Casen",           scope: "case-interview prep",          hasCases: false, hasContent: false },
+    "consulting": { id: "consulting", label: "Casen",           scope: "consulting / case interviews", hasCases: true,  hasContent: true  },
   };
 
   function detectTab(){
@@ -309,12 +312,24 @@
     // load session on demand (lazy — don't create until user opens)
   }
 
+  // If a persisted session has a mode the current tab can't support (e.g. quiz
+  // on a tab without a content pack), downgrade it to chat before rendering.
+  function sanitizeSessionMode(s){
+    if (!s) return s;
+    const bad = (s.mode === "quiz" && !CURRENT_TAB.hasContent) ||
+                (s.mode === "mock" && !CURRENT_TAB.hasCases);
+    if (!bad) return s;
+    store.updateSession(s.id, { mode: "chat" });
+    return store.getSession(s.id);
+  }
+
   function openPanel(){
     el.fab.classList.add("cw-fab--open");
     el.panel.classList.add("cw-panel--open");
     if (!session){
       session = store.getOrCreateForTab(CURRENT_TAB.id, "chat");
     }
+    session = sanitizeSessionMode(session);
     renderSession();
     setTimeout(() => { if (!isStructuredMode()) el.input?.focus(); }, 50);
   }
@@ -333,8 +348,9 @@
     ];
     el.modes.innerHTML = "";
     modes.forEach(([id, label]) => {
-      // Mock only makes sense on tabs that have cases — hide it elsewhere.
+      // Mock needs CASES; quiz needs a /api/content pack. Hide on tabs that lack either.
       if (id === "mock" && !CURRENT_TAB.hasCases) return;
+      if (id === "quiz" && !CURRENT_TAB.hasContent) return;
       const b = document.createElement("button");
       b.className = "cw-mode" + (session?.mode === id ? " cw-mode--active" : "");
       b.textContent = label;

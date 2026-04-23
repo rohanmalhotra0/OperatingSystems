@@ -28,8 +28,30 @@
   // State
   const TAB_LIST = Object.values(TABS);
   const qs = new URLSearchParams(window.location.search);
-  let activeTab = resolveTab(qs.get("tab")) || TAB_LIST[0];
+
+  // Resolve the initial session + tab. Priority order:
+  //   1. ?s=<session-id>   (explicit deep-link, e.g. from the popup's expand btn)
+  //   2. ?tab=<id>         (explicit tab, use its currentSessionId if any)
+  //   3. most recently updated session across ALL tabs (mirrors the popup)
+  //   4. fall back to first tab with an empty state
+  // This makes "open /chat.html from the top nav" land the user on the same
+  // conversation they were having in the floating popup.
   let activeSession = qs.get("s") ? store.getSession(qs.get("s")) : null;
+  let activeTab = null;
+  if (activeSession){
+    activeTab = resolveTab(activeSession.tab);
+  }
+  if (!activeTab){
+    activeTab = resolveTab(qs.get("tab"));
+  }
+  if (!activeTab && !activeSession){
+    const recent = store.allSessions()[0]; // sorted by updatedAt desc
+    if (recent){
+      activeSession = recent;
+      activeTab = resolveTab(recent.tab);
+    }
+  }
+  if (!activeTab) activeTab = TAB_LIST[0];
 
   let streaming = false;
   let streamCtrl = null;
@@ -118,6 +140,18 @@
   function resolveTab(id){
     if (!id) return null;
     return TAB_LIST.find(t => t.id === id) || null;
+  }
+
+  // If a persisted session's mode isn't supported by its tab (e.g. quiz on a
+  // tab without a content pack), quietly downgrade it to chat so we don't
+  // render a "content 404" error on a surface the user didn't pick.
+  function sanitizeActiveSessionMode(){
+    if (!activeSession || !activeTab) return;
+    const bad = (activeSession.mode === "quiz" && !activeTab.hasContent) ||
+                (activeSession.mode === "mock" && !activeTab.hasCases);
+    if (!bad) return;
+    store.updateSession(activeSession.id, { mode: "chat" });
+    activeSession = store.getSession(activeSession.id);
   }
 
   /* ---------- render: sidebar pieces ---------- */
@@ -217,6 +251,7 @@
     el.modes.innerHTML = "";
     modes.forEach(([id,label]) => {
       if (id === "mock" && !activeTab.hasCases) return; // hide mock pill on case-less tabs
+      if (id === "quiz" && !activeTab.hasContent) return; // hide quiz when there's no content pack to load
       const b = document.createElement("button");
       b.className = "cw-mode" + ((activeSession?.mode || "chat") === id ? " cw-mode--active" : "");
       b.textContent = label;
@@ -278,6 +313,7 @@
   function scrollToBottom(){ el.msgs.scrollTop = el.msgs.scrollHeight; }
 
   function renderAll(){
+    sanitizeActiveSessionMode();
     renderTabPicker();
     renderSessionList();
     renderHead();
