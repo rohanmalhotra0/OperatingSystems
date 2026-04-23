@@ -1398,6 +1398,823 @@ const CASES = [
   },
 
   /* =========================================================
+     MBB CASEBOOK 2021 — 24 MBB-inspired cases (Peter K., Peter-K.org)
+     Cases 28-51. Organized by weekly archetype: profitability (wk 1),
+     revenue growth (wk 2), market entry (wk 3), comparison (wk 4).
+     Structure follows the 5-step opening + RRRN close format used at
+     McKinsey, BCG, Bain, L.E.K., and Kearney.
+     ========================================================= */
+
+  {
+    id: 28,
+    source: "mbb",
+    title: "Premier Oil",
+    industry: "Oil & Gas",
+    type: "Profitability",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you had to deliver tough news under pressure.",
+    prompt: "Premier Oil is a UK-based offshore upstream oil & gas producer operating rigs across 7 North Sea areas. Pandemic-induced oil price collapse has crushed profitability — 2020 operating margin is −12%. CEO wants a profitability improvement plan focused on cost levers. Industry is capex-heavy, B2B, commoditized.",
+    clarifying: [
+      "North Sea operations only — 7 producing areas, mixed crude and natural gas output.",
+      "Financial target: return to positive margin within 2 years at current commodity prices.",
+      "Client owns the rigs (no lease), so rent is not in the cost stack.",
+      "Commodity pricing is exogenous — client is a price-taker."
+    ],
+    framework: [
+      "Industry — typical margins, cost structure of majors, demand trends",
+      "Client — accounts (crude vs gas mix), product portfolio, value chain",
+      "Financial analysis — revenue (price × volume), cost (fixed + variable)",
+      "Improvement areas — revenue (secure contracts, hedging), cost (fixed + variable reduction)"
+    ],
+    math: [
+      "Current fixed OpEx: £50M/yr; current drilling cost: £40M/yr → total £90M/yr.",
+      "Retrofit scenario: OpEx → $1/barrel, drilling → −30%.",
+      "Production: 200k bbl/day × 360 days = 72M bbl/yr.",
+      "New OpEx in £: ($1 × 72M) ÷ 2 (FX $2=£1) = £36M.",
+      "New drilling: £40M × 0.70 = £28M.",
+      "New total: £64M. Savings: £90M − £64M = £26M/yr."
+    ],
+    brainstorm: "Fixed costs: maintenance (capex-heavy, scheduled vs reactive), R&D/exploration, overhead, energy, B2B marketing (low). Variable costs: labor, platform supplies, extraction supplies, transport (pipeline by volume). Maintenance is the biggest fixed lever — split into (routine vs emergency) × (higher frequency vs higher per-event cost): aging equipment drives both scheduled and emergency frequency; newer equipment + training cuts emergency events but raises per-event service rates. Risks with the retrofit: ignored investment cost, production pauses during retrofit, over-optimistic 30% savings assumption.",
+    recommendation: "Proceed with the retrofit — projected £26M/yr in savings brings the business back to breakeven at current commodity prices. Reasoning: OpEx drops ~£14M, drilling drops £12M, and retrofit likely extends equipment life (pushing CapEx replacement further out). Risks: retrofit investment + payback not modeled, production pauses during installation, 30% savings may be optimistic on aging rigs. Next: build full retrofit ROI model (capex + implementation time), sequence retrofits across the 7 areas to minimize production pauses, and stress-test the 30% assumption against supplier bids.",
+    source_label: "McKinsey 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 29,
+    source: "mbb",
+    title: "WeShare",
+    industry: "Real Estate",
+    type: "Profitability",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you had to make a tough capital allocation decision with limited data.",
+    prompt: "WeShare is a shared-office-space provider operating in 10 US cities — 25k members, $160M annual sales, currently unprofitable. Leadership needs to break even within 18 months. Pre-pandemic growth was 50%/yr; competitor WeWork controls 47% of the top-5 market. Business model is essentially rent arbitrage — long-term master leases, sublet to members at retail rates.",
+    clarifying: [
+      "Target customer mix: freelancers (~30%), entrepreneurs/startups (~50%), enterprise tenants (~20%).",
+      "All current locations are leased (not owned) — long-term commitments, 5-10 yrs typical.",
+      "Break-even deadline: 18 months. Capital is constrained; no more equity rounds.",
+      "Pricing is month-to-month for individuals, annual contracts for enterprise."
+    ],
+    framework: [
+      "Industry — shared-office dynamics, major players, post-pandemic occupancy trends, typical margins",
+      "Client — customer segments (freelancer / SMB / enterprise), service lines, 10-city footprint",
+      "Profitability — revenue (price × members × location mix), cost (fixed lease burden, variable supplies)",
+      "Growth strategies — revenue uplift (price, occupancy, enterprise push) + cost reduction (lease renegotiation, location rationalization)"
+    ],
+    math: [
+      "Building 1: 5-yr contract, $3M setup + lease, $20/sf OpEx, $3.5/sf/month revenue, 50k sf.",
+      "Building 1 annual rev/sf: $3.5 × 12 = $42; CM/sf: $42 − $20 = $22.",
+      "Building 1 total op profit: $22 × 50k × 5 yrs = $5.5M; Return: $5.5M − $3M = $2.5M; ROI = 83%.",
+      "Building 2: 4-yr contract, $2.5M setup, $15/sf OpEx, $3.3/sf/month, 40k sf.",
+      "Building 2 rev/sf: $40; CM/sf: $25; total profit: $25 × 40k × 4 = $4M; Return: $1.5M; ROI = 60%.",
+      "Building 1 wins on ROI (83% vs 60%) despite higher setup cost."
+    ],
+    brainstorm: "Cost stack dominated by rent/lease — high fixed-cost business like hotels. Fixed: lease payments (biggest), building maintenance, utilities, marketing & sales (category education needed), overhead (cleaning, security), R&D (design, software), insurance, RE taxes. Variable: snacks/supplies, discount programs, tiered-pricing giveaways. Revenue levers: tiered membership (hot desk → private office → dedicated suite), enterprise contracts (higher ARPU, longer terms), ancillary revenue (event rentals, virtual mailbox, meeting-room credits). Cost levers: renegotiate leases (pandemic gave landlords cold feet — use it), close bottom-decile locations, consolidate software stack.",
+    recommendation: "Push enterprise segment aggressively, renegotiate 3-5 underwater leases, close bottom-decile locations to hit break-even in 18 months. Reasoning: enterprise contracts stabilize occupancy and lift ARPU; renegotiated leases flow 100% to the bottom line; closures stop the bleed. Use Building-1 vs Building-2 framework for every location decision (ROI > 70% keep, below 50% exit). Risks: enterprise sales cycle is long (6-12 mo), landlords may refuse, closures trigger reputation risk. Next: enterprise sales team buildout, top-30 lease renegotiation list with walk-away thresholds, bottom-10 location closure plan with member-migration offers.",
+    source_label: "McKinsey 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 30,
+    source: "mbb",
+    title: "Five Ladies",
+    industry: "Fast Food",
+    type: "Profitability",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Describe a time you drove a cost-reduction initiative across a large organization.",
+    prompt: "Five Ladies is a national fast-food burger chain — $2.4B sales in 2020, 2,000 US restaurants (75% company-owned, 25% franchised). Positioned in the 'better burger' segment ($9-11 entree range). 2020 operating margin is 12%. CEO wants a margin-expansion plan focused on cost structure — specifically the rising smallware (plastic cutlery, packaging) line.",
+    clarifying: [
+      "Store mix: 75% company-owned, 25% franchised — franchise royalties flow through but are small.",
+      "Labor-intensive kitchen ops, commodity industry, brand war between better-burger chains.",
+      "Menu biased toward salads/bowls (smallware-heavy) vs plain burgers.",
+      "Self-service utensil stations in every location — high waste observed."
+    ],
+    framework: [
+      "Market — category growth, major burger chains (share, positioning), typical profitability, customer trends",
+      "Five Ladies — menu mix, target customers, marketing positioning, channel mix (in-store / delivery)",
+      "Margin analysis — revenue breakdown (region, product), cost structure (fixed + variable)",
+      "Improvement areas — revenue (mix, price, upsell) + cost (supply consolidation, ops efficiency)"
+    ],
+    math: [
+      "Utensil volume: 160M utensils/yr (50/50 spoons/forks) → 80M each.",
+      "Cost: 500 spoons = $10; 500 forks = $6.",
+      "Annual spoon cost: 80M ÷ 500 × $10 = $1.6M; fork cost: 80M ÷ 500 × $6 = $0.96M.",
+      "Total utensil cost: $2.56M/yr.",
+      "Option 1 — renegotiate supplier for 5% savings: $2.56M × 5% = $0.13M/yr.",
+      "Option 2 — build own production (50% savings, $10M capex): $2.56M × 50% = $1.3M/yr. Payback: $10M ÷ $1.3M ≈ 8 yrs."
+    ],
+    brainstorm: "Fixed: rent/utilities (in-person footprint), maintenance, marketing (brand war — high), overhead, R&D, transportation. Variable: labor (labor-intensive, low automation), food supplies + packaging + smallware, 3rd-party distribution fees (UberEats/DoorDash take 20-30%), credit card commissions, discounts. Why are smallware costs high? (Higher unit price × larger volume): no purchasing consolidation / no bulk contracts; expensive types (silver plastic, biodegradable); high shipping; low-quality supplier management; operational inefficiencies (waste, no standardization); self-service stations over-dispense; menu is smallware-heavy (salads vs burgers); to-go vs sit-down behavior.",
+    recommendation: "Start with Option 1 (renegotiate supplier) immediately for $130k/yr of pure savings, then layer operational fixes (cap self-service stations, standardize portions) for another $200-400k. Defer Option 2 (in-house production) — 8-yr payback is too long in a commodity business where tech/materials shift; ops complexity grows; volume is likely to shrink, not grow. Risks: supplier pushback, customer friction on capped utensil stations. Next: RFP to 3 new utensil suppliers, 30-day pilot on capped self-service at 20 stores, franchisee buy-in plan before rollout.",
+    source_label: "McKinsey 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 31,
+    source: "mbb",
+    title: "Getaway Airlines",
+    industry: "Airlines",
+    type: "Growth Strategy",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you found a growth opportunity others had missed.",
+    prompt: "Getaway Airlines is a US passenger airline focused on vacation destinations — 50 nonstop routes, Minneapolis hub. Top-4 markets: Las Vegas, LA, Portland, Fort Myers. Revenue is growing, but operating profit dropped to 10% in early 2020 (pre-pandemic). CEO wants a plan to double share in the top-4 destinations to offset margin pressure.",
+    clarifying: [
+      "Pre-pandemic data — do not assume COVID shock. Revenue growing, margin eroding.",
+      "Top-4 destinations today = ~20% of total passenger volume (large upside).",
+      "Positioning: leisure-focused, middle-of-market (not ultra-low-cost, not premium).",
+      "Fixed costs (hub ops, fleet) scale roughly with capacity, not with route mix."
+    ],
+    framework: [
+      "US airlines market — growth, major carriers, profitability benchmarks",
+      "Getaway — segments (low-cost / regular / premium), destinations, offerings, marketing",
+      "Profitability — revenue (pricing, volume), cost (fixed fleet + variable fuel/crew)",
+      "Strategies — increase sales (top-4 doubling) + streamline costs (network efficiency)"
+    ],
+    math: [
+      "Current sales: $0.5B at 10% margin = $50M profit.",
+      "Top-4 passenger share: (270 + 140 + 140 + 130)k ÷ 3,180k ≈ 20%.",
+      "Top-4 profit today: $50M × 20% = $10M.",
+      "Doubling top-4 volume: $10M × 2 = $20M; incremental profit = $10M (+20% total).",
+      "Scale benefits: 2× volume at fixed hub cost → margin accretive on incremental pax."
+    ],
+    brainstorm: "Revenue growth 4-lever: (1) Marketing — aggressive campaigns in top-4 metros, loyalty cards; (2) Pricing — vacation bundles (hotel + tour + taxi), tiered classes (basic/econ/premium), family deals, WTP-based destination pricing, subscriptions; (3) Distribution — expand travel-agency network, agent commissions, mobile app; (4) Value prop — passenger experience upgrade (on-time, friendly staff), higher flight frequency, larger planes if capacity-bound. Cross-sell (pre-board + on-board fees, loyalty credit card); Up-sell (seat-class upgrade, corporate packages); Diversification (cargo/mail, onboard ads, aerial photo services, charters).",
+    recommendation: "Double top-4 share with a bundled vacation-package play (flight + hotel + transfers) anchored in Las Vegas first. Projected incremental profit: +$10M (+20% total). Reasoning: top-4 is already proven demand, bundling raises ticket value without premium-class investment, leisure customers have higher bundle attach. Risks: competitive response (Southwest, Allegiant), marketing/distribution spend exceeds forecast, ops complexity of bundles. Next: Vegas pilot (3 months), hotel-partner RFP, update the loyalty program to anchor repeat bookings.",
+    source_label: "BCG 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 32,
+    source: "mbb",
+    title: "Alfa Dental",
+    industry: "Healthcare / Insurance",
+    type: "Profitability",
+    difficulty: "2 / 3 / 2",
+    behavioral: "Tell me about a time you had to push back on a partner's aggressive growth behavior.",
+    prompt: "Alfa Dental is a major US dental insurer. In 2018 it added Eastern Dental (ED) — a 100-office fee-for-service chain in Arizona — to its network. Claims from ED are growing faster than Alfa's book, and overall profitability is declining. Early 2020, pre-pandemic. CEO wants a diagnosis and a claims-reduction plan without alienating ED.",
+    clarifying: [
+      "ED is fee-for-service (not capitated) — each visit generates a claim Alfa pays.",
+      "ED is exclusively Arizona; Alfa's national book is stable ex-Arizona.",
+      "ED's patient visits are growing both via more patients and more visits/patient/yr.",
+      "Alfa's Arizona sales team is separately commissioned on new members enrolled."
+    ],
+    framework: [
+      "Arizona dental market — growth, key insurers + chains, typical margins",
+      "Alfa Dental — policy types, B2B/B2C client segments, marketing",
+      "Deal economics — revenue (premium × insured) vs cost (claims: volume × fee/service + overhead)",
+      "Eastern Dental — footprint, service range, pricing, patient volume & visit frequency"
+    ],
+    math: [
+      "ED 2018: 400k patients × 1.6 visits = 640k visits.",
+      "ED 2019: 300 providers × 1,500 patients/provider = 450k patients; × 1.7 visits = 765k visits.",
+      "Growth: (765k − 640k) ÷ 640k = 20%.",
+      "Claims cost grew ~20% YoY — materially above Alfa's premium growth.",
+      "Visit frequency drift (1.6 → 1.7) suggests demographic skew or location convenience, not just volume."
+    ],
+    brainstorm: "Why are ED claims growing? Split into (patient behavior × Alfa positioning × ED strategy). Patient: more dental-health aware, kids visit more often, demographic shift. Alfa: own marketing driving new members to ED, lower co-pays/deductibles/annual cap making visits cheap. ED strategy: marketing, distribution (footprint expansion, teledentistry, mobile offices, more dentists/office), pricing (lower prices, BNPL, price promotions), value prop (new services, expanded hours). Claim reduction levers: cool down marketing in Arizona, renegotiate reimbursement rates with ED (use their volume growth as leverage), raise deductibles/co-pays, deprioritize Arizona sales commissions, narrow covered services for ED patients.",
+    recommendation: "Renegotiate ED reimbursement rates down 8-12% — their 20% visit growth depends on Alfa's patient flow, so Alfa has leverage. Pair with modest member-side adjustments: raise Arizona deductible + reintroduce a $20 co-pay on elective visits. Reasoning: rate renegotiation attacks claim cost per visit; cost-sharing reduces over-utilization; both together protect the ED relationship. Risks: ED walks away (unlikely — 100-office footprint depends on network payers), member backlash on cost-sharing. Next: renegotiation playbook with walk-away floor, member communication strategy, sales team re-incentivization away from ED-heavy territories.",
+    source_label: "Bain 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 33,
+    source: "mbb",
+    title: "Rainbow Apparel",
+    industry: "Apparel / Retail",
+    type: "Profitability",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Describe a time you had to make a product-portfolio decision with imperfect data.",
+    prompt: "Rainbow Apparel is a high-quality children's clothing brand (ages 0-16) — 250 boutiques + online + Nordstrom shop-in-shops. $40M in 2019 sales across three lines: apparel, shoes, accessories. Profit has been slowly declining 2016-2019. Management is considering adding a fourth product line (toys) projected to generate $4M revenue and $1.2M profit (30% margin). Does this improve profitability?",
+    clarifying: [
+      "Brand positioning: premium, design-heavy, seasonal collections.",
+      "Distribution: own boutiques + online + Nordstrom exclusive.",
+      "Current blended margin computed from line-level data (apparel 25% / shoes 30% / accessories 50%).",
+      "Toys would be manufactured via existing supplier relationships; no new capex modeled."
+    ],
+    framework: [
+      "External — kids apparel market growth, competitors (Gap Kids, Carter's, Gymboree), consumer trends",
+      "Client — product line economics, customer profile, channel mix",
+      "Financials — line-level revenue and margins, blended margin benchmark",
+      "Strategies — SKU expansion vs existing-line optimization"
+    ],
+    math: [
+      "Apparel: $24M (60%) × 25% = $6M profit.",
+      "Shoes: $12M (30%) × 30% = $3.6M.",
+      "Accessories: $4M (10%) × 50% = $2M.",
+      "Total: $40M revenue, $11.6M profit → blended margin ~29%.",
+      "Toys: $1.2M ÷ $4M = 30% margin — essentially matches blended.",
+      "Toys doesn't improve overall margin, but adds $4M revenue and $1.2M profit."
+    ],
+    brainstorm: "Fixed costs: boutique rent + utilities (250 stores), maintenance, marketing (premium positioning is expensive), overhead, R&D (seasonal design), Nordstrom exclusivity fees. Variable: COGS (fabric, manufacturing), labor, shipping, packaging, markdowns. Profit decline causes: secular shift to online (boutiques underperforming), competitive pressure from Carter's/Gymboree on basics, rising input costs, over-investment in unprofitable lines. Alternative levers beyond toys: prune unprofitable boutiques, push accessories (50% margin, 10% of mix — underindexed), build DTC loyalty program, exit wholesale if margin-dilutive.",
+    recommendation: "Add toys — it's not margin-accretive but it's margin-neutral and adds $4M revenue + $1.2M profit at near-zero capex, plus cross-sell into existing boutique footprint. Real margin lever isn't toys, though — it's accessories (50% margin, only 10% of mix). Push accessories to 20% of mix via boutique merchandising and online bundles — that shifts blended margin ~200 bps. Risks: toys inventory risk (long lead times, fashion-sensitive), boutique capacity, brand dilution. Next: 6-month toys pilot in 50 top boutiques, accessories-push merchandising program, SKU-level profitability review.",
+    source_label: "Bain 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 34,
+    source: "mbb",
+    title: "North Sun",
+    industry: "Automotive / EV",
+    type: "Growth Strategy",
+    difficulty: "3 / 2 / 3",
+    behavioral: "Tell me about a time you had to build a B2B sales motion from scratch.",
+    prompt: "North Sun is a Japanese EV manufacturer with strong B2C positioning — 65% of Japanese BEV sales, but only 5% of global EVs. Global EV market: 4M (2021) → 35M (2030), 27% CAGR. B2B segment (rental fleets, corporate, govt) is underperforming. Client wants a B2B acceleration plan anchored around a $1M marketing event targeting 1,000 qualified prospects.",
+    clarifying: [
+      "B2C is 95%+ of current revenue; B2B has ~5 dedicated sales reps globally.",
+      "Typical B2B contract: 40 e-cars × $35k × 5% margin = $70k profit/contract.",
+      "Sales funnel: Stage 1 (lead) → Stage 2 (qualified) → Stage 3 (test drive) → Stage 4 (contract); Stage 3→4 conversion is 20%.",
+      "Without the event, ~30 Stage-3 prospects would reach Stage 4 on their own."
+    ],
+    framework: [
+      "Industry — global EV growth, major players, B2B adoption curve",
+      "Client — B2C strength, B2B gaps (product, sales coverage, infra)",
+      "B2B analysis — contract economics, funnel conversion, breakeven math",
+      "Growth strategies — marketing, pricing, distribution, value prop × B2B levers"
+    ],
+    math: [
+      "Event cost: $1M. Contract profit: $70k.",
+      "Breakeven contracts: $1M ÷ $70k = 14.3 → 15 contracts.",
+      "Stage-3 prospects needed at 20% conv: 15 ÷ 0.20 = 75.",
+      "Baseline Stage-3 without event: 30.",
+      "Incremental Stage-3 required: 75 − 30 = 45 additional test drives driven by the event.",
+      "That's ~4.5% of the 1,000 targeted prospects converting to a test drive — reasonable bar."
+    ],
+    brainstorm: "Why is B2B weak? EV charging infrastructure gaps (fleet hesitation), TCO modeling not packaged for procurement buyers, undersized B2B sales force, service network coverage, lack of fleet-specific configurations. 4-lever revenue growth applied to B2B: Marketing (industry events, trade press, TCO calculator, case studies); Pricing (fleet discounts, subscription/lease options, bundled charging); Distribution (partner with fleet management companies, govt procurement channels); Value prop (fleet-specific telematics, priority service, guaranteed uptime SLAs). The event is one marketing tactic — the bigger issue is sales coverage.",
+    recommendation: "Run the event — breakeven is only 45 incremental test drives from a 1,000-prospect target (achievable) and it generates a qualified B2B pipeline for the sales team to work for the next 12 months. Pair with structural fixes: hire 15 B2B sales reps, build the TCO calculator + fleet telematics package, partner with 3 fleet management companies. Risks: test-drive-to-contract conversion might lag 20% at first, event without follow-through is wasted. Next: book the event for Q3, stand up B2B sales team by Q2, launch fleet configurator tool alongside the event.",
+    source_label: "McKinsey 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 35,
+    source: "mbb",
+    title: "AgriCo",
+    industry: "Agriculture / Machinery",
+    type: "Growth Strategy",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you had to defend a price decision with finance and sales pushing opposite directions.",
+    prompt: "AgriCo is a US agricultural machinery manufacturer founded early 1990s. Farm tractors are a major line. 2020 US tractor sales fell 15%; client needs to reverse. Fragmented market (top 5 = 30-40%). 2020 sales: $0.7B. Three tractor types: compact (<40 HP), utility (40-100 HP), high-HP (100+). Management is considering a 5% price cut on compact tractors to win volume.",
+    clarifying: [
+      "Compact tractors = 50% of total tractor sales (largest segment).",
+      "Compact gross margin: 20% at current avg price $30k/unit.",
+      "Demand elasticity uncertain — no existing elasticity model.",
+      "Price cuts would go into effect uniformly across the compact line."
+    ],
+    framework: [
+      "Market — US farm machinery size, growth, major players, customer trends",
+      "Client — product portfolio (compact / utility / high-HP), channel mix, geography",
+      "Revenue analysis — price × volume × mix; compact segment economics",
+      "Growth strategies — pricing, new product, distribution, marketing per segment"
+    ],
+    math: [
+      "Current CM/unit: $30k × 20% = $6k.",
+      "New CM at 5% price cut: $30k × (20% − 5%) = $4.5k (price drop flows 1:1 into margin).",
+      "Current compact volume: $0.7B × 50% ÷ $30k ≈ 12k units.",
+      "Current segment profit: 12k × $6k = $72M.",
+      "Breakeven volume at new CM: $72M ÷ $4.5k = 16k units.",
+      "Required volume lift: +4k units or +33% — a steep elasticity demand."
+    ],
+    brainstorm: "A 33% volume lift from a 5% price cut implies price elasticity of −6.6, way above typical ag-equipment elasticity of −1 to −2. Better levers for the compact segment: financing (0% APR for 36 months), bundled warranty extensions, trade-in promotions, dealer incentives (push to sell AgriCo over competitor), precision-ag attachments as upsells. Beyond compacts: utility segment may have more room (smaller competitor share), high-HP might benefit from new product refresh. Distribution: online configurator + delivery for small farmers.",
+    recommendation: "Do not cut price 5% — the required 33% volume lift is unrealistic given ag-equipment elasticity. Instead: launch 0% APR financing + $1,500 trade-in credit for compacts (effective ~5% buyer-side discount funded partially by the financing arm), and push dealer incentives for utility segment where competitive share is most fragmented. Projected profit delta: +$8-12M. Risks: financing arm exposure, dealer-incentive gaming, competitor matches. Next: financing-arm readiness review, dealer-incentive structure, test-market in 2 states before national rollout.",
+    source_label: "BCG 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 36,
+    source: "mbb",
+    title: "Henderson Electric",
+    industry: "Industrial Electronics",
+    type: "Growth Strategy",
+    difficulty: "3 / 2 / 3",
+    behavioral: "Tell me about a time you shifted an organization's focus from hardware to software.",
+    prompt: "Henderson Electric provides industrial air conditioning across three lines: AC units, maintenance contracts, and IoT-enabled monitoring software. Total sales: $1B; software revenue is disproportionately low. The software alerts on failures, unusual behavior, and maintenance cycles — and works on competitor equipment. CEO wants a software-acceleration plan.",
+    clarifying: [
+      "Subscription price: $28k/yr. Current software clients: 500.",
+      "Cost stack: fixed $16M/yr (3 components), variable $4M/yr total.",
+      "Current software P&L: −$6M (loss).",
+      "Sales force is hardware-trained; no dedicated software team."
+    ],
+    framework: [
+      "Market — industrial IoT growth, major players, typical ARR per client",
+      "Product — software capabilities vs competitors, interoperability (works on competitor hardware)",
+      "Client segments — existing AC customers vs greenfield buyers (incl. competitor-equipment owners)",
+      "Growth strategies — dedicated sales team, pricing, bundling, marketing"
+    ],
+    math: [
+      "Variable cost/client: $4M ÷ 500 = $8k/client.",
+      "CM/client: $28k − $8k = $20k.",
+      "Breakeven clients at $16M fixed cost: $16M ÷ $20k = 800 clients.",
+      "Gap to breakeven: 800 − 500 = 300 clients (60% growth).",
+      "At +300 clients: profit = 800 × $20k − $16M = $0 (just breakeven). Each client above 800 adds $20k profit."
+    ],
+    brainstorm: "Why are software sales low? (1) no standalone marketing budget — bundled with hardware; (2) no dedicated software sales team; (3) customer uncertainty on ROI (monitor savings not quantified in sales collateral); (4) integration friction with existing BMS; (5) price resistance — seen as optional; (6) sales comp favors hardware (bigger ticket). Acceleration levers: build a ROI calculator (case studies showing $X saved via early-warning failure detection); hire a 10-person software sales team paid on software ARR; bundle the first year free with AC purchases (convert via renewal); target competitor-equipment owners via industry events (true standalone software motion).",
+    recommendation: "Stand up a dedicated software sales team (10 reps, software-specific comp), launch a ROI calculator and 3 customer case studies, and bundle year-one subscription into all new AC sales. Projected path to 800 clients within 18 months — clears breakeven; each additional client is pure $20k CM. Risks: hardware team resists if software cannibalizes bundles, sales hiring timeline, competitor IoT platforms. Next: software-team org design, pricing decision on bundled year-one, target-client list for competitor-equipment outreach.",
+    source_label: "Bain 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 37,
+    source: "mbb",
+    title: "Kitchen World",
+    industry: "Retail",
+    type: "Growth Strategy",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Describe a time you invested in a loyalty or retention program.",
+    prompt: "Kitchen World is a high-end kitchenware retail chain — 100 US + Canada stores plus online (5-10% of revenue). $200M annual sales, flat for 3 years. North American kitchenware market: $18B (2019); high-end ~10%. Key competitors: Sur la Table, Williams Sonoma. CEO wants a 3-year growth strategy, specifically a decision on a loyalty program.",
+    clarifying: [
+      "Loyalty pilot: Store A (has loyalty) vs Store B (control). Each has ~50k customers.",
+      "Store A: 12 visits/yr, $50/visit, 19% margin.",
+      "Store B: 10 visits/yr, $52/visit, 20% margin.",
+      "Own platform: $4M capex + $0.1M/yr opex. Third-party: 3% commission on loyalty member sales."
+    ],
+    framework: [
+      "Market — high-end kitchenware growth, competitive positioning, customer trends (online shift)",
+      "Client — store footprint, online mix, loyalty pilot results, customer demographics",
+      "Growth levers — marketing (loyalty), distribution (online push), product (exclusives), pricing",
+      "Decision — build vs buy loyalty platform, pilot scale-up"
+    ],
+    math: [
+      "Store A annual profit: 50k × 12 × $50 × 19% = $5.7M.",
+      "Store B annual profit: 50k × 10 × $52 × 20% = $5.2M.",
+      "Incremental: $5.7M − $5.2M = $0.5M per 50k customers → $10/member.",
+      "Assume 20% of customers enroll: 10k members/store.",
+      "Own platform breakeven: $4M ÷ $10/member ≈ 400k loyalty members (~40 stores fully penetrated).",
+      "Third-party (3% commission): cost per active member scales with revenue, lower upfront but uncapped."
+    ],
+    brainstorm: "Why is Kitchen World flat? Specialty retail is getting squeezed by Amazon + Williams Sonoma's DTC push. Growth levers: (1) Marketing — loyalty program + email/SMS personalization; (2) Distribution — fix online (5-10% is low for category), add curbside pickup, test 5 smaller-format urban stores; (3) Product — exclusive brands, private-label high-margin lines, cooking classes as experiential anchor; (4) Pricing — tiered membership, premium workshop tickets. Loyalty pilot shows +visits offsets -ticket and -margin for a net $0.5M uplift per 50k customers. Good news: directional effect is real. Risk: store-A may be outperforming for reasons other than loyalty (market, manager).",
+    recommendation: "Launch a loyalty program on third-party platform first (lower upfront cost, faster go-live), with a 12-month option to bring in-house at 400k+ members. Projected profit uplift: $0.5M/store × ~80% of stores participating = $40M over 3 yrs net of commission. Pair with an online-push (target 15% of revenue in 3 yrs) and exclusive brand partnerships for differentiation vs Williams Sonoma. Risks: loyalty program doesn't replicate pilot results at scale, commission scales with success. Next: RFP 3 loyalty platforms, ramp plan (start with 20 stores), online investment plan, exclusive-brand pipeline.",
+    source_label: "McKinsey 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 38,
+    source: "mbb",
+    title: "The Hunter's Dog",
+    industry: "Pet Food",
+    type: "Growth Strategy",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you evaluated a major channel-partnership offer.",
+    prompt: "The Hunter's Dog is an online fresh-dog-food subscription service offering personalized meal plans. $120M sales in 2020, 100k unique customers. US pet food market: $42B, +10% growth in 2020. Petco has proposed placing Hunter's Dog product in 1,400 Petco stores at identical DTC pricing. Decision: accept the deal?",
+    clarifying: [
+      "Same retail price to consumer across DTC and Petco (no price arbitrage).",
+      "Client gross margin (DTC): 40%. Petco commission: 25% of sales.",
+      "Additional opex for Petco channel: 5% (transport, storage, reverse logistics).",
+      "Factory expansion capex required to serve Petco: $30M."
+    ],
+    framework: [
+      "Market — pet-food growth, channel mix (DTC vs retail), category trends",
+      "Client — DTC unit economics, customer LTV, brand strength",
+      "Petco deal economics — channel margin, capex payback, cannibalization risk",
+      "Execution — factory expansion, retail ops, brand integrity"
+    ],
+    math: [
+      "Avg annual ticket/customer: $120M ÷ 100k = $1,200.",
+      "Petco channel CM%: 40% − 25% commission − 5% extra opex = 10%.",
+      "Petco CM per customer: $1,200 × 10% = $120.",
+      "Breakeven customers: $30M ÷ $120 = 250k new Petco customers in year 1.",
+      "Per-store: 250k ÷ 1,400 = ~178 customers per Petco store in year 1.",
+      "Vs DTC CM/customer ($1,200 × 40% = $480) — Petco CM is 1/4 of DTC."
+    ],
+    brainstorm: "Strategic pros: Petco distribution reaches trial customers the DTC funnel can't; brick-and-mortar legitimizes the brand; captures share from Purina/Hill's in Petco. Cons: margin compression (10% vs 40%); channel conflict with DTC (Petco customers may defect from DTC sub); Petco can drop the brand at will; shelf space isn't free. Risks: customer quality on Petco is worse (one-time buyers vs LTV subscribers), factory expansion is stranded if Petco pulls. Alternatives: limited SKU launch in Petco (trial pack only, drive DTC sub), exclusivity deal with Chewy instead, own retail pilot in Austin/Boston.",
+    recommendation: "Accept Petco deal with a limited-SKU approach — place only trial packs ($40) in Petco, direct buyers to the DTC subscription via QR code on package. Reduces capex risk (trial-pack factory = $10M not $30M), protects subscription margins, and uses Petco as a subsidized customer-acquisition channel. Projected: 400k trial-pack buyers in year 1 → 20% subscription conversion = 80k new DTC subs at $480 CM = $38M CM vs $10M capex, net $28M year-1 contribution. Risks: Petco may not accept trial-only terms, channel conflict if full SKU later leaks. Next: negotiate trial-only terms, QR+landing-page infrastructure, 12-month performance review before considering full SKU expansion.",
+    source_label: "L.E.K. 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 39,
+    source: "mbb",
+    title: "Wen Windows",
+    industry: "Windows / Manufacturing",
+    type: "Growth Strategy",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a new-product launch you were involved in from the start.",
+    prompt: "Wen Windows is a vertically integrated window producer (glass, vinyl, fiberglass, frames) — 6 manufacturing facilities + 30 service centers. $150M in 2019 sales, losing share. US window market: $15B, fragmented. Early 2020 (pre-pandemic). Wen is considering launching a new energy-efficient model to regain share.",
+    clarifying: [
+      "2019 pilot of the energy-efficient model: 2k units, $1.2M revenue.",
+      "Fixed costs allocated to this model (marketing + production): $1M/yr.",
+      "Gross margin: 30%.",
+      "US window buyers: ~70% retrofit (existing homes), 30% new-build."
+    ],
+    framework: [
+      "Market — US window size, growth, fragmentation, energy-efficiency trend",
+      "Client — vertical integration advantage, footprint, share loss drivers",
+      "Product economics — price, volume, margin, breakeven for energy-efficient model",
+      "Growth strategies — price, promotion, distribution, product mix"
+    ],
+    math: [
+      "Avg unit price: $1.2M ÷ 2k units = $600.",
+      "CM/unit: $600 × 30% = $180.",
+      "Breakeven volume: $1M fixed ÷ $180 CM = ~5.6k units/yr.",
+      "Gap from 2k to 5.6k: need ~3x current volume.",
+      "Market context: 5.6k units is tiny in $15B market — feasible with the right distribution push."
+    ],
+    brainstorm: "Why are they losing share? Fragmented market, large national players (Andersen, Pella) have retail distribution (Home Depot, Lowe's); Wen relies on service-center direct sales. Growth levers for the energy-efficient model: (1) Marketing — tap IRA energy-efficiency rebates ($1,200 tax credit for qualifying windows); (2) Pricing — introductory discount; (3) Distribution — add Home Depot pilot, contractor partnerships, online configurator; (4) Value prop — emphasize lifetime energy savings ($400+/yr per household). Energy-efficiency narrative is strong post-IRA (2022) — market is actively growing in this segment.",
+    recommendation: "Launch the energy-efficient model aggressively — 3x volume to 5.6k units is plausible if Wen taps (a) IRA tax credits in marketing collateral and (b) Home Depot retail distribution pilot. Projected contribution at 8k units: 8k × $180 − $1M = $440k pure profit incremental. Reasoning: IRA-eligible SKUs are category-growth accelerators, Wen's vertical integration is a cost advantage they haven't been leveraging. Risks: Home Depot relationship takes 12-18 months to build, IRA eligibility needs engineering certification. Next: IRA certification application, Home Depot RFP, contractor-partner program design.",
+    source_label: "L.E.K. 2020 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 40,
+    source: "mbb",
+    title: "Confectionery Land",
+    industry: "CPG / Confectionery",
+    type: "Market Entry",
+    difficulty: "3 / 2 / 3",
+    behavioral: "Tell me about a time you evaluated an international expansion.",
+    prompt: "Confectionery Land is a European chocolate/sugar confectionery brand, considering entering developing European Country X with its best-selling chocolate bar. Country X: 9M population, $600M chocolate market, 10% growth/yr. Top 3 (Mondelez, Nestle, Mars) = >50% share. Client's portfolio: chocolate bars, candies, biscuits. Decision: enter or not?",
+    clarifying: [
+      "Market growth segmented by age: children, 18-44, 45-64, 65+.",
+      "Current spending base: Children $120M; 18-44 $180M; 45-64 $180M; 65+ $120M.",
+      "2-yr projections: Children +20%; 18-44 price/purchase $6 → $7.5; 45-64 visits 14/yr → 16/yr; 65+ flat.",
+      "Client has no existing presence or supply chain in Country X."
+    ],
+    framework: [
+      "New market — size $600M, growth 10%/yr, segments by age, competitive density",
+      "Client — product fit (chocolate bar), brand equity, supply chain readiness",
+      "Entry economics — revenue potential, cost to build distribution, payback",
+      "Execution — build / buy / partner (local distributor vs direct)"
+    ],
+    math: [
+      "Children growth: $120M × 20% = +$24M → $144M.",
+      "18-44 growth: $180M × (7.5/6 − 1) = +$45M → $225M.",
+      "45-64 growth: $180M × (16/14 − 1) = +$26M → $206M.",
+      "65+: unchanged at $120M.",
+      "Total market in 2 yrs: $600M + $24M + $45M + $26M = ~$695M (+16%).",
+      "Target 3% share in 2 yrs: $695M × 3% = $21M revenue."
+    ],
+    brainstorm: "Entry options: (a) Build — set up own distribution and sales team (18-24 month ramp, $20-30M investment, most control); (b) Buy — acquire a local chocolate brand ($50-80M, fastest to market, inherits customer base); (c) Partner — license to a local distributor (fastest, lowest capex, weakest brand control, 20-30% margin give-up). Given 3 entrenched competitors at >50% share and no existing client presence, partner route is lowest risk. Target segments: 18-44 is the fastest-growing dollar bucket and aligns with chocolate-bar impulse occasions. Avoid direct confrontation with Mondelez/Mars in top shelf; go premium-adjacent.",
+    recommendation: "Enter via local distributor partnership targeting 18-44 segment with a premium-positioned chocolate bar. Projected year-2 revenue: $21M (3% share of $695M market). Reasoning: market is growing fast (+16% over 2 yrs), 18-44 segment is where the incremental dollars are ($45M net growth), partner model de-risks capex while securing distribution. Risks: distributor motivation, brand loss-of-control, competitor price war. Next: shortlist 3 distributor partners, define exclusivity + margin terms, 6-month pilot in 1 city before national rollout.",
+    source_label: "McKinsey 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 41,
+    source: "mbb",
+    title: "Okay Mobile",
+    industry: "Telecom / Energy",
+    type: "Market Entry",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Tell me about a time you entered an adjacent market leveraging an existing customer base.",
+    prompt: "Okay Mobile is an Australian MVNO (mobile virtual network operator) — 1M subscribers, runs on Optus. Considering entering energy retail (electricity + gas) as a virtual retailer (no generation assets, bills only). Target: $5M profit in year 1 post-launch. Australia: 11M electricity customers, 5M gas; $20B electricity + $3-4B gas markets, 1-3% growth.",
+    clarifying: [
+      "Virtual retailer: client bills customer, buys wholesale energy, keeps margin. No infrastructure build.",
+      "Year 1 customer ramp: 0 → 0.2M by EOY (mid-year average = 0.1M).",
+      "Avg Australian household spend: $1,300 electricity + $700 gas = $2,000/yr.",
+      "Client commission on retail: 10%. Fixed costs: $10M/yr. Variable ≈ $0. Capex out of scope for year-1 P&L."
+    ],
+    framework: [
+      "New market — Australian energy retail, incumbent players, switching dynamics",
+      "Client — MVNO customer base (cross-sell potential), brand strength, billing infrastructure",
+      "Entry economics — revenue (customers × ARPU × margin), fixed cost, breakeven path",
+      "Execution — cross-sell to mobile base vs acquire new customers, bundling"
+    ],
+    math: [
+      "Avg customers through year (linear ramp): 0.2M ÷ 2 = 0.1M.",
+      "Annual revenue/customer: ($1,300 + $700) × 10% = $200.",
+      "Total revenue: 0.1M × $200 = $20M.",
+      "Profit: $20M − $10M fixed = $10M.",
+      "Exceeds $5M target by 2x.",
+      "Cross-sell assumption: 20% of 1M mobile subs convert → 200k — exactly the ramp plan."
+    ],
+    brainstorm: "Cross-sell advantages: Okay Mobile already has billing relationship, customer trust, marketing channels (SMS, app). Entry levers: (1) bundle discount (mobile + energy 5% off); (2) app-first sign-up (3-click switch); (3) smart-meter partnerships for usage insights; (4) renewables angle (green-energy tier). Risks: Australian energy retail is competitive and price-regulated in some states; customer acquisition cost could surprise; churn in mobile could cascade to energy. Non-financial: brand extension from mobile to energy is credible but untested. Infrastructure: billing integration, call center for energy-specific queries, regulatory licensing in each state.",
+    recommendation: "Proceed with launch — year-1 math shows $10M profit, 2x the $5M target. Target the cross-sell opportunity first (20% of 1M mobile base = 200k, exactly the plan). Launch with a 5% bundle discount and a green-energy tier. Risks: regulatory licensing delays, customer acquisition harder than assumed, Optus-backhaul dependency creates systemic risk. Next: state-by-state licensing timeline, billing-system integration, pilot launch in one state (VIC) before national, churn monitoring dashboard.",
+    source_label: "McKinsey 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 42,
+    source: "mbb",
+    title: "Guyderma",
+    industry: "Beauty / Healthcare",
+    type: "Market Entry",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you moved a company into a regulated adjacent market.",
+    prompt: "Guyderma is a big beauty company (creams, lotions, masks). Considering expanding into plastic-surgery solutions (botox, disport — injectable neurotoxins). US plastic procedure market: 18M/yr, 1-2% growth. Botox segment dominated by Allergan (Botox) and Ipsen Pharma (Dysport). Client wants $10M profit from the segment. What market share is required?",
+    clarifying: [
+      "Wholesale acquisition cost per 200-unit botox vial: $1,200.",
+      "US botox volume: 2.5M vials/yr.",
+      "Expected margin in botox for a new entrant: 5%.",
+      "Client has no FDA approval yet for injectables; would need to buy a molecule or partner."
+    ],
+    framework: [
+      "New market — US botox size, growth, competitive structure (Allergan/Ipsen duopoly), regulation",
+      "Client — beauty-brand equity, skincare-channel access (dermatologists), capability gap (FDA molecule)",
+      "Entry economics — market size, required share, margin profile",
+      "Build vs buy — organic R&D (10 yrs) vs acquire (fast, expensive) vs license (partnership)"
+    ],
+    math: [
+      "US botox market size: $1,200 × 2.5M vials = $3B.",
+      "Guyderma revenue needed at 5% margin: $10M ÷ 5% = $200M.",
+      "Required share: $200M ÷ $3B ≈ 7%.",
+      "That's a massive target in a duopoly — Allergan ~70%, Ipsen ~20%, others 10%.",
+      "Implication: 7% capture is unrealistic without a differentiated product or acquired brand."
+    ],
+    brainstorm: "Build vs Buy vs Partner: Build is infeasible — FDA approval takes 8-12 years. Buy a small neurotoxin company (~$500M-1B for a 2-3% share player); integrate sales. Partner with Ipsen (license Dysport distribution for specific channels). Capability gaps: FDA-regulated manufacturing, physician detailing sales force, dermatologist network, reimbursement expertise. Differentiation plays: formulation (longer-lasting), delivery (micro-needle patch — simpler for beauty consumers), channel (skincare + botox bundled in med-spas). Risks: 5% margin is low (competitors run 30%+ — Guyderma would be squeezed at entry), consumer safety regulatory risk, brand dilution from beauty to medical.",
+    recommendation: "Do not enter standalone — 7% share in a duopoly with 5% margins is a losing entry profile. Instead, pursue a differentiated adjacent: partner with a dermatologist network to offer bundled skincare+neurotoxin in high-end med-spas, positioning Guyderma as the beauty-continuum brand. If entry is strategically mandatory, acquire a small neurotoxin player ($500M-1B) with an existing FDA molecule to skip the approval curve. Reasoning: direct competition with Allergan is capital-destructive; partnership-bundle captures value without capex. Risks: partner dependency, brand confusion. Next: commission full acquisition-target screen, 6-month med-spa pilot in LA/NY, regulatory readiness review.",
+    source_label: "McKinsey 2020 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 43,
+    source: "mbb",
+    title: "City Food Bank",
+    industry: "Non-Profit / NGO",
+    type: "Market Entry",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you had to make capital allocation decisions with nonprofit constraints.",
+    prompt: "City Food Bank (CFB) is the largest US food bank. 2020: demand AND donations both spiked — donations +60% to $160M. Wants to expand geographic footprint. Food insecurity: 11% of households (2019) → 23% (2020). Constraint: ≤10% of funds can go to admin (90% must go to hunger relief). Needs a warehouse capacity target for 3-year horizon.",
+    clarifying: [
+      "2020 donations: $160M (= $100M baseline × 1.6). Donation per meal: $2.",
+      "Avg meal weight: 1.25 lbs.",
+      "Required on-hand supply: 5 weeks (for surge resilience).",
+      "Demand growth assumption: +30% over 3 yrs."
+    ],
+    framework: [
+      "New market — which geographies? Food-insecurity heat mapping (state-level)",
+      "Client — CFB's capabilities, existing warehouse network, volunteer base, 90/10 constraint",
+      "Economics — donations vs meals served, cost per meal, admin overhead",
+      "Execution — warehouse siting, logistics partners, state-level entry sequencing"
+    ],
+    math: [
+      "2020 meals: $160M ÷ $2 per meal = 80M meals.",
+      "Annual weight: 80M × 1.25 lbs = 100M lbs.",
+      "3-yr weight with 30% growth: 100M × 1.3 = 130M lbs/yr.",
+      "5-week supply: 130M × (5/52) = ~13M lbs.",
+      "Warehouse capacity target: 13M lbs by 2023.",
+      "At ~15 lbs/sf storage density, need ~900k sf of warehouse — likely 3-5 regional facilities."
+    ],
+    brainstorm: "Geography prioritization: states with biggest 2019→2020 insecurity jump (heat-map via Appendix 1 or USDA data). Partner logistics: Walmart/Target for distribution, local non-profits for last mile, regional food banks for inter-org transfer agreements. Supply chain innovations: cold chain for fresh donations, barcode/inventory systems (currently spreadsheet-driven at many food banks). Constraints: 90/10 admin cap means overhead investments (tech, staffing) must scale with donations. Risk: 2020 was a donation surge — may revert in 2022-23, leaving stranded warehouse capacity.",
+    recommendation: "Target 13M lbs of warehouse capacity by 2023, distributed across 4 new regional facilities in the highest-insecurity-growth states (likely MS, NM, LA, KY). Reasoning: supply growth modeled directly from donations + meal cost; 5-week buffer protects against future surge; regional siting minimizes last-mile cost. Risks: donations regress to the mean post-pandemic (stranded capacity), 90/10 admin cap strains overhead for capacity expansion, labor shortages at warehouses. Next: state-level heat map to finalize locations, partnership RFP with 2-3 logistics providers, donor-communication plan to sustain the $160M run-rate.",
+    source_label: "BCG 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 44,
+    source: "mbb",
+    title: "Betacer",
+    industry: "Video Games",
+    type: "Market Entry",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Tell me about a time you evaluated a new category entry at a consumer electronics brand.",
+    prompt: "Betacer is a US electronics manufacturer (laptops, phones, monitors, cloud services). Considering entering the US video game market. Global games: $175B (skyrocketed in 2020); US: $41B. Target: mass-market casual gamer (not hardcore). Payback required: 2 years. First product: 'Treasure Hunters' smartphone game, free with in-app purchases.",
+    clarifying: [
+      "Capex for design + development: $1M. Annual opex (excluding app-store commission): $0.2M.",
+      "Free-to-play model — in-app purchases. App store commission: 30%.",
+      "Avg spend per paying user: $120/yr. Payer rate: 5% of installs.",
+      "Payback target: 2 years."
+    ],
+    framework: [
+      "New market — US games size $41B, segments (casual / hardcore / mobile), growth",
+      "Client — existing consumer electronics brand, mobile presence, gaming capability gap",
+      "Entry economics — CM per user, breakeven users, LTV vs CAC",
+      "Execution — build vs acquire studio, platform choice (iOS / Android / PC)"
+    ],
+    math: [
+      "CM per installed user (mixing payers + non-payers): $120 × 5% × (1 − 30% commission) = $4.2/user.",
+      "Total costs over 2 yrs: $1M capex + $0.2M × 2 = $1.4M.",
+      "Breakeven users: $1.4M ÷ $4.2 = ~333k installs over 2 years.",
+      "That's ~167k installs/yr — feasible via modest marketing in US mobile gaming.",
+      "Implied marketing CAC ceiling: profit per user $4.2 ÷ (typical game CPI $2-5) → tight but workable."
+    ],
+    brainstorm: "Industry dynamics: mobile is the fastest-growing segment within gaming; F2P with IAP is the dominant monetization model; hardcore studios (Riot, Blizzard) dominate PC/console. Entry strategy: start with 1 mobile title (Treasure Hunters), test for retention/monetization metrics, then decide on follow-ons. Alternative: acquire a small indie studio ($10-30M) to skip first-title learning curve. Risks: 90%+ of new mobile games flop; app-store algorithm bias; user acquisition economics ugly (CPI rising). Success pattern: viral hit titles usually come from experienced teams, not first-time launches.",
+    recommendation: "Launch Treasure Hunters as a test — 333k breakeven installs is achievable, and 2-yr payback target is met if title hits mid-tier success. But plan for failure: 9 in 10 games don't hit targets. Pair the launch with acquisition-target screening (5 indie studios, $10-30M each) — if Treasure Hunters fails, pivot to M&A; if it succeeds, use learnings to accelerate the studio. Risks: user acquisition costs blow past $4.2/install ceiling; app-store visibility, team inexperience. Next: 90-day soft launch in 1 country (Canada, Australia), acquisition-target pipeline, metrics dashboard (retention D1/D7/D30, ARPDAU).",
+    source_label: "BCG 2020 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 45,
+    source: "mbb",
+    title: "Sunshine Apparel",
+    industry: "Apparel / Toys",
+    type: "Market Entry",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you evaluated a 'new category' expansion for an existing brand.",
+    prompt: "Sunshine Apparel is a kids' clothing brand — $1B sales, 4% EBT margin, 200 retail stores. Considering entering the traditional toy market (not video games). Target: +10% sales growth. First product category: dolls at $30/unit. Required investment: $4.5M.",
+    clarifying: [
+      "Peer doll-industry margins: ~5% (Appendix 3).",
+      "Doll market size: pulled from Appendix 1 (context-dependent — assume mid-single-digit $B).",
+      "Sunshine's 200 stores would cross-merchandise dolls in kids' clothing sections.",
+      "No existing toy-manufacturing capability — would use contract manufacturing."
+    ],
+    framework: [
+      "New market — US dolls (segment of $30B toy market), growth, major players (Mattel, MGA)",
+      "Client — brand fit (kids apparel → dolls), retail channel leverage, capability gap (toy design/mfg)",
+      "Entry economics — CM per doll, breakeven volume, market share required",
+      "Execution — own stores first vs wholesale + own; contract mfg vs acquire small toy co."
+    ],
+    math: [
+      "CM per doll: $30 × 5% margin = $1.50.",
+      "Breakeven volume: $4.5M ÷ $1.50 = 3M units.",
+      "Breakeven sales: 3M × $30 = $90M.",
+      "Required market share: $90M ÷ doll market size — if market is ~$3B, that's 3%; if $2B, 4.5%.",
+      "For Sunshine to hit 10% sales growth ($100M lift), dolls alone isn't enough — toys category broader needed."
+    ],
+    brainstorm: "Strategic pros: Sunshine's brand already sits in the girl-parent purchase flow; 200-store retail footprint is ready cross-merchandising; doll category has high gift-occasion spikes. Cons: 5% margin is thin vs 4% EBT (no accretion); Mattel/MGA dominate with decades of IP; toy design isn't a core capability. Alternatives: partner with small doll maker for private-label line (lower margin, faster go-live); acquire a small doll brand ($30-80M); exit to broader toy category (stuffed animals, dress-up sets) where margins are higher. Key risk: toys are trendy (Frozen, Barbie cycles) — hard for non-toy brand to ride waves.",
+    recommendation: "Do not enter dolls standalone — 3M unit breakeven at 5% margin in a Mattel/MGA-dominated category is a low-return use of $4.5M. Instead: partner with a small doll brand (white-label manufacturing, Sunshine's branding + retail, 7-8% blended margin) and broaden to adjacent dress-up / accessories where apparel DNA transfers. Projected: $30-40M category sales in year 2 at higher blended margin. Risks: partner dependency, trend-cycle volatility, brand dilution. Next: shortlist 3 toy-mfg partners, SKU strategy for dress-up / accessories, test in 50 top stores before national rollout.",
+    source_label: "BCG 2020 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 46,
+    source: "mbb",
+    title: "Beta Optics",
+    industry: "Healthcare / Manufacturing",
+    type: "Ops / Cost",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Tell me about a time you made a large-capex vs incremental-improvement call.",
+    prompt: "Beta Optics is a US-based mid-size prescription eyeglass lens manufacturer. Revenue fell 30% in 2020 (pandemic). B2B: sells to Warby Parker-style retailers. 1M pairs sold at $50 avg in 2020. Considering a $50M investment in digitized production (current: 10+ labor-intensive stages). US annual volume: 80M pairs. Decision: invest or stay?",
+    clarifying: [
+      "Labor savings: 500 FTEs × 2,000 hrs × $19/hr × 30% labor-savings after digitization.",
+      "Raw material savings: $6M raw material spend × 5% waste reduction = $0.3M.",
+      "Fixed cost savings: $0.8M (three categories at 20-30% savings each, from $1M base each).",
+      "Investment: $50M; equipment useful life: 10 years."
+    ],
+    framework: [
+      "Option A — stay put (low capex, slow margin improvement, exposed to labor inflation)",
+      "Option B — digitize (high capex, step-change margin, tech-obsolescence risk)",
+      "Decision criteria — payback, NPV, strategic fit, risk",
+      "Non-financial — employees (500 FTEs affected), ops complexity, tech future-proofing"
+    ],
+    math: [
+      "Annual labor savings: 500 × 2,000 × $19 × 30% = $5.7M.",
+      "Annual raw material savings: $6M × 5% = $0.3M.",
+      "Annual fixed cost savings: $0.8M.",
+      "Total annual savings: $6.8M.",
+      "10-yr cumulative savings: $68M.",
+      "Net value: $68M − $50M = $18M over 10 yrs; payback = $50M ÷ $6.8M ≈ 7.4 yrs."
+    ],
+    brainstorm: "Pros of digitization: labor independence (big deal when wages are rising), consistent quality (fewer returns), scale throughput for future volume recovery. Cons: 7.4-yr payback is risky given tech half-life (machine vision/AI can obsolete today's digitization in 5 yrs); 500 FTE displacement (labor/community/brand risk); if volume doesn't recover, stranded capex. Alternative: phased digitization ($15M pilot line, prove 30% savings at 20% of volume, then scale). Pros/cons of production tech upgrades broadly: ROI positive in 1-2 categories where labor is biggest cost; less so where quality/IP dominates.",
+    recommendation: "Do not greenlight $50M single-shot. Instead, phase: $15M pilot line (20% of production) to validate 30% labor savings and 5% waste reduction against actual tech performance. If pilot hits, scale incrementally at $15M tranches. Reasoning: 7.4-yr payback + tech obsolescence risk + 500 FTE displacement = too concentrated. Phased approach preserves optionality. Risks: pilot underperforms (no scale-up triggered); competitor fully-digitizes ahead. Next: pilot scope + vendor RFP, FTE transition plan (retraining or attrition), NPV sensitivity on volume recovery scenarios.",
+    source_label: "McKinsey 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 47,
+    source: "mbb",
+    title: "Mickey Tires",
+    industry: "Consumer Products / Manufacturing",
+    type: "Ops / Cost",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you had to recommend an offshore move and manage political risk.",
+    prompt: "Mickey Tires is a US tire manufacturer. 2020 sales down 10% (less driving during pandemic); client expects continued decline. Considering two options: (A) move production to China via a JV, or (B) invest in advanced production tech at the existing Ohio facility. Annual volume: 3M tires, price $60/tire.",
+    clarifying: [
+      "Current per-tire cost: Labor $30 + Raw materials $15 + Other $3 = $48.",
+      "China option: Labor −10%, Materials −80% (local sourcing), Other ×2 (shipping + tariffs).",
+      "Tech option: Labor −5%, Materials −50%, Other unchanged.",
+      "Options are mutually exclusive (capital budget allows only one)."
+    ],
+    framework: [
+      "Option A — China JV (offshore, lower labor + materials, higher logistics, political/brand risk)",
+      "Option B — Ohio tech upgrade (domestic, moderate savings, lower risk, public perception win)",
+      "Decision criteria — incremental profit, payback, strategic fit, tail risk",
+      "Non-financial — brand (Made in USA), workforce, geopolitical, supply-chain resilience"
+    ],
+    math: [
+      "China cost: Labor $27 + Materials $3 + Other $6 = $36/tire.",
+      "Tech cost: Labor $28.5 + Materials $7.5 + Other $3 = $39/tire.",
+      "China incremental profit: ($48 − $36) × 3M = $36M/yr.",
+      "Tech incremental profit: ($48 − $39) × 3M = $27M/yr.",
+      "China wins by $9M/yr — but carries tariff, quality, brand risk.",
+      "Current annual profit: ($60 − $48) × 3M = $36M; options double this."
+    ],
+    brainstorm: "China JV pros: lower materials cost (local rubber/steel), access to Asia-Pacific markets, JV partner brings local expertise. Cons: tariff volatility (Section 301 tariffs on Chinese tires already at 25-35%), brand damage (Made in USA matters in this category), IP leakage, geopolitical risk, quality control. Tech upgrade pros: brand preservation, supply chain resilience, labor relations, government incentives (IRA, CHIPS-style). Cons: lower profit delta, tech obsolescence. Other angle: pursue both — tech Ohio for US market, China JV for export-only — but capital constraint rules this out here.",
+    recommendation: "Go with Tech upgrade — China JV's $36M/yr advantage over Tech's $27M/yr disappears after tariff volatility (25-35% tariffs on Chinese tires already, with sunset uncertainty), brand damage, and supply chain fragility. Tech-upgrade net profit is more durable and lower-variance. Reasoning: tariff delta alone could flip the math; Made-in-USA brand equity is measurable in tire-buyer surveys; tech option unlocks future automation wins. Risks: tech vendor execution, labor negotiation on mix-shift, competitor moves. Next: vendor shortlist for Ohio tech, IRA manufacturing credit application, 12-month execution roadmap.",
+    source_label: "BCG 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 48,
+    source: "mbb",
+    title: "POS Vend",
+    industry: "Software / SaaS",
+    type: "Pricing",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Tell me about a time you transitioned a business from one-time revenue to subscription.",
+    prompt: "POS Vend is a US point-of-sale software/hardware provider serving small-business retailers and restaurants. US POS market: $12B (2020); cloud-based share growing. 30% of restaurants and 22% of retailers use cloud POS. Client considering pivot from on-premise (one-time revenue) to cloud/SaaS (subscription). Need the indifference-point subscription price.",
+    clarifying: [
+      "Current on-premise revenue per client: $3k hardware + $0.5k install = $3.5k one-time.",
+      "Typical client also adds ~$2.5k in ancillary revenue over a 3-yr window.",
+      "Proposed SaaS: priced per month; 3-yr contract default.",
+      "Churn assumption: low in year 1, rises year 2-3."
+    ],
+    framework: [
+      "Option A — stay on-premise (higher up-front, no recurring)",
+      "Option B — SaaS (recurring, higher LTV, switching risk)",
+      "Decision criteria — 3-yr revenue parity, churn, CAC, strategic positioning",
+      "Non-financial — salesforce comp, product dev, customer stickiness"
+    ],
+    math: [
+      "3-yr target revenue per client (match on-premise): $3k + $0.5k + $2.5k = $6k.",
+      "Indifference point subscription fee: $6k ÷ 3 yrs = $2k/yr = ~$170/month.",
+      "With discounting (7% WACC): true indifference ~$180/month to $200/month.",
+      "If cloud POS churns 10%/yr, need to raise price ~10% to maintain revenue parity."
+    ],
+    brainstorm: "Cloud vs on-premise trade-offs: Cloud pros — recurring revenue, better data/analytics, easier upgrades, higher valuation multiple. Cloud cons — lower initial cash, customer resistance (one-time buyers dislike subscriptions), piracy/churn. Pricing model shift risks: salesforce paid on $3k deals won't convert to $170/month; customers perceive rent-seeking (paying every month for same function); requires new billing/collection infrastructure. Segmentation: restaurants (30% cloud already) are more ready than retailers (22%); start with restaurants. Migration: offer existing on-prem customers a grandfathered cloud conversion at $150/month for 12 months.",
+    recommendation: "Migrate to SaaS at $200/month (20% above indifference to absorb churn and discount-rate effects). Lead with restaurants (already at 30% cloud adoption), roll to retailers in year 2. Reasoning: $200/month beats the indifference floor, generates recurring revenue multiple for valuation, and captures ancillary revenue (integrations, analytics). Risks: real churn exceeds 10%, salesforce compensation conflict, competitor undercuts on price. Next: sales comp redesign, billing-system buildout, pilot with 50 restaurant clients at $200/month for 6 months to validate churn.",
+    source_label: "BCG 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 49,
+    source: "mbb",
+    title: "Fertilizer Company",
+    industry: "Agriculture / Manufacturing",
+    type: "Ops / Cost",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Tell me about a time you optimized a capital-allocation problem with multiple constraints.",
+    prompt: "US fertilizer producer — 1.5M tons/yr (nitrogen, phosphatic, potash). 5 factories at capacity. Considering $0.5B capacity expansion: (A) build new factory or (B) upgrade existing. Timeline: 2 years design + 2 years build. State tax incentives available for new-build. US fertilizer demand: 1% growth 2016-19. 81 operational US sites, growing. Target: +240k tons/yr capacity.",
+    clarifying: [
+      "Production line types: Type 1 — 100k tons/yr capacity, $40M capex.",
+      "Type 2 — 60k tons/yr, $30M capex.",
+      "Type 3 — 40k tons/yr, $25M capex.",
+      "New-build allows mix-and-match; upgrade path at existing sites limited to specific retrofit patterns."
+    ],
+    framework: [
+      "Option A — new factory (greenfield, tax incentives, longer lead time)",
+      "Option B — upgrade existing (shorter lead time, limited footprint, no state incentives)",
+      "Decision — production-line mix optimization to hit 240k tons/yr",
+      "Non-financial — labor, community, environmental, customer proximity"
+    ],
+    math: [
+      "Need ≥240k tons/yr. Candidate sets for new factory:",
+      "3× Type 1: 300k tons, $120M.",
+      "2× Type 1 + 1× Type 2: 260k tons, $110M. ✓ Meets target.",
+      "1× Type 1 + 2× Type 2: 220k tons, $100M. ✗ Fails target.",
+      "3× Type 2: 180k tons, $90M. ✗ Fails target.",
+      "Winner: 2× Type 1 + 1× Type 2 = $110M for 260k tons (20k buffer).",
+      "Upgrade existing would need 4× Type 2 ($120M for 240k) — more expensive per ton."
+    ],
+    brainstorm: "Non-financial factors: new factory enables site selection (customer proximity, rail access, water rights), state tax incentives often 10-20% of capex (material), community impact (jobs — positive), environmental permitting (2-3 yrs on top of build). Upgrade advantages: no permitting delay, existing labor pool, uses existing logistics. Type 3 is capex-inefficient — rarely optimal. Insight: Type 2 offers 50% more capacity than Type 3 at only 20% more capex; Type 2 dominates Type 3.",
+    recommendation: "Build new factory with 2× Type 1 + 1× Type 2 configuration — $110M capex for 260k tons/yr (20k tons buffer above 240k target). Reasoning: $0.42M/ton-capacity (vs $0.50M for upgrade-existing path), state tax incentives likely net $15-20M, Type 3 dominated and excluded. Risks: permitting delay beyond 2 yrs, design-build cost overrun, demand growth underperforms (1% is thin). Next: site selection RFP across 3 states, EPC contractor shortlist, demand-scenario sensitivity (±50% on growth rate).",
+    source_label: "McKinsey 2020 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 50,
+    source: "mbb",
+    title: "OmegaMed",
+    industry: "Healthcare / Software",
+    type: "Ops / Cost",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Tell me about a time you drove a consolidation project across a decentralized organization.",
+    prompt: "OmegaMed is a US primary care clinic chain — 500 clinics, grown inorganically. Scheduling software is fragmented (some clinics on Epic, others on Cerner, a few on Excel). Considering a single scheduling platform rollout. Target: 1-year payback. Investment: $5M.",
+    clarifying: [
+      "Current gridlock: providers at each clinic average ~1.5 hrs/day wasted on scheduling friction.",
+      "Staff cost: $100/hr fully loaded.",
+      "CM per patient visit: $200. Efficiency gain routes freed time into 2 more visits/clinic/day.",
+      "Operating days: 5/week × 50 weeks = 250/yr. Realistic capture of gains: 50%."
+    ],
+    framework: [
+      "Option A — status quo (fragmented, coordination drag, M&A-integration burden)",
+      "Option B — single platform (upfront cost, change management, 1-yr payback target)",
+      "Decision criteria — payback, ongoing savings, strategic fit (future M&A integration)",
+      "Non-financial — staff adoption, data consolidation, regulatory audit trail"
+    ],
+    math: [
+      "Added visits per clinic per year: 2 × 250 = 500.",
+      "Incremental profit per clinic: 500 × $200 = $100k theoretical; with $50 efficiency uplift in CM, revised to 500 × $50 = $25k.",
+      "Wait — reconcile: 1.5 hr/day × $100 = $150/day cost avoided = $50 uplift × 2 visits = $100/day. Annualize: $25k/clinic.",
+      "Across 500 clinics: $25k × 500 = $12.5M theoretical.",
+      "Realistic at 50% capture: ~$10M/yr.",
+      "Payback: $5M ÷ $10M = 0.5 yrs (6 months). ✓ Beats 1-yr target."
+    ],
+    brainstorm: "Benefits of unified platform: coordinated scheduling across specialties (patient books PCP + specialist in one visit), data aggregation (demographic + outcomes analytics), M&A integration speed (new clinics onboard faster), compliance auditability. Costs/risks: change management (doctors hate EHR changes), data migration (PHI risk), downtime during transition, vendor lock-in. Alternative: API-integration layer instead of full rip-and-replace (cheaper but less capability). Selection criteria for platform: FHIR compliance, specialty-specific workflows, API openness, $/clinic/month.",
+    recommendation: "Proceed with single-platform rollout — 6-month payback at 50% realistic capture is a strong return, and platform consolidation future-proofs M&A integration. Vendor selection: Epic (if OmegaMed is 80% Epic already) or a specialty-focused cloud player (athenahealth, eClinicalWorks). Risks: change management (doctor adoption), data migration PHI exposure, capture <50%. Next: vendor RFP (3 platforms), 50-clinic pilot, migration runbook, training curriculum. Phased rollout: 50 clinics per quarter over 10 quarters.",
+    source_label: "Kearney 2021 · MBB Casebook (Peter K.)"
+  },
+
+  {
+    id: 51,
+    source: "mbb",
+    title: "DrugGen",
+    industry: "Pharma / Healthcare",
+    type: "Ops / Cost",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Tell me about a time you evaluated a product change with compliance vs financial trade-offs.",
+    prompt: "DrugGen is a US drug company evaluating new cold-chain packaging for an oncology drug. Change: from 4 pills/day to 4 pills + 2 additional steroids/day (patient compliance play). Global distribution. 1-2% global share = 20k monthly-supply units/yr. Price: $4k/monthly supply (120 pills). Patient population not expanding.",
+    clarifying: [
+      "Current packaging cost: $160/unit. Current pill cost: $7 × 4 pills × 30 days = $840/unit.",
+      "Current CM: $4,000 − $160 − $840 ≈ $3,000/unit. Current annual gross profit: $3k × 20k = $60M.",
+      "New packaging cost: $200 (up from $160 due to cold-chain).",
+      "New pill cost: $7 × 6 pills × 30 days = $1,260/unit.",
+      "Compliance improvement expected: +10-20% adherence uplift (could drive volume growth)."
+    ],
+    framework: [
+      "Option A — keep current packaging (status quo, $60M annual profit)",
+      "Option B — switch to cold-chain + extra steroids (higher cost, compliance benefit, volume upside)",
+      "Decision criteria — incremental profit, patient outcomes, compliance math",
+      "Non-financial — patient reactions, prescriber perception, regulatory, cold-chain logistics"
+    ],
+    math: [
+      "Current CM/unit: $4,000 − $160 − $840 = $3,000.",
+      "New CM/unit: $4,000 − $200 − $1,260 = $2,540.",
+      "Current annual profit: $3,000 × 20k = $60M.",
+      "New annual profit at same volume: $2,540 × 20k = $50.8M → −$9.2M hit.",
+      "Breakeven volume uplift needed: $60M ÷ $2,540 ≈ 23.6k units → +3.6k units → ~+18% volume.",
+      "Compliance improvement typically drives 10-20% volume lift — sits right around breakeven."
+    ],
+    brainstorm: "Non-financial benefits: better adherence = better patient outcomes (5-year survival lifts); differentiation vs generic competitors; prescriber preference (they see fewer compliance-related deaths). Risks: patients dislike more pills (swallowing burden); cold-chain adds logistics failure modes (temperature excursions → spoilage); regulatory filing for packaging change takes 12-18 months. Patient reactions split: some welcome simpler compliance (blister packs), others resent forced add-on steroids. Prescriber reactions: oncologists want compliance data before switching.",
+    recommendation: "Proceed with cold-chain packaging + steroid combo IF clinical evidence projects ≥18% compliance-driven volume lift — this is the breakeven point. Sensitivity analysis: if compliance lift = 10%, net −$5M; if 20%, net +$0.8M. Recommendation is conditional. Reasoning: patient outcome story is strong, competitive differentiation matters in oncology, but financial case is break-even-contingent. Risks: FDA filing delays, patient acceptance, cold-chain failure modes. Next: commission 100-patient adherence study (6 months), FDA pre-filing meeting, cold-chain logistics RFP. Do not launch without empirical adherence data.",
+    source_label: "Kearney 2020 · MBB Casebook (Peter K.)"
+  },
+
+  /* =========================================================
      PRACTICE PACK — 15 supplemental cases
      Not from the Darden casebook. Original cases written in the same
      style, covering industries and types complementary to the Darden
@@ -1406,7 +2223,7 @@ const CASES = [
      ========================================================= */
 
   {
-    id: 28,
+    id: 52,
     source: "practice",
     title: "Prairie Power",
     industry: "Energy",
@@ -1454,7 +2271,7 @@ const CASES = [
   },
 
   {
-    id: 29,
+    id: 53,
     source: "practice",
     title: "Cold Chain Crunch",
     industry: "Logistics / Grocery",
@@ -1502,7 +2319,7 @@ const CASES = [
   },
 
   {
-    id: 30,
+    id: 54,
     source: "practice",
     title: "Medicare Match",
     industry: "Pharmaceuticals",
@@ -1549,7 +2366,7 @@ const CASES = [
   },
 
   {
-    id: 31,
+    id: 55,
     source: "practice",
     title: "Runway 15",
     industry: "Transportation / Airlines",
@@ -1596,7 +2413,7 @@ const CASES = [
   },
 
   {
-    id: 32,
+    id: 56,
     source: "practice",
     title: "Mainframe Migration",
     industry: "Financial Services / Insurance",
@@ -1641,7 +2458,7 @@ const CASES = [
   },
 
   {
-    id: 33,
+    id: 57,
     source: "practice",
     title: "Campus Cliff",
     industry: "Education",
@@ -1693,7 +2510,7 @@ const CASES = [
   },
 
   {
-    id: 34,
+    id: 58,
     source: "practice",
     title: "The Listen-Along",
     industry: "Technology / Media",
@@ -1726,7 +2543,7 @@ const CASES = [
   },
 
   {
-    id: 35,
+    id: 59,
     source: "practice",
     title: "Ghost Kitchen Standoff",
     industry: "Technology / Food Delivery",
@@ -1773,7 +2590,7 @@ const CASES = [
   },
 
   {
-    id: 36,
+    id: 60,
     source: "practice",
     title: "Offshore or Out",
     industry: "Energy / Renewables",
@@ -1824,7 +2641,7 @@ const CASES = [
   },
 
   {
-    id: 37,
+    id: 61,
     source: "practice",
     title: "Breach Aftermath",
     industry: "Financial Services / Fintech",
@@ -1872,7 +2689,7 @@ const CASES = [
   },
 
   {
-    id: 38,
+    id: 62,
     source: "practice",
     title: "Night Shift Latte",
     industry: "Food & Beverage",
@@ -1904,7 +2721,7 @@ const CASES = [
   },
 
   {
-    id: 39,
+    id: 63,
     source: "practice",
     title: "Freemium Fence",
     industry: "Technology / Consumer Software",
@@ -1949,7 +2766,7 @@ const CASES = [
   },
 
   {
-    id: 40,
+    id: 64,
     source: "practice",
     title: "Stadium Stalling",
     industry: "Sports & Entertainment",
@@ -2002,7 +2819,7 @@ const CASES = [
   },
 
   {
-    id: 41,
+    id: 65,
     source: "practice",
     title: "Drone Harvest",
     industry: "Manufacturing / Agriculture",
@@ -2049,7 +2866,7 @@ const CASES = [
   },
 
   {
-    id: 42,
+    id: 66,
     source: "practice",
     title: "Yellow Bus, Blue Plug",
     industry: "Transportation / Public Sector",
@@ -2094,6 +2911,265 @@ const CASES = [
     ],
     brainstorm: "Grant timing: apply early for max win rate; bundle applications across districts. Charging infrastructure bottleneck — grid connection delays of 18+ months common. Driver training: EV feels different (no engine noise, regen braking) — 2-day training + 30-day onboarding window per depot. Weather: −15°F range drops 25% — plan for winter. V2G revenue: idle fleet earns $1–2k/yr selling grid services. Risk of 2028 ban getting pushed — don't assume political stability.",
     recommendation: "Phased transition over 6 years: Phase 1 (600 short-route, 2025) federally grant-funded; Phase 2 (1,000 medium, 2026–27) grant + bond; Phase 3 (400 long, 2028–30) pay-as-you-go; defer Phase 4 (400 extreme-range) until range improves or hybrids mature. Front-load charging infrastructure — 12 depot upgrades parallel to Phase 1. Projected ~$170M net savings IF grants hit at 45%. Risks: grant program underfunded, grid delays, 2028 ban weakened. Next: Q1 grant application (early = higher win rate), charging-partner RFP, driver training curriculum, district stakeholder roadshow."
+  },
+
+  {
+    id: 67,
+    source: "practice",
+    title: "Heartline Clinics",
+    industry: "Healthcare / Outpatient",
+    type: "Profitability",
+    difficulty: "3 / 3 / 3",
+    behavioral: "Tell me about a time you had to deliver hard news to a team about a struggling part of the business.",
+    prompt: "Heartline is a regional chain of 24 cardiology urgent-care clinics across Ohio and Michigan. Over the last 3 years, revenue grew 18% but EBITDA margin collapsed from 14% to 4%. Board wants an answer in 4 weeks: where is the money leaking, and what do we do? Revenue today is $320M.",
+    clarifying: [
+      "Mix: 70% commercial insurance, 22% Medicare, 8% Medicaid / self-pay.",
+      "Clinic count went from 16 → 24 over 3 years (8 greenfield openings, no acquisitions).",
+      "Key cost lines: clinical labor (42% of revenue, up from 34%), real estate (11%, up from 9%), supplies (12%, flat), admin (18%, up from 16%).",
+      "4 of the 8 new clinics are in markets where Heartline has no brand equity.",
+      "Patient volume per clinic varies 3x between highest and lowest performers."
+    ],
+    framework: [
+      "Revenue side — volume × price × mix; is growth from new clinics cannibalizing mature ones?",
+      "Cost side — clinical labor inflation (nurse + tech wage run-up post-2022), real estate, admin overhead from scaling",
+      "Unit economics by clinic — mature vs ramping; ID which new clinics are never going to hit contribution target",
+      "Payer mix — Medicaid % grew? commercial rates re-negotiated?",
+      "Decide: fix clinic-level ops, close weak locations, or renegotiate structurally (payers, staffing model)"
+    ],
+    math: [
+      "Revenue growth: $320M today vs ~$270M 3yr ago → +18% ✓",
+      "EBITDA today: 4% × $320M = $12.8M; 3yr ago: 14% × $270M = $37.8M → DOWN $25M in absolute dollars",
+      "Cost delta — clinical labor: 42% − 34% = 8pts × $320M = $25.6M of new labor drag",
+      "Real estate: 11% − 9% = 2pts × $320M = $6.4M of new rent drag; admin: 2pts × $320M = $6.4M",
+      "Mature clinic avg: $16M rev × 16% margin = $2.6M EBITDA ea.",
+      "New clinic avg: $8M rev × −4% margin = −$0.3M EBITDA ea. (4 weak ones closer to −$1M)",
+      "Close 4 weakest new clinics: avoid ~$4M losses + free ~$8M capex for reinvestment"
+    ],
+    exhibits: [
+      {
+        type: "bar",
+        title: "Exhibit 1 — EBITDA contribution by clinic cohort ($M)",
+        bars: [
+          { label: "Mature (16 clinics)", value: 42 },
+          { label: "New yr-1 (4)", value: -4 },
+          { label: "New yr-2 (4)", value: -2 },
+          { label: "Corp overhead", value: -23 }
+        ],
+        unit: "$M EBITDA",
+        note: "Mature book is fine. New clinics haven't ramped AND corporate overhead bloated during expansion."
+      }
+    ],
+    brainstorm: "Clinical labor: travel-nurse dependency is the silent killer; each travel RN costs 2.3x an employed one. Convert to core staff with sign-on bonuses. Real estate: lease terms on weak new clinics — exit clauses or sublet. Payer mix: commercial contract renegotiation tied to quality metrics Heartline actually wins. Telecardiology: virtual follow-ups at 60% margin vs 30% in-clinic. Medicare Advantage risk contract option: flip from fee-for-service to capitated for chronic patients. Don't miss: admin bloat from scaling too fast — a CMO, 3 VPs, and a compliance team all hired on the assumption of 40 clinics.",
+    recommendation: "Close 4 weakest new clinics (save ~$4M/yr losses, free $8M capex). Consolidate clinical labor — cut travel-RN usage 60% via sign-on bonuses and regional float pool (~$10M). Renegotiate 3 largest commercial payer contracts tied to outcome data (~$6M). Hold admin headcount flat 18 months (~$4M). Target: EBITDA margin back to 11% in 24 months ($35M from $13M today). Risks: closures hit brand in sub-markets; labor squeeze backfires if nurses leave. Next: clinic-level P&L review, labor market analysis by metro, payer contract audit, comms plan for closures."
+  },
+
+  {
+    id: 68,
+    source: "practice",
+    title: "StreamWave",
+    industry: "Consumer Tech / Media",
+    type: "Pricing",
+    difficulty: "2 / 2 / 2",
+    behavioral: "Tell me about a time you changed your mind because of data you didn't expect.",
+    prompt: "StreamWave is a #3 music-streaming service in the US with 14M paying subscribers at a flat $10/mo. Spotify and Apple Music both offer a $17/mo family plan (up to 6 users). StreamWave doesn't. CEO is asking: should we launch a family tier, and at what price?",
+    clarifying: [
+      "Current ARPU: $10/mo; gross margin per sub: 28% (music rights are the big cost).",
+      "Churn: 4% monthly. Household estimate: ~35% of current subs share a password with a family member who'd otherwise pay separately.",
+      "Music royalty costs scale ~$3/mo per active listener regardless of account type.",
+      "Competitor family plans: Spotify $17, Apple $17, Amazon $17 (all 6 users). Individual plans all $11.",
+      "Prior test: a $15 duo-plan pilot last year got 2% uptake and was killed."
+    ],
+    framework: [
+      "Demand — who upgrades from individual → family, who buys net-new?",
+      "Cannibalization — how many existing subs shift from $10 to $17 shared across 3 people?",
+      "Incremental cost — royalty scales per listener, so more listeners = real cost",
+      "Churn effect — family plans lock in multi-person households (big retention win)",
+      "Competitive — being the only player without family pricing is a distribution liability with carriers and retailers"
+    ],
+    math: [
+      "Baseline: 14M × $10 = $140M/mo revenue; GM $39M/mo.",
+      "Assume family plan launches at $17; 20% of existing subs (2.8M) convert individually → now 2.8M family 'owners' each bringing avg 1.5 additional listeners.",
+      "Revenue shift: 2.8M × ($17 − $10) = +$19.6M/mo from conversion uplift",
+      "Royalty cost add: 2.8M × 1.5 extra listeners × $3 = +$12.6M/mo royalty",
+      "Net contribution from conversions: +$7M/mo = +$84M/yr",
+      "New-customer acquisition: assume +500k net-new family sign-ups driven by the plan itself × $17 × 12 × 40% GM = +$41M/yr",
+      "Churn reduction: family households churn at 1.5% vs 4% → retained-value uplift ~$30M/yr over 2 yrs",
+      "Total NPV lift: ~$150–170M/yr within 18 months"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Competitive pricing landscape",
+        columns: ["Service", "Individual", "Duo", "Family (6)", "Student"],
+        rows: [
+          ["Spotify", "$11", "$15", "$17", "$6"],
+          ["Apple Music", "$11", "—", "$17", "$6"],
+          ["Amazon Music", "$11", "—", "$17", "$6"],
+          ["YouTube Music", "$11", "—", "$17", "$6"],
+          ["StreamWave (today)", "$10", "—", "—", "—"]
+        ],
+        note: "StreamWave is the only major service without family pricing AND the only one without student pricing."
+      }
+    ],
+    brainstorm: "The killed duo-plan test at $15 failed because $15 − $10 = only $5 savings vs 2 individual plans ($20) — not a big enough wedge. Family at $17 for up to 6 = $2.83/person, huge wedge, much stickier. Risk: existing individual subs in shared households downgrade their household into one family plan → 3M subs become 1M families. Mitigate with 3-month price lock for current subs who DON'T switch. Student plan is a parallel gap worth closing. Carrier bundles (Verizon, T-Mobile) want family SKUs to bundle — launching unlocks a distribution channel Heartline is locked out of today.",
+    recommendation: "Launch a Family Plan at $17/mo (up to 6 users) AND a Student Plan at $5/mo within 90 days. Accept ~$40M of cannibalization in year 1 — net gain ~$85M, scaling to $150M+ by month 18 as churn compounds. Pair the launch with two carrier-bundle deals (Verizon + T-Mobile) to recover share from Spotify. Risks: royalty inflation on per-listener basis, competitive price war, existing-sub perceived unfairness. Next: finalize royalty renegotiation pre-launch, carrier bundle pilot, in-app upgrade flow, churn cohort tracking from day 1."
+  },
+
+  {
+    id: 69,
+    source: "practice",
+    title: "GlassGrove",
+    industry: "Retail / DTC",
+    type: "Market Entry",
+    difficulty: "3 / 2 / 3",
+    behavioral: "Tell me about a time your analysis showed one answer but your gut said another — what did you do?",
+    prompt: "GlassGrove is a DTC eyewear brand (prescription glasses, $95 avg order) that has grown to $180M revenue online-only over 6 years. CAC has nearly tripled, from $38 to $110. CEO wants to open 40 physical stores in 24 months at ~$2M build-out each. Is this the right move?",
+    clarifying: [
+      "Online LTV is $280 over 5 yrs (prescription refills + sunglasses + partner frames); GM is 68%.",
+      "Competitor Warby Parker operates ~260 stores; their store-opened cohorts show ~20% lift in total-market new-customer acquisition within 3 miles of a store.",
+      "Store unit economics: est. $3.2M avg revenue/yr, 55% contribution margin in-store (rent, labor, ops take the rest).",
+      "Category conversion online: 2.1%. In-store (industry avg for eyewear DTC): 8–12%.",
+      "$80M cash on hand. Existing investors open to a $100M raise at current valuation if there's a clear store plan."
+    ],
+    framework: [
+      "Channel economics — CAC trajectory online is unsustainable; stores may be cheaper per customer acquired at scale",
+      "Omni halo — does a store lift online orders in its catchment (Warby data says yes)?",
+      "Unit economics — store payback vs online payback; capex intensity + real-estate risk",
+      "Capital plan — $80M build + working capital → raise needed; dilution trade-off",
+      "Operational — retail ops is a net-new muscle; can leadership absorb it?"
+    ],
+    math: [
+      "Online CAC $110; at $95 AOV + $280 LTV, payback ≈ 1.7 yrs, LTV/CAC = 2.5x — ok but eroding.",
+      "Store: $2M capex + $3.2M revenue/yr × 55% contribution = $1.76M contribution/yr → payback ~1.2 yrs",
+      "Halo effect: 20% lift in online new customers within 3-mile catchment — for a 40-store plan covering ~25% of US metro households, that's roughly +4–5pts total new-customer growth/yr",
+      "Total 40-store capex: 40 × $2M = $80M (matches cash on hand before working capital)",
+      "Year-3 store revenue fully ramped: 40 × $3.2M = $128M; contribution $70M",
+      "Assume 30% of in-store revenue cannibalizes online at 68% GM; net lift year-3 ≈ $55M contribution"
+    ],
+    exhibits: [
+      {
+        type: "line",
+        title: "Exhibit 1 — Blended CAC trend ($/customer, 2019 → 2025)",
+        points: [
+          { x: "'19", y: 38 },
+          { x: "'20", y: 46 },
+          { x: "'21", y: 62 },
+          { x: "'22", y: 78 },
+          { x: "'23", y: 91 },
+          { x: "'24", y: 103 },
+          { x: "'25", y: 110 }
+        ],
+        unit: "$ CAC",
+        note: "CAC has tripled in 6 yrs. Meta + Google inventory is saturated; organic lever (stores) is the cheapest next customer."
+      }
+    ],
+    brainstorm: "Store format matters: flagship (3,500 sqft, $3M capex) vs mall kiosk (600 sqft, $400K capex) vs shop-in-shop with Nordstrom (near-zero capex, 70/30 rev share). Don't assume 40 identical stores — A/B test 3 formats first. Real estate timing: 2026 retail vacancy rates are favorable post office-to-retail conversions. Talent: experienced retail COO is scarce; hiring takes 6 months. Risk: online DTC brand culture + retail ops culture clash. Vision exam service: optometrists in each store = compliance, licensing, 50-state regulatory slog but defensible moat. Alternative to stores: acquire small regional optical chain with 20 locations for ~$40M.",
+    recommendation: "Commit to physical retail but phase it: 10 stores in year 1 as a tested format (6 flagship + 4 kiosk A/B), then scale to 30 more in year 2 IF cohort data confirms halo + store-level payback < 18 months. Raise $50M alongside (not $100M) to preserve optionality. Hire retail COO and VP of optometry operations in Q1. Risks: halo data doesn't replicate Warby results; retail ops execution lag; consumer recession hits discretionary eyewear first. Next: 3-format pilot plan, COO search, cannibalization tracking infra, real-estate broker RFP for top 12 metros."
+  },
+
+  {
+    id: 70,
+    source: "practice",
+    title: "TitanForge Steel",
+    industry: "Manufacturing / Industrials",
+    type: "M&A",
+    difficulty: "4 / 3 / 4",
+    behavioral: "Tell me about a time you had to weigh a clear financial case against strategic risk.",
+    prompt: "TitanForge is a $2.1B-revenue specialty steel manufacturer in Pennsylvania. Major customers (auto + construction) are pushing for 'green steel' — steel with <1 tonne CO2 per tonne output (industry avg is 1.8). TitanForge is evaluating acquisition of MetroCycle, a scrap-metal recycler with secure feedstock contracts for electric-arc-furnace steelmaking. Asking price $620M. Is this the right deal?",
+    clarifying: [
+      "TitanForge currently uses blast furnace (1.9 t CO2/tonne); MetroCycle feedstock enables EAF route (0.4 t CO2/tonne when paired with renewable power).",
+      "MetroCycle revenue: $310M, EBITDA $52M (17% margin), growing 8%/yr. Locked in 12-year feedstock contracts with 4 major auto OEMs (premium pricing, ~20% above spot).",
+      "Capex to convert 2 of TitanForge's 5 furnaces to EAF: $480M over 3 yrs. That's on top of the $620M acquisition.",
+      "Competitor Nucor already operates 100% EAF; their green-steel contracts command a 12–15% price premium.",
+      "Regulatory: EU CBAM carbon tariff kicks in 2027; US IRA 45X credits provide $3–5/tonne for low-carbon steel produced domestically.",
+      "TitanForge has $900M available debt capacity + $140M cash."
+    ],
+    framework: [
+      "Strategic rationale — is 'green steel' a real customer demand or marketing narrative?",
+      "Deal economics — MetroCycle valuation vs synergy value (feedstock security + price premium access)",
+      "Integration — TitanForge has never operated a recycler; union labor, logistics, yard management are new competencies",
+      "Alternatives — long-term supply contract with MetroCycle (no acquisition) vs in-house scrap sourcing vs partnership/JV",
+      "Financing + deployment — $1.1B combined (deal + conversion capex); debt covenants, dilution risk"
+    ],
+    math: [
+      "MetroCycle standalone value: $52M × 9x EBITDA multiple = $470M → $620M asking = $150M premium (32% over baseline)",
+      "Synergy value — green-steel premium: 2 converted furnaces × ~800K t/yr each = 1.6M t/yr × $90/t premium = $144M/yr incremental revenue at ~30% margin = ~$43M EBITDA/yr",
+      "IRA 45X credit: 1.6M t × $4 avg = $6.4M/yr",
+      "EU CBAM avoidance: export ~200K t/yr to EU — tariff savings ~$22M/yr from 2027",
+      "Combined incremental EBITDA: $52M (MC standalone) + $43M (premium) + $6M (IRA) + $22M (CBAM) = $123M/yr by year 4",
+      "Payback on $1.1B total investment: ~9 years undiscounted; NPV positive at 8% discount if premium sustains",
+      "Debt capacity: $620M deal financed 60/40 debt/cash = $372M debt (leaves $530M debt capacity for conversion)"
+    ],
+    exhibits: [
+      {
+        type: "table",
+        title: "Exhibit 1 — Strategic path comparison (5-year NPV, $M)",
+        columns: ["Path", "Total invest", "Yr-5 EBITDA uplift", "Execution risk", "Strategic control"],
+        rows: [
+          ["Acquire MetroCycle + convert 2 furnaces", "$1,100", "+$123M", "High", "Full"],
+          ["Long-term feedstock contract only", "$60", "+$35M", "Medium", "Low (feedstock risk)"],
+          ["JV with MetroCycle (50/50)", "$310", "+$75M", "Medium", "Shared"],
+          ["Status quo (blast furnace only)", "$0", "$0 (or −$40M CBAM risk)", "Low", "None"],
+          ["Acquire different recycler (cheaper target $410M)", "$890", "+$95M", "High", "Full but weaker contracts"]
+        ],
+        note: "MetroCycle contracts with auto OEMs are the unique asset. Cheaper recyclers exist but without the premium-customer feedstock locks."
+      }
+    ],
+    brainstorm: "Premium risk: the 12–15% green-steel premium could compress if capacity floods the market — Nucor and ArcelorMittal both planning EAF expansions. Labor integration: MetroCycle is non-union, TitanForge is USW — don't merge labor pools; keep MetroCycle as separate subsidiary. Feedstock security: locked contracts are the moat, but if OEMs renegotiate at contract end (12 yrs), premium evaporates. Alternative financing: structured deal with $200M earn-out tied to 2027 CBAM outcomes — shifts risk to seller. Cultural: TitanForge is an integrated steelmaker, not a recycler. Run MetroCycle at arm's length first 24 months. Power sourcing: EAF only clean with renewable power — negotiate PPA for 600MW during the conversion period. Political: US tariffs + IRA + state incentives (PA has $40M green-manufacturing grant) stack favorably.",
+    recommendation: "Proceed at $560M (not $620M) + $60M contingent earn-out tied to 2027 CBAM + IRA credit realization. Fund 60% debt, 40% cash. Convert 2 furnaces over 36 months in parallel; preserve remaining 3 as blast-furnace capacity to hedge demand volatility. Run MetroCycle as standalone subsidiary for 24 months before integration. Target combined EBITDA +$95M by year 4 (risk-adjusted from $123M base case). Risks: premium compression if green-steel oversupplied, union integration delays, power-contract costs. Next: sign renewable-power LOI within 60 days, begin OEM validation discussions to confirm premium durability, CFIUS filing (MetroCycle has a minority foreign LP), PA state incentive application, dedicated integration-management office."
+  },
+
+  {
+    id: 71,
+    source: "practice",
+    title: "FrostLine Yogurt",
+    industry: "Consumer Goods / Food",
+    type: "Ops / Cost",
+    difficulty: "3 / 3 / 2",
+    behavioral: "Tell me about a time you had to make a capacity decision under forecast uncertainty.",
+    prompt: "FrostLine makes premium Greek yogurt (single-serve + multipack) distributed in 22,000 US grocery stores. It's 7 months from peak season (Q4 holiday + back-to-school Aug–Nov). Forecast is 38% above current plant capacity. CEO wants to decide: expand in-house plant 2 ($180M capex, ready in 14 months), contract a co-packer (3–5 month lead), or raise price to throttle demand. What's the call?",
+    clarifying: [
+      "Current revenue $640M; EBITDA margin 18%. Plant 1 runs 24/7 at 88% utilization today.",
+      "Plant 2 expansion: +55% capacity, 14-month build, $180M capex. Fully depreciated over 10 yrs.",
+      "Top 3 co-packers have capacity; cost $0.85/unit vs in-house $0.58/unit. 4-month onboarding for food-safety audits + label qualification.",
+      "Price elasticity: 10% price increase historically = 6% volume decline in category; premium yogurt is less elastic (4% decline).",
+      "Retailers have firm slotting commitments — missing shelves during peak = permanent shelf loss to competitor.",
+      "SKU mix: 60% single-serve (tight margin, high volume), 30% multipack, 10% new flavor launches (highest margin)."
+    ],
+    framework: [
+      "Demand reality — is the 38% forecast real (retailer POs) or hopeful (sales plan)?",
+      "Capacity options matrix — in-house, co-pack, price-based demand throttle, SKU rationalization",
+      "Timing — 7 months until peak; only co-pack or SKU cuts fit the window. Plant 2 is a 2027 play.",
+      "Unit economics — co-pack margin compression vs stock-out cost (shelf loss)",
+      "Risk — co-packer quality + food safety + brand",
+      "Strategic — do BOTH: co-pack now for this peak, plant 2 for sustained growth"
+    ],
+    math: [
+      "Current plant output: ~200M units/yr at 88% util; max ~227M. Forecast: 276M units (+38%).",
+      "Gap: 276M − 227M = 49M units need external capacity this year.",
+      "Co-pack cost premium: 49M × ($0.85 − $0.58) = $13.2M incremental COGS",
+      "Price-based throttle: raise price 6% → volume down ~2.4% → 270M demand (still 43M short). Not enough.",
+      "Plant 2: $180M / $55M avg annual incremental contribution = 3.3 yr payback",
+      "Stock-out cost if FrostLine can't supply: estimated shelf loss ~800 stores × $45k/yr avg revenue each = $36M/yr (and sticky — hard to win back)",
+      "So: $13M co-pack cost << $36M stock-out cost. Co-pack this year is obvious."
+    ],
+    exhibits: [
+      {
+        type: "bar",
+        title: "Exhibit 1 — Cost-to-serve 49M unit gap, by path ($M + risk)",
+        bars: [
+          { label: "Co-pack", value: 13 },
+          { label: "Price +6%", value: 36 },
+          { label: "Cut low-margin SKUs", value: 22 },
+          { label: "Stock out", value: 36 },
+          { label: "Air-freight fillers", value: 48 }
+        ],
+        unit: "$M cost",
+        note: "Co-pack is the cheapest path to cover peak. SKU cuts sacrifice margin. Stock-out is catastrophic because shelf space is lost semi-permanently."
+      }
+    ],
+    brainstorm: "Do both: co-pack for 2025 peak, plant 2 for sustained growth. Co-pack only 30M of 49M — reserve 19M headroom via SKU rationalization (kill 5 weakest flavors, reclaim line-changeover time). Food safety audit: do NOT skip it; one Listeria headline kills the brand. Co-packer relationship: 2 co-packers not 1 to de-risk. Labels / shelf-ready packaging: requires co-packer to install FrostLine-specific tooling — $1.2M setup, amortize over 2 yrs. Alternative: delay new-flavor launches to free plant 1 capacity. Plant 2 location: Midwest (closer to milk supply, lower labor cost vs current NY facility). Milk-supply risk: +55% capacity needs +55% milk; lock farmer contracts now. Sustainability angle: newer plant = 30% less water + waste = marketing win with Gen Z consumers.",
+    recommendation: "Pursue two-track plan: (1) Onboard 2 co-packers in Q1 to deliver 30M units for this peak ($8M premium + $1.2M tooling), (2) Cut 5 lowest-margin SKUs to free 15M in-house units (+$4M margin), (3) Hold price flat — brand trust matters more than short-term margin, (4) Approve $180M Plant 2 capex to break ground Q2 for 2027 readiness. Total yr-1 cost: ~$10M; avoided shelf-loss value ~$36M/yr sticky. Risks: co-packer food-safety incident, Plant 2 cost overruns, milk-supply inflation. Next: sign co-packer LOIs within 30 days, SKU rationalization announcement to trade, Plant 2 site selection (Wisconsin vs Ohio), milk-farmer contract expansion, Q3 quality-assurance audits of co-packers."
   }
 ];
 

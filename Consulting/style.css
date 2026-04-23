@@ -1559,6 +1559,23 @@ h2.pencil::after{
   color: var(--ink);
   text-transform: uppercase;
 }
+.case-section-banner--mbb{
+  background: var(--tab-5);
+  margin-top: 36px;
+}
+.case-section-banner--mbb::before{
+  content: "mckinsey · bcg · bain";
+  position: absolute;
+  top: -12px; left: 22px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  padding: 2px 10px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  color: var(--red);
+  text-transform: uppercase;
+}
 .case-section-banner-main{
   font-family:'Caveat', cursive;
   font-size: 30px;
@@ -1588,11 +1605,15 @@ h2.pencil::after{
 .case-source-badge--darden{ background: var(--tab-3); color: var(--ink); }
 .case-source-badge--practice{ background: var(--tab-4); color: var(--ink); border-color: var(--red); }
 .case-source-badge--tuck{ background: var(--tab-2); color: var(--ink); border-color: var(--ink); }
+.case-source-badge--mbb{ background: var(--tab-5); color: var(--ink); border-color: var(--red); }
 .case-item--practice{
   border-left: 4px solid var(--red);
 }
 .case-item--tuck{
   border-left: 4px solid var(--tab-2);
+}
+.case-item--mbb{
+  border-left: 4px solid var(--tab-5);
 }
 
 /* ---------- Exhibits (tables, bars, lines) ---------- */
@@ -2065,6 +2086,7 @@ h2.pencil::after{
 }
 .src-badge--darden{ background: var(--tab-3); }
 .src-badge--tuck{ background: var(--tab-2); }
+.src-badge--mbb{ background: var(--tab-5); border-color: var(--red); }
 .src-badge--practice{ background: var(--tab-4); border-color: var(--red); }
 .src-title{
   font-family:'Caveat', cursive;

@@ -1879,16 +1879,19 @@ let caseFilter = { type: "all", source: "all", status: "all" };
 function sourceOf(c){
   if (c.source === "practice") return "practice";
   if (c.source === "tuck") return "tuck";
+  if (c.source === "mbb") return "mbb";
   return "darden";
 }
 function sourceLabel(src){
   if (src === "practice") return "practice pack";
   if (src === "tuck") return "tuck";
+  if (src === "mbb") return "mbb";
   return "darden";
 }
 function sourceFullName(src){
   if (src === "practice") return "Practice Pack";
   if (src === "tuck") return "Tuck";
+  if (src === "mbb") return "MBB Casebook";
   return "Darden";
 }
 
@@ -2081,8 +2084,8 @@ function renderCases(){
   const filterWrap = document.createElement("div");
   filterWrap.className = "case-filters";
   filterWrap.appendChild(buildFilterGroup("type", "type", CASE_TYPES));
-  filterWrap.appendChild(buildFilterGroup("source", "source", ["darden", "tuck", "practice"], {
-    darden: "darden", tuck: "tuck", practice: "practice pack"
+  filterWrap.appendChild(buildFilterGroup("source", "source", ["darden", "tuck", "mbb", "practice"], {
+    darden: "darden", tuck: "tuck", mbb: "mbb", practice: "practice pack"
   }));
   filterWrap.appendChild(buildFilterGroup("status", "status", ["starred", "completed", "unopened"]));
   toolbar.appendChild(filterWrap);
@@ -2109,9 +2112,10 @@ function renderCases(){
 
   renderCaseProgressHeader();
 
-  // Split into Darden + Tuck + Practice Pack
+  // Split into Darden + Tuck + MBB + Practice Pack
   const darden   = CASES.filter(c => sourceOf(c) === "darden");
   const tuck     = CASES.filter(c => sourceOf(c) === "tuck");
+  const mbb      = CASES.filter(c => sourceOf(c) === "mbb");
   const practice = CASES.filter(c => sourceOf(c) === "practice");
 
   const renderSection = (label, sublabel, items, sourceKey) => {
@@ -2139,8 +2143,14 @@ function renderCases(){
     "tuck"
   );
   renderSection(
+    "MBB Casebook 2021",
+    "Peter K. · 24 cases · McKinsey, BCG, Bain, L.E.K., Kearney · RRRN format",
+    mbb,
+    "mbb"
+  );
+  renderSection(
     "Practice Pack",
-    "Original supplemental cases in the Darden style · 15 cases · exhibits included",
+    "Original supplemental cases in the Darden style · 20 cases · exhibits included",
     practice,
     "practice"
   );
