@@ -193,6 +193,209 @@ document.getElementById("learn-restart").addEventListener("click", () => {
 });
 
 /* =========================================================
+   MATH DRILLS — timed single-problem practice (Learn mode 2)
+   ========================================================= */
+const MD_TYPES = ["All", "Market Sizing", "Breakeven", "CAGR", "Margin / Markup", "Revenue / Profit"];
+let mdTypeFilter = "All";
+let mdCurrent = null;
+let mdTimer = null;
+let mdRemaining = 0;
+let mdLastId = null;
+
+function fmtNum(n){
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return (n / 1e9).toFixed(2).replace(/\.?0+$/, "") + "B";
+  if (abs >= 1e6) return (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
+  if (abs >= 1e3) return (n / 1e3).toFixed(1).replace(/\.?0+$/, "") + "K";
+  if (Number.isInteger(n)) return n.toString();
+  return n.toFixed(2).replace(/\.?0+$/, "");
+}
+
+function fmtRange(d){
+  if (d.exact !== undefined && Math.abs(d.answerHi - d.answerLo) <= Math.max(2, 0.02 * Math.abs(d.exact))){
+    return `${fmtNum(d.exact)} ${d.unit}`;
+  }
+  return `${fmtNum(d.answerLo)} – ${fmtNum(d.answerHi)} ${d.unit}`;
+}
+
+function buildMdTypeBar(){
+  const bar = document.getElementById("md-type-bar");
+  if (!bar) return;
+  bar.innerHTML = "";
+  MD_TYPES.forEach(t => {
+    const count = t === "All"
+      ? MATH_DRILLS.length
+      : MATH_DRILLS.filter(d => d.type === t).length;
+    const lbl = document.createElement("label");
+    lbl.className = "deck-chip";
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "mdtype"; inp.value = t;
+    if (t === mdTypeFilter) inp.checked = true;
+    inp.addEventListener("change", () => { mdTypeFilter = t; });
+    lbl.appendChild(inp);
+    lbl.appendChild(document.createTextNode(`${t === "All" ? "All" : t.toLowerCase()} (${count})`));
+    bar.appendChild(lbl);
+  });
+}
+
+function pickDrill(){
+  const pool = mdTypeFilter === "All"
+    ? MATH_DRILLS
+    : MATH_DRILLS.filter(d => d.type === mdTypeFilter);
+  if (!pool.length) return null;
+  if (pool.length === 1) return pool[0];
+  let pick;
+  let tries = 0;
+  do {
+    pick = pool[Math.floor(Math.random() * pool.length)];
+    tries++;
+  } while (pick.id === mdLastId && tries < 8);
+  mdLastId = pick.id;
+  return pick;
+}
+
+function startDrill(){
+  const d = pickDrill();
+  if (!d) return;
+  mdCurrent = d;
+  mdRemaining = d.timeSec;
+
+  document.getElementById("md-picker").style.display = "none";
+  document.getElementById("md-session").style.display = "block";
+
+  document.getElementById("md-type-badge").textContent = d.type.toLowerCase();
+  document.getElementById("md-prompt").textContent = d.prompt;
+  document.getElementById("md-unit").textContent = d.unit;
+
+  const input = document.getElementById("md-input");
+  input.value = "";
+  input.disabled = false;
+  document.getElementById("md-check").disabled = false;
+  document.getElementById("md-show-sol").disabled = false;
+
+  const fb = document.getElementById("md-feedback");
+  fb.textContent = ""; fb.className = "md-feedback";
+
+  document.getElementById("md-solution").style.display = "none";
+  document.getElementById("md-solution-txt").textContent = d.solution;
+  document.getElementById("md-next").style.display = "none";
+
+  updateMdTimer();
+  clearInterval(mdTimer);
+  mdTimer = setInterval(() => {
+    mdRemaining -= 1;
+    updateMdTimer();
+    if (mdRemaining <= 0){
+      clearInterval(mdTimer);
+      mdTimer = null;
+      timeUpDrill();
+    }
+  }, 1000);
+
+  setTimeout(() => input.focus(), 50);
+}
+
+function updateMdTimer(){
+  const el = document.getElementById("md-timer");
+  if (!el) return;
+  const r = Math.max(0, mdRemaining);
+  const m = Math.floor(r / 60);
+  const s = r % 60;
+  el.textContent = `${m}:${String(s).padStart(2, "0")}`;
+  el.classList.toggle("md-timer--warn",  r <= 30 && r > 10);
+  el.classList.toggle("md-timer--danger", r <= 10);
+}
+
+function timeUpDrill(){
+  const fb = document.getElementById("md-feedback");
+  fb.textContent = "⏱ time's up — interviewer's waiting. Take your best shot, then check.";
+  fb.className = "md-feedback warn";
+}
+
+function checkDrill(){
+  if (!mdCurrent) return;
+  const raw = document.getElementById("md-input").value.trim();
+  const val = parseFloat(raw);
+  const fb = document.getElementById("md-feedback");
+  if (raw === "" || Number.isNaN(val)){
+    fb.textContent = "enter a number first.";
+    fb.className = "md-feedback bad";
+    return;
+  }
+  const correct = val >= mdCurrent.answerLo && val <= mdCurrent.answerHi;
+  if (correct){
+    fb.textContent = `✓ in range (target: ${fmtRange(mdCurrent)}).`;
+    fb.className = "md-feedback ok";
+  } else {
+    const delta = val < mdCurrent.answerLo ? "too low" : "too high";
+    fb.textContent = `✗ ${delta} — target was ${fmtRange(mdCurrent)}.`;
+    fb.className = "md-feedback bad";
+  }
+  finishDrill();
+}
+
+function showSolutionDrill(){
+  if (!mdCurrent) return;
+  const fb = document.getElementById("md-feedback");
+  if (!fb.textContent){
+    fb.textContent = `target: ${fmtRange(mdCurrent)}.`;
+    fb.className = "md-feedback warn";
+  }
+  finishDrill();
+}
+
+function finishDrill(){
+  clearInterval(mdTimer);
+  mdTimer = null;
+  document.getElementById("md-input").disabled = true;
+  document.getElementById("md-check").disabled = true;
+  document.getElementById("md-show-sol").disabled = true;
+  document.getElementById("md-solution").style.display = "block";
+  document.getElementById("md-next").style.display = "inline-block";
+}
+
+function backToDrillPicker(){
+  clearInterval(mdTimer);
+  mdTimer = null;
+  mdCurrent = null;
+  document.getElementById("md-session").style.display = "none";
+  document.getElementById("md-picker").style.display = "block";
+}
+
+function setLearnMode(mode){
+  const mc = document.getElementById("learn-mc-mode");
+  const math = document.getElementById("learn-math-mode");
+  document.querySelectorAll(".learn-mode-switch .mode-btn").forEach(b => {
+    b.classList.toggle("mode-btn--on", b.dataset.lmode === mode);
+  });
+  if (mode === "mc"){
+    mc.style.display  = "block";
+    math.style.display = "none";
+    if (mdTimer){ clearInterval(mdTimer); mdTimer = null; }
+  } else {
+    mc.style.display  = "none";
+    math.style.display = "block";
+  }
+}
+
+buildMdTypeBar();
+
+document.querySelectorAll(".learn-mode-switch .mode-btn").forEach(b => {
+  b.addEventListener("click", () => setLearnMode(b.dataset.lmode));
+});
+document.getElementById("md-start-btn").addEventListener("click", startDrill);
+document.getElementById("md-check").addEventListener("click", checkDrill);
+document.getElementById("md-show-sol").addEventListener("click", showSolutionDrill);
+document.getElementById("md-next").addEventListener("click", startDrill);
+document.getElementById("md-back").addEventListener("click", backToDrillPicker);
+document.getElementById("md-input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !document.getElementById("md-check").disabled){
+    e.preventDefault();
+    checkDrill();
+  }
+});
+
+/* =========================================================
    MATCH — 6 pairs timed
    ========================================================= */
 const MATCH_PAIRS = 6;
@@ -611,7 +814,8 @@ function renderCaseBody(c, body){
       });
     });
   } else {
-    // All revealed — offer to reset for another pass.
+    // All revealed — mark completed + offer to reset for another pass.
+    markCompleted(c.id);
     const reset = document.createElement("button");
     reset.type = "button";
     reset.className = "mini-btn case-reset";
@@ -624,6 +828,69 @@ function renderCaseBody(c, body){
     body.appendChild(reset);
   }
 }
+
+/* ---------- Case type normalization (for filter chips) ---------- */
+function normalizeCaseType(t){
+  if (!t) return "Other";
+  const s = String(t).toLowerCase();
+  if (s.includes("profit")) return "Profitability";
+  if (s.includes("entry")) return "Market Entry";
+  if (s === "m&a" || s.includes("acquisition") || s.includes("merger")) return "M&A";
+  if (s.includes("growth") || s.includes("opportunity")) return "Growth";
+  if (s.includes("pricing")) return "Pricing";
+  if (s.includes("cost") || s.includes("operation") || s.includes("customer")) return "Ops / Cost";
+  return "Other";
+}
+const CASE_TYPES = ["Profitability", "Market Entry", "M&A", "Growth", "Pricing", "Ops / Cost", "Other"];
+
+/* ---------- Case progress: localStorage ---------- */
+const CASE_PROGRESS_KEY = "darden.lab.v1.cases";
+function loadCaseProgress(){
+  try {
+    const raw = localStorage.getItem(CASE_PROGRESS_KEY);
+    if (!raw) return { opened: [], completed: [], starred: [] };
+    const p = JSON.parse(raw) || {};
+    return {
+      opened:    Array.isArray(p.opened)    ? p.opened.map(Number)    : [],
+      completed: Array.isArray(p.completed) ? p.completed.map(Number) : [],
+      starred:   Array.isArray(p.starred)   ? p.starred.map(Number)   : [],
+    };
+  } catch { return { opened: [], completed: [], starred: [] }; }
+}
+function saveCaseProgress(){
+  try { localStorage.setItem(CASE_PROGRESS_KEY, JSON.stringify(caseProgress)); } catch {}
+}
+let caseProgress = loadCaseProgress();
+const inList = (arr, id) => arr.includes(Number(id));
+function markOpened(id){
+  id = Number(id);
+  if (!inList(caseProgress.opened, id)){
+    caseProgress.opened.push(id);
+    saveCaseProgress();
+    renderCaseProgressHeader();
+  }
+}
+function markCompleted(id){
+  id = Number(id);
+  if (!inList(caseProgress.completed, id)){
+    caseProgress.completed.push(id);
+    saveCaseProgress();
+    renderCaseProgressHeader();
+    const item = document.querySelector(`.case-item[data-case-id="${id}"]`);
+    if (item) item.classList.add("case-item--completed");
+  }
+}
+function toggleStarred(id){
+  id = Number(id);
+  const i = caseProgress.starred.indexOf(id);
+  if (i >= 0) caseProgress.starred.splice(i, 1);
+  else caseProgress.starred.push(id);
+  saveCaseProgress();
+  renderCaseProgressHeader();
+}
+
+/* ---------- Case filters ---------- */
+let caseFilter = { type: "all", source: "all", status: "all" };
 
 function sourceOf(c){
   if (c.source === "practice") return "practice";
@@ -643,19 +910,32 @@ function sourceFullName(src){
 
 function buildCaseItem(c){
   const src = sourceOf(c);
+  const nType = normalizeCaseType(c.type);
+  const starred   = inList(caseProgress.starred,   c.id);
+  const completed = inList(caseProgress.completed, c.id);
+  const opened    = inList(caseProgress.opened,    c.id);
+
   const item = document.createElement("div");
-  item.className = "case-item case-item--" + src;
-  item.dataset.caseId = String(c.id);
+  item.className = "case-item case-item--" + src
+    + (completed ? " case-item--completed" : "")
+    + (opened    ? " case-item--opened"    : "");
+  item.dataset.caseId    = String(c.id);
+  item.dataset.caseType  = nType;
+  item.dataset.caseSource = src;
 
   const head = document.createElement("button");
   head.className = "case-head";
   head.type = "button";
   head.innerHTML = `
-    <span class="case-num">${String(c.id).padStart(2,"0")}</span>
+    <span class="case-num">
+      <span class="case-num-txt">${String(c.id).padStart(2,"0")}</span>
+      <span class="case-num-check" title="completed">✓</span>
+    </span>
     <span class="case-title">
       <span class="case-name">${escapeHTML(c.title)}</span>
-      <span class="case-meta">${escapeHTML(c.industry || "")} · ${escapeHTML(c.type || "")} · ${escapeHTML(c.difficulty || "")}</span>
+      <span class="case-meta">${escapeHTML(c.industry || "")} · ${escapeHTML(nType)} · ${escapeHTML(c.difficulty || "")}</span>
     </span>
+    <button class="case-star ${starred ? "case-star--on" : ""}" type="button" title="star this case" aria-label="star this case">${starred ? "★" : "☆"}</button>
     <span class="case-source-badge case-source-badge--${src}">${sourceLabel(src)}</span>
     <span class="ask-ai-btn" data-ask-mock="${escapeHTML(String(c.id))}" title="run this case as a mock interview" role="button" tabindex="0">mock this ↗</span>
     <span class="case-toggle">show ▾</span>
@@ -666,9 +946,24 @@ function buildCaseItem(c){
 
   head.addEventListener("click", (e) => {
     if (e.target.closest(".ask-ai-btn")) return;
+    if (e.target.closest(".case-star")) return;
     const open = body.classList.toggle("open");
     head.querySelector(".case-toggle").textContent = open ? "hide ▴" : "show ▾";
-    if (open) renderCaseBody(c, body);
+    if (open){
+      renderCaseBody(c, body);
+      markOpened(c.id);
+      item.classList.add("case-item--opened");
+    }
+  });
+
+  const star = head.querySelector(".case-star");
+  star.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleStarred(c.id);
+    const on = inList(caseProgress.starred, c.id);
+    star.classList.toggle("case-star--on", on);
+    star.textContent = on ? "★" : "☆";
+    if (caseFilter.status === "starred") applyCaseFilter();
   });
 
   item.appendChild(head);
@@ -676,13 +971,141 @@ function buildCaseItem(c){
   return item;
 }
 
+function renderCaseProgressHeader(){
+  const bar = document.getElementById("case-progress");
+  if (!bar) return;
+  const total = CASES.length;
+  const done  = caseProgress.completed.filter(id => CASES.some(c => c.id === id)).length;
+  const star  = caseProgress.starred.filter(id => CASES.some(c => c.id === id)).length;
+  const open  = caseProgress.opened.filter(id => CASES.some(c => c.id === id)).length;
+  const pct   = total ? Math.round(100 * done / total) : 0;
+  bar.innerHTML = `
+    <div class="cp-bar-track"><div class="cp-bar-fill" style="width:${pct}%"></div></div>
+    <div class="cp-bar-stats">
+      <strong>${done}</strong> <span>/ ${total} completed</span>
+      <span class="cp-sep">·</span>
+      <strong>${open}</strong> <span>opened</span>
+      <span class="cp-sep">·</span>
+      <strong>${star}</strong> <span>starred</span>
+      ${done > 0 ? `<button class="cp-reset" id="cp-reset-btn" type="button" title="clear local progress">reset</button>` : ""}
+    </div>
+  `;
+  const resetBtn = document.getElementById("cp-reset-btn");
+  if (resetBtn){
+    resetBtn.addEventListener("click", () => {
+      if (!confirm("Clear all case progress (opened, completed, starred)?")) return;
+      caseProgress = { opened: [], completed: [], starred: [] };
+      saveCaseProgress();
+      renderCases();
+    });
+  }
+}
+
+function applyCaseFilter(){
+  const items = document.querySelectorAll(".case-list .case-item");
+  items.forEach(item => {
+    const t = item.dataset.caseType;
+    const s = item.dataset.caseSource;
+    const id = Number(item.dataset.caseId);
+    const typeOk   = caseFilter.type === "all" || caseFilter.type === t;
+    const sourceOk = caseFilter.source === "all" || caseFilter.source === s;
+    let statusOk = true;
+    if (caseFilter.status === "starred")   statusOk = inList(caseProgress.starred,   id);
+    if (caseFilter.status === "completed") statusOk = inList(caseProgress.completed, id);
+    if (caseFilter.status === "unopened")  statusOk = !inList(caseProgress.opened,   id);
+    item.style.display = (typeOk && sourceOk && statusOk) ? "" : "none";
+  });
+  // Hide empty section banners
+  document.querySelectorAll(".case-list .case-section-banner").forEach(banner => {
+    let next = banner.nextElementSibling;
+    let anyVisible = false;
+    while (next && !next.classList.contains("case-section-banner")){
+      if (next.classList.contains("case-item") && next.style.display !== "none"){
+        anyVisible = true; break;
+      }
+      next = next.nextElementSibling;
+    }
+    banner.style.display = anyVisible ? "" : "none";
+  });
+  // Empty state
+  const anyShown = Array.from(document.querySelectorAll(".case-list .case-item")).some(i => i.style.display !== "none");
+  let empty = document.getElementById("case-empty");
+  const list = document.getElementById("case-list");
+  if (!anyShown){
+    if (!empty){
+      empty = document.createElement("div");
+      empty.id = "case-empty";
+      empty.className = "case-empty";
+      empty.innerHTML = `No cases match this filter. <button class="mini-btn" id="case-empty-reset" type="button">clear filters</button>`;
+      list.appendChild(empty);
+      document.getElementById("case-empty-reset").addEventListener("click", () => {
+        caseFilter = { type: "all", source: "all", status: "all" };
+        document.querySelectorAll(".case-filter-chip").forEach(c => {
+          c.classList.toggle("case-filter-chip--on", c.dataset.value === "all");
+        });
+        applyCaseFilter();
+      });
+    }
+  } else if (empty){
+    empty.remove();
+  }
+}
+
+function buildFilterGroup(label, group, values, chipLabels){
+  const wrap = document.createElement("div");
+  wrap.className = "case-filter-group";
+  wrap.innerHTML = `<span class="case-filter-label">${label}</span>`;
+  ["all", ...values].forEach(v => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "case-filter-chip" + (caseFilter[group] === v ? " case-filter-chip--on" : "");
+    chip.dataset.group = group;
+    chip.dataset.value = v;
+    chip.textContent = v === "all" ? "all" : (chipLabels?.[v] || v);
+    chip.addEventListener("click", () => {
+      caseFilter[group] = v;
+      wrap.querySelectorAll(".case-filter-chip").forEach(c => {
+        c.classList.toggle("case-filter-chip--on", c.dataset.value === v);
+      });
+      applyCaseFilter();
+    });
+    wrap.appendChild(chip);
+  });
+  return wrap;
+}
+
 function renderCases(){
   const list = document.getElementById("case-list");
   list.innerHTML = "";
 
-  // toolbar: reveal / hide all cases (overrides per-case state)
+  // toolbar: filters + reveal / hide all
   const toolbar = document.getElementById("case-toolbar");
   toolbar.innerHTML = "";
+
+  // Progress header
+  let progressEl = document.getElementById("case-progress");
+  if (!progressEl){
+    progressEl = document.createElement("div");
+    progressEl.id = "case-progress";
+    progressEl.className = "case-progress";
+    toolbar.appendChild(progressEl);
+  } else {
+    toolbar.appendChild(progressEl);
+  }
+
+  // Filter rows
+  const filterWrap = document.createElement("div");
+  filterWrap.className = "case-filters";
+  filterWrap.appendChild(buildFilterGroup("type", "type", CASE_TYPES));
+  filterWrap.appendChild(buildFilterGroup("source", "source", ["darden", "tuck", "practice"], {
+    darden: "darden", tuck: "tuck", practice: "practice pack"
+  }));
+  filterWrap.appendChild(buildFilterGroup("status", "status", ["starred", "completed", "unopened"]));
+  toolbar.appendChild(filterWrap);
+
+  // Bulk actions
+  const actions = document.createElement("div");
+  actions.className = "case-actions";
   const revealAll = document.createElement("button");
   revealAll.className = "mini-btn";
   revealAll.type = "button";
@@ -695,9 +1118,12 @@ function renderCases(){
   collapseAll.className = "mini-btn";
   collapseAll.type = "button";
   collapseAll.textContent = "collapse all";
-  toolbar.appendChild(revealAll);
-  toolbar.appendChild(resetAll);
-  toolbar.appendChild(collapseAll);
+  actions.appendChild(revealAll);
+  actions.appendChild(resetAll);
+  actions.appendChild(collapseAll);
+  toolbar.appendChild(actions);
+
+  renderCaseProgressHeader();
 
   // Split into Darden + Tuck + Practice Pack
   const darden   = CASES.filter(c => sourceOf(c) === "darden");
@@ -737,6 +1163,7 @@ function renderCases(){
 
   revealAll.addEventListener("click", () => {
     document.querySelectorAll(".case-item").forEach(item => {
+      if (item.style.display === "none") return;
       const id = item.dataset.caseId;
       const c = CASES.find(x => String(x.id) === id);
       if (!c) return;
@@ -763,6 +1190,8 @@ function renderCases(){
     document.querySelectorAll(".case-body").forEach(b => b.classList.remove("open"));
     document.querySelectorAll(".case-head .case-toggle").forEach(t => t.textContent = "show ▾");
   });
+
+  applyCaseFilter();
 }
 
 function escapeHTML(s){

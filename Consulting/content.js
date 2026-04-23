@@ -2096,3 +2096,183 @@ const CASES = [
     recommendation: "Phased transition over 6 years: Phase 1 (600 short-route, 2025) federally grant-funded; Phase 2 (1,000 medium, 2026–27) grant + bond; Phase 3 (400 long, 2028–30) pay-as-you-go; defer Phase 4 (400 extreme-range) until range improves or hybrids mature. Front-load charging infrastructure — 12 depot upgrades parallel to Phase 1. Projected ~$170M net savings IF grants hit at 45%. Risks: grant program underfunded, grid delays, 2028 ban weakened. Next: Q1 grant application (early = higher win rate), charging-partner RFP, driver training curriculum, district stakeholder roadshow."
   }
 ];
+
+/* =========================================================
+   MATH DRILLS — timed single-problem practice for Learn tab
+   ========================================================= */
+const MATH_DRILLS = [
+  // ---------- MARKET SIZING ----------
+  {
+    id: "ms-dentists",
+    type: "Market Sizing",
+    prompt: "Estimate the number of practicing dentists in the US.",
+    unit: "dentists",
+    answerLo: 150000, answerHi: 250000,
+    timeSec: 180,
+    solution: "US pop ≈ 330M. Avg dentist sees ~2,000 patients across the year (8 patients/day × 250 workdays). So dentists ≈ 330M / 2,000 ≈ 165K. Actual: ~200K. Any answer in 150K–250K range is solid."
+  },
+  {
+    id: "ms-gas-stations",
+    type: "Market Sizing",
+    prompt: "Estimate the number of gas stations in the US.",
+    unit: "stations",
+    answerLo: 100000, answerHi: 200000,
+    timeSec: 180,
+    solution: "330M people ≈ 128M households. ~85% have a car → ~260M cars total. Each car fills up ~1.5×/week = ~75 fills/yr → ~19.5B fills/yr. A station pumps ~1,000 cars/week = 52K/yr. 19.5B / 52K ≈ 125K–150K stations. Actual: ~115K."
+  },
+  {
+    id: "ms-pizzas",
+    type: "Market Sizing",
+    prompt: "Estimate the number of pizzas sold in the US per year.",
+    unit: "pizzas/yr",
+    answerLo: 2500000000, answerHi: 4500000000,
+    timeSec: 180,
+    solution: "330M people. Avg person eats ~10 pizzas/yr (1 delivery/mo + occasional frozen/restaurant), but segment: kids (~25% of pop) eat more, elderly (~20%) eat less, adults (~55%) eat avg. Rough: 330M × 10 = 3.3B pizzas/yr. Actual: ~3B."
+  },
+  {
+    id: "ms-commercial-jets",
+    type: "Market Sizing",
+    prompt: "Estimate how many commercial passenger jets are operating in the US at any moment during peak daytime hours.",
+    unit: "jets in air",
+    answerLo: 4000, answerHi: 8000,
+    timeSec: 240,
+    solution: "~5,000 commercial flights/hr in US peak. Avg flight ~2 hrs → ~10,000 jets in air simultaneously? No — flights overlap. Ballpark: FAA tracks ~5,000–7,000 aircraft aloft at any peak moment (commercial + cargo + private). Commercial-only ≈ 4,000–6,000."
+  },
+  {
+    id: "ms-kids-shoes",
+    type: "Market Sizing",
+    prompt: "Estimate annual revenue of the US kids' shoe market (age 2–14).",
+    unit: "$",
+    answerLo: 4000000000, answerHi: 12000000000,
+    timeSec: 240,
+    solution: "Age 2–14 ≈ ~13 years × 4.2M births/yr = ~55M kids (adjusting for mortality ≈ 50M). Kids need 2 pairs/yr at avg $50 = $100/kid/yr. 50M × $100 = $5B/yr. Actual: ~$7B. Acceptable range $4–12B."
+  },
+
+  // ---------- BREAKEVEN ----------
+  {
+    id: "be-coffee-shop",
+    type: "Breakeven",
+    prompt: "A coffee shop has $12,000/month in fixed costs (rent, payroll, insurance). Each drink sells for $5 and has $1.50 in variable cost. How many drinks must it sell per month to break even?",
+    unit: "drinks/mo",
+    answerLo: 3428, answerHi: 3430,
+    exact: 3429,
+    timeSec: 120,
+    solution: "Contribution margin per drink = $5 − $1.50 = $3.50. Breakeven = Fixed / CM = $12,000 / $3.50 = 3,428.57 → round to 3,429 drinks/month (~115/day)."
+  },
+  {
+    id: "be-software",
+    type: "Breakeven",
+    prompt: "A SaaS company invests $2M to build a new product. Each subscription is $200/yr with $20/yr in hosting costs. How many subscribers does it need in year 1 to break even on the build investment?",
+    unit: "subscribers",
+    answerLo: 11111, answerHi: 11112,
+    exact: 11112,
+    timeSec: 120,
+    solution: "CM per sub = $200 − $20 = $180/yr. Breakeven = $2M / $180 = 11,111.1 → 11,112 subscribers to recoup the build within year 1."
+  },
+  {
+    id: "be-factory",
+    type: "Breakeven",
+    prompt: "A factory pays $500K/yr in fixed costs. Each widget sells for $40 with $25 variable cost. The factory is currently selling 20,000 widgets/yr. How many MORE widgets must it sell to break even?",
+    unit: "more widgets",
+    answerLo: 13333, answerHi: 13334,
+    exact: 13334,
+    timeSec: 120,
+    solution: "CM per widget = $40 − $25 = $15. Breakeven = $500K / $15 = 33,333.3 → 33,334 total. Currently 20,000 → needs 13,334 more."
+  },
+
+  // ---------- CAGR / GROWTH ----------
+  {
+    id: "cagr-3yr",
+    type: "CAGR",
+    prompt: "Revenue grew from $200M to $338M over 3 years. What is the CAGR? (Answer as a %)",
+    unit: "% CAGR",
+    answerLo: 19, answerHi: 21,
+    exact: 19.12,
+    timeSec: 120,
+    solution: "CAGR = (End/Start)^(1/n) − 1 = (338/200)^(1/3) − 1 = 1.69^(0.333) − 1. 1.69^(1/3): try 1.19 → 1.685 (close!). So CAGR ≈ 19%. Rule of 72 check: 72/19 ≈ 3.8 yrs to double; we grew 1.69× in 3 yrs, slightly under doubling — checks out."
+  },
+  {
+    id: "double-time",
+    type: "CAGR",
+    prompt: "A startup grows revenue 24% per year. Using the rule of 72, approximately how many years does it take for revenue to double?",
+    unit: "years",
+    answerLo: 2.9, answerHi: 3.1,
+    exact: 3.0,
+    timeSec: 60,
+    solution: "Rule of 72: yrs to double ≈ 72 / r% = 72 / 24 = 3 years. (Exact: ln(2)/ln(1.24) = 3.22 yrs — rule of 72 is a fast approximation.)"
+  },
+  {
+    id: "cagr-10yr",
+    type: "CAGR",
+    prompt: "A company's revenue went from $50M to $100M over 10 years. What is the approximate CAGR? (Answer as a %)",
+    unit: "% CAGR",
+    answerLo: 6.9, answerHi: 7.3,
+    exact: 7.18,
+    timeSec: 90,
+    solution: "Revenue doubled over 10 years. Rule of 72 inverted: r ≈ 72/10 = 7.2%. So CAGR ≈ 7.2%. Exact: (2)^(1/10) − 1 = 1.0718 − 1 = 7.18%."
+  },
+
+  // ---------- MARGIN / MARKUP ----------
+  {
+    id: "margin-1",
+    type: "Margin / Markup",
+    prompt: "A product sells for $80 and costs $48 to make. What is the gross margin %?",
+    unit: "% margin",
+    answerLo: 39.9, answerHi: 40.1,
+    exact: 40,
+    timeSec: 60,
+    solution: "Margin = Profit / Revenue = ($80 − $48) / $80 = $32 / $80 = 40%. (Don't confuse with markup: markup = $32/$48 = 66.7%.)"
+  },
+  {
+    id: "markup-to-margin",
+    type: "Margin / Markup",
+    prompt: "A retailer buys a jacket for $60 and applies a 50% markup. What is the GROSS MARGIN % on the sale? (Answer as a whole number %)",
+    unit: "% margin",
+    answerLo: 33, answerHi: 34,
+    exact: 33,
+    timeSec: 90,
+    solution: "50% markup on $60 → sell price = $60 × 1.5 = $90. Profit = $30. Margin = $30 / $90 = 33.3%. Trap: markup % and margin % are NOT the same — markup is over cost, margin is over revenue."
+  },
+  {
+    id: "required-price",
+    type: "Margin / Markup",
+    prompt: "A product costs $24 to make. The company targets a 40% gross margin. What price should it sell at?",
+    unit: "$",
+    answerLo: 39.9, answerHi: 40.1,
+    exact: 40,
+    timeSec: 60,
+    solution: "If margin = 40%, then cost = 60% of price. Price = Cost / 0.6 = $24 / 0.6 = $40. Check: ($40 − $24) / $40 = 40%. ✓"
+  },
+
+  // ---------- REVENUE / PROFIT ----------
+  {
+    id: "rev-1",
+    type: "Revenue / Profit",
+    prompt: "A company has 3 segments: A sells 1,000 units at $500 each with 30% margin. B sells 4,000 units at $100 each with 20% margin. C sells 500 units at $2,000 each with 50% margin. What is total gross profit? ($ millions)",
+    unit: "$M gross profit",
+    answerLo: 0.73, answerHi: 0.74,
+    exact: 0.73,
+    timeSec: 180,
+    solution: "A: 1,000 × $500 × 30% = $150K. B: 4,000 × $100 × 20% = $80K. C: 500 × $2,000 × 50% = $500K. Total = $150 + $80 + $500 = $730K = $0.73M."
+  },
+  {
+    id: "rev-2",
+    type: "Revenue / Profit",
+    prompt: "A company has $50M revenue with 40% gross margin, $8M in operating expenses, and pays 25% tax on profit. What is its net income? ($M)",
+    unit: "$M net income",
+    answerLo: 8.9, answerHi: 9.1,
+    exact: 9,
+    timeSec: 120,
+    solution: "Gross profit = $50M × 40% = $20M. Operating profit = $20M − $8M = $12M. Tax = $12M × 25% = $3M. Net income = $12M − $3M = $9M."
+  },
+  {
+    id: "price-inc",
+    type: "Revenue / Profit",
+    prompt: "A product sells 10,000 units/yr at $100 with $60 variable cost. The company raises price to $110 and sales volume drops 8%. By how much ($) does gross profit change per year?",
+    unit: "$ change in profit",
+    answerLo: 60000, answerHi: 62000,
+    exact: 60000,
+    timeSec: 180,
+    solution: "Before: 10,000 × ($100 − $60) = $400K. After: 9,200 × ($110 − $60) = 9,200 × $50 = $460K. Change = +$60K/yr. Price increase MORE than compensates for volume drop because higher margin per unit."
+  }
+];
