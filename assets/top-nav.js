@@ -75,13 +75,20 @@ function renderAuth(user) {
     out.type = "button";
     out.title = "sign out";
     out.textContent = "sign out";
-    out.addEventListener("click", async (e) => {
+    out.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // Navigate even if signOut() rejects or hangs — leaving the user
-      // stranded on a protected page with no session would be worse than
-      // a stale refresh token on the server.
-      try { await signOut(); } catch (_) {}
+      // Clear the local Supabase session synchronously so the next page
+      // load sees no auth. Awaiting signOut() can hang forever on the
+      // server token-revoke call, which would leave the button looking
+      // broken; fire it best-effort and navigate immediately.
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && /^sb-.*-auth-token$/.test(k)) localStorage.removeItem(k);
+        }
+      } catch (_) {}
+      try { signOut(); } catch (_) {}
       location.replace("/");
     });
 
