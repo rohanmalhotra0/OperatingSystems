@@ -829,3 +829,12 @@ document.addEventListener("click", (e) => {
     window.ChatLab.askAI({ mode: "mock", caseId });
   }
 });
+
+/* ---------- Resources: timeline track switcher ---------- */
+document.querySelectorAll(".tl-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    const target = tab.dataset.tl;
+    document.querySelectorAll(".tl-tab").forEach(t => t.classList.toggle("tl-tab--active", t === tab));
+    document.querySelectorAll(".tl-track").forEach(tr => tr.classList.toggle("tl-track--active", tr.id === target));
+  });
+});
