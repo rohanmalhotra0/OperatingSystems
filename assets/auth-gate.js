@@ -8,8 +8,10 @@
 (function () {
   var path = location.pathname || "/";
 
-  // Never gate the auth page itself — otherwise you'd loop.
-  if (path === "/auth.html" || path.endsWith("/auth.html")) return;
+  // Never gate the auth page, landing page, or contact page — public surface.
+  if (path === "/auth.html"    || path.endsWith("/auth.html"))    return;
+  if (path === "/landing.html" || path.endsWith("/landing.html")) return;
+  if (path === "/contact.html" || path.endsWith("/contact.html")) return;
 
   // Supabase magic-link / OAuth callbacks land on a protected URL with tokens
   // in the hash (or a `?code=`). Let the client process those before we gate.
@@ -46,5 +48,12 @@
   // Hide the page immediately to avoid a flash of content, then redirect.
   try { document.documentElement.style.visibility = "hidden"; } catch (_) {}
   var next = path + search + hash;
-  location.replace("/auth.html?next=" + encodeURIComponent(next));
+  // Root-path visitors land on the marketing page first. Anyone deep-linking
+  // to a protected route goes straight to sign-in with a `next` redirect so
+  // we don't strand them after login.
+  if (path === "/" || path === "/index.html" || path.endsWith("/index.html")) {
+    location.replace("/landing.html");
+  } else {
+    location.replace("/auth.html?next=" + encodeURIComponent(next));
+  }
 })();

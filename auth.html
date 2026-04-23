@@ -461,6 +461,13 @@
     }
   }
 
+  // Honor ?mode=signup so the landing page's "create account" CTAs land
+  // users directly on the sign-up tab instead of sign-in.
+  try {
+    const m = new URLSearchParams(location.search).get("mode");
+    if (m === "signup") setMode("signup");
+  } catch (_) {}
+
   (async () => { render(await getUser()); })();
   onAuthChange(render);
 </script>
