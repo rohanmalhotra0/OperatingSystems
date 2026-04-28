@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<title>404 · page not found · Casen</title>
+<meta name="description" content="The page you're looking for isn't here. Head back to the casebook.">
+<meta name="theme-color" content="#f3ecd8">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Architects+Daughter&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:       #f3ecd8;
+    --paper-soft:  #efe6cd;
+    --paper-dark:  #e6dcc0;
+    --ink:         #1d1a16;
+    --pencil:      #5a564c;
+    --red:         #b52d2d;
+    --rule-blue:   #7c9cbf;
+  }
+  *{ box-sizing: border-box; }
+  html, body{
+    margin: 0; padding: 0; min-height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    background-image:
+      linear-gradient(rgba(124,156,191,0.14) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,156,191,0.06) 1px, transparent 1px);
+    background-size: 24px 24px, 24px 24px;
+  }
+  main{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 96px 24px 64px;
+    text-align: center;
+  }
+  .stamp{
+    display: inline-block;
+    transform: rotate(-4deg);
+    border: 3px double var(--red);
+    color: var(--red);
+    padding: 8px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    letter-spacing: 2px;
+    font-size: 14px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  h1{
+    font-family: 'Architects Daughter', 'Caveat', cursive;
+    font-size: clamp(72px, 14vw, 144px);
+    margin: 0 0 8px;
+    line-height: 0.9;
+    color: var(--ink);
+  }
+  h1 .dot{ color: var(--red); }
+  .lead{
+    font-size: 22px;
+    font-style: italic;
+    color: var(--pencil);
+    margin: 0 0 40px;
+  }
+  .links{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .links a{
+    display: inline-block;
+    padding: 12px 22px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper-soft);
+    color: var(--ink);
+    text-decoration: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .links a:hover{
+    transform: translateY(-2px);
+    background: var(--paper-dark);
+  }
+  .links a.primary{
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .links a.primary:hover{
+    background: var(--red);
+  }
+  .doodle{
+    margin: 40px auto 0;
+    color: var(--pencil);
+    opacity: 0.6;
+  }
+  footer{
+    margin-top: 64px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--pencil);
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="stamp">page not found</div>
+  <h1>404<span class="dot">.</span></h1>
+  <p class="lead">this page is missing from the notebook.</p>
+
+  <div class="links">
+    <a class="primary" href="/">← back to landing</a>
+    <a href="/Consulting/">open the casebook</a>
+    <a href="/contact.html">report a broken link</a>
+  </div>
+
+  <svg class="doodle" width="160" height="40" viewBox="0 0 160 40" aria-hidden="true">
+    <path d="M5 20 Q 25 5, 45 20 T 85 20 T 125 20 T 155 20"
+          fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+
+  <footer>Casen · getcasen.com</footer>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Casen — getcasen.com
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth.html
+Disallow: /chat.html
+Disallow: /metrics.html
+
+Sitemap: https://getcasen.com/sitemap.xml
